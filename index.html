@@ -205,6 +205,7 @@
         return;
       }
 
+      // disable & spinner
       loginBtn.disabled = true;
       loginBtn.style.opacity = 0.6;
       message.style.color = "black";
@@ -225,7 +226,7 @@
               valid = true;
               url = data.url;
               kelas = data.kelas || "-";
-              mapel = data.mapel || "-";
+              mapel = data.subject || data.mapel || "-";
             } else {
               valid = "expired";
             }
@@ -251,22 +252,29 @@
         } else if (valid === "expired") {
           message.style.color = "red";
           message.textContent = "Token belum aktif atau Kadaluarsa";
+          loginBtn.disabled = false;
+          loginBtn.style.opacity = 1;
         } else {
           message.style.color = "red";
           message.textContent = "Token yang anda masukan salah!";
+          loginBtn.disabled = false;
+          loginBtn.style.opacity = 1;
         }
       } catch (err) {
         console.error(err);
         message.style.color = "red";
         message.textContent = "Terjadi kesalahan, coba lagi.";
+        loginBtn.disabled = false;
+        loginBtn.style.opacity = 1;
       }
-
-      loginBtn.disabled = false;
-      loginBtn.style.opacity = 1;
     };
 
     window.tutupModal = function () {
+      // tutup modal & reset state
       document.getElementById("confirmModal").style.display = "none";
+      message.textContent = "";
+      loginBtn.disabled = false;
+      loginBtn.style.opacity = 1;
     };
 
     function updateDateTime() {
