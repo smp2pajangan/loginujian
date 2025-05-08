@@ -34,6 +34,31 @@
       font-size: 14px;
       color: red;
     }
+
+    /* Popup styling */
+    #confirmPopup {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    #confirmPopupContent {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      color: #333;
+    }
+    #confirmPopupContent button {
+      margin: 10px;
+      padding: 10px 20px;
+    }
   </style>
 </head>
 <body>
@@ -46,9 +71,19 @@
     <p class="message" id="message"></p>
   </div>
 
+  <!-- Popup Konfirmasi -->
+  <div id="confirmPopup">
+    <div id="confirmPopupContent">
+      <h3>Konfirmasi Token</h3>
+      <p id="popupInfo"></p>
+      <button id="lanjutBtn">Lanjut</button>
+      <button onclick="document.getElementById('confirmPopup').style.display='none'">Batal</button>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAOBCX8x60pYqxtXmXMz2xc5dwC3HJH5EE",
@@ -75,7 +110,7 @@
       try {
         const snapshot = await get(ref(db, 'tokens'));
         let valid = false;
-        let url = "";
+        let dataValid = null;
         const now = new Date();
 
         snapshot.forEach(child => {
@@ -84,16 +119,13 @@
           const end = new Date(data.endTime);
           if (data.token === input && now >= start && now <= end) {
             valid = true;
-            url = data.url;
+            dataValid = data;
           }
         });
 
-        if (valid) {
-          message.style.color = "green";
-          message.textContent = "Token valid. Mengarahkan ke ujian...";
-          setTimeout(() => {
-            window.location.href = url;
-          }, 1000);
+        if (valid && dataValid) {
+          message.textContent = "";
+          showConfirmationPopup(dataValid);
         } else {
           message.style.color = "red";
           message.textContent = "Token tidak valid atau belum aktif.";
@@ -104,6 +136,16 @@
         message.textContent = "Terjadi kesalahan, coba lagi.";
       }
     };
+
+    function showConfirmationPopup(data) {
+      document.getElementById('popupInfo').innerText =
+        `Mata Pelajaran: ${data.subject || '-'}\nKelas: ${data.kelas || '-'}`;
+      document.getElementById('confirmPopup').style.display = 'flex';
+
+      document.getElementById('lanjutBtn').onclick = function () {
+        window.location.href = data.url;
+      };
+    }
   </script>
 </body>
 </html>
