@@ -12,89 +12,119 @@
       padding: 0;
       text-align: center;
     }
+
     .container {
-      margin-top: 100px;
+      max-width: 400px;
+      margin: 80px auto;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
     }
-    .logo {
-      width: 100px;
+
+    .header-box {
+      background-color: #0066cc;
+      padding: 20px 15px;
+      color: white;
     }
-    input {
-      padding: 10px;
-      width: 250px;
-      font-size: 16px;
+
+    .header-box .logo {
+      width: 80px;
+    }
+
+    .title {
+      font-size: 22px;
+      font-weight: bold;
+      margin-top: 10px;
+      color: white;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    .judul-ujian {
+      color: orange;
+      font-weight: bold;
       margin: 10px 0;
     }
+
+    input {
+      padding: 10px;
+      width: 100%;
+      font-size: 16px;
+      margin: 10px 0;
+      box-sizing: border-box;
+    }
+
     button {
       padding: 10px 20px;
       font-size: 16px;
-      cursor: pointer;
-    }
-    .message {
-      margin-top: 10px;
-      font-size: 14px;
-      color: red;
-    }
-
-    /* Popup Styles */
-    .popup-overlay {
-      display: none;
-      position: fixed;
-      z-index: 999;
-      top: 0; left: 0;
       width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
 
-    .popup-content {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      width: 300px;
-      max-width: 80%;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: left;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    button:active {
+      transform: scale(0.98);
+      background-color: #0056b3;
     }
 
-    .popup-content h3 {
-      margin-top: 0;
-      color: #0066cc;
+    .message {
+      margin-bottom: 10px;
+      font-size: 14px;
+      min-height: 20px;
     }
 
-    .popup-buttons {
-      margin-top: 20px;
-      text-align: right;
-    }
-
-    .popup-buttons button {
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid black;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
       margin-left: 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .footer {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #666;
+      padding-bottom: 10px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <img src="https://github.com/smp2pajangan/loginujian/blob/main/logosmpn2pjg.png?raw=true" alt="Logo" class="logo" />
-    <h2>LOGIN UJIAN</h2>
-    <input type="text" id="inputToken" placeholder="Masukkan Token Ujian" />
-    <br />
-    <button onclick="cekToken()">Masuk</button>
-    <p class="message" id="message"></p>
-  </div>
+    <div class="header-box">
+      <img src="https://github.com/smp2pajangan/loginujian/blob/main/logosmpn2pjg.png?raw=true" alt="Logo" class="logo" />
+      <div class="title">SMPN 2 PAJANGAN</div>
+    </div>
+    <div class="card-body">
+      <div class="judul-ujian">UJIAN BERBASIS ONLINE</div>
+      <p><strong>Selamat Datang</strong></p>
+      <p>Silakan login menggunakan token ujian yang anda miliki</p>
 
-  <!-- Popup Konfirmasi -->
-  <div class="popup-overlay" id="popup">
-    <div class="popup-content">
-      <h3>Konfirmasi Ujian</h3>
-      <p><strong>Mata Pelajaran:</strong> <span id="popupMapel"></span></p>
-      <p><strong>Kelas:</strong> <span id="popupKelas"></span></p>
-      <div class="popup-buttons">
-        <button onclick="tutupPopup()">Batal</button>
-        <button id="btnLanjut">Lanjut</button>
-      </div>
+      <!-- Pesan ditampilkan di atas input -->
+      <p class="message" id="message"></p>
+
+      <input type="text" id="inputToken" placeholder="Masukkan Token Ujian" />
+      <button id="loginBtn" onclick="cekToken()">Login</button>
+    </div>
+    <div class="footer">
+      © Admin SMPN 2 Pajangan<br>
+      <span id="datetime"></span>
     </div>
   </div>
 
@@ -115,60 +145,80 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    let ujianUrl = "";
+    const message = document.getElementById('message');
+    const loginBtn = document.getElementById('loginBtn');
 
     window.cekToken = async function () {
       const input = document.getElementById('inputToken').value.trim();
-      const message = document.getElementById('message');
-      message.textContent = "";
-      ujianUrl = "";
-
       if (!input) {
+        message.style.color = "red";
         message.textContent = "Silakan masukkan token.";
         return;
       }
 
+      // Disable tombol
+      loginBtn.disabled = true;
+      loginBtn.style.opacity = 0.6;
+
+      // Tampilkan spinner
+      message.style.color = "black";
+      message.innerHTML = `Memproses token... <span class="spinner"></span>`;
+
       try {
         const snapshot = await get(ref(db, 'tokens'));
+        let valid = false;
+        let url = "";
         const now = new Date();
-        let dataToken = null;
 
         snapshot.forEach(child => {
           const data = child.val();
           const start = new Date(data.startTime);
           const end = new Date(data.endTime);
-          if (data.token === input && now >= start && now <= end) {
-            dataToken = data;
+          if (data.token === input) {
+            if (now >= start && now <= end) {
+              valid = true;
+              url = data.url;
+            } else {
+              valid = "expired";
+            }
           }
         });
 
-        if (dataToken) {
-          // Tampilkan popup konfirmasi
-          document.getElementById("popupMapel").textContent = dataToken.subject;
-          document.getElementById("popupKelas").textContent = dataToken.kelas;
-          ujianUrl = dataToken.url;
-
-          document.getElementById("popup").style.display = "block";
+        if (valid === true) {
+          message.style.color = "green";
+          message.textContent = "Token valid. Mengarahkan ke ujian...";
+          setTimeout(() => {
+            window.location.href = url;
+          }, 1000);
+        } else if (valid === "expired") {
+          message.style.color = "red";
+          message.textContent = "Token belum aktif atau Kadaluarsa";
         } else {
           message.style.color = "red";
-          message.textContent = "Token tidak valid atau belum aktif.";
+          message.textContent = "Token yang anda masukan salah!";
         }
       } catch (err) {
         console.error(err);
         message.style.color = "red";
         message.textContent = "Terjadi kesalahan, coba lagi.";
       }
+
+      // Aktifkan kembali tombol
+      loginBtn.disabled = false;
+      loginBtn.style.opacity = 1;
     };
 
-    window.tutupPopup = function () {
-      document.getElementById("popup").style.display = "none";
-    };
-
-    document.getElementById("btnLanjut").addEventListener("click", function () {
-      if (ujianUrl) {
-        window.location.href = ujianUrl;
-      }
-    });
+    // Tampilkan waktu real-time
+    function updateDateTime() {
+      const now = new Date();
+      const options = {
+        weekday: 'long', year: 'numeric', month: 'long',
+        day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
+      };
+      document.getElementById("datetime").textContent = now.toLocaleDateString('id-ID', options);
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
   </script>
 </body>
 </html>
