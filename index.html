@@ -3,102 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login Token Ujian</title>
+  <title>Login Ujian Siswa</title>
   <style>
-    html, body {
-      margin: 0; padding: 0; height: 100%;
-      background-color: white; box-sizing: border-box;
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #ffffff;
+      margin: 0;
+      padding: 0;
+      text-align: center;
     }
-    *, *::before, *::after { box-sizing: inherit; }
     .container {
-      width: 100%; max-width: 400px; height: 90vh;
-      background: white; border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      margin: 5vh auto 0 auto; overflow: hidden;
-      display: flex; flex-direction: column; justify-content: space-between;
+      margin-top: 100px;
     }
-    .header {
-      background-color: #0a57c3; color: white;
-      text-align: center; padding: 20px;
+    .logo {
+      width: 100px;
     }
-    .header img { height: 100px; margin-bottom: 10px; }
-    .header h2 { margin: 0; }
-    .content {
-      padding: 25px; text-align: center; flex-grow: 1;
-    }
-    .content h3 { color: #f48600; margin: 0 0 10px; }
-    .content p { font-size: 14px; color: #444; }
-    input[type="text"], button {
-      width: 100%; padding: 12px; margin: 15px 0;
-      border-radius: 5px; font-size: 16px;
+    input {
+      padding: 10px;
+      width: 250px;
+      font-size: 16px;
+      margin: 10px 0;
     }
     button {
-      background: #007bff; color: white; border: none;
-      border-radius: 20px; cursor: pointer;
-      transition: transform 0.1s ease;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
     }
-    button:active { transform: scale(0.96); }
-    .error { color: red; font-size: 14px; margin-top: 10px; }
-    .success { color: green; font-size: 14px; margin-top: 10px; }
-    .fade-message { opacity: 0; transform: translateY(10px); transition: 0.5s ease; display: none; }
-    .fade-message.show { display: block; opacity: 1; transform: translateY(0); }
-    .footer {
-      background-color: #f9f9f9; text-align: center;
-      font-size: 12px; padding: 10px;
-    }
-    .loading-screen {
-      position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      display: none; justify-content: center; align-items: center;
-      z-index: 9999;
-    }
-    .loading-spinner {
-      border: 5px solid #f3f3f3;
-      border-top: 5px solid #0a57c3;
-      border-radius: 50%;
-      width: 50px; height: 50px;
-      animation: spin 2s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .message {
+      margin-top: 10px;
+      font-size: 14px;
+      color: red;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <img src="https://raw.githubusercontent.com/Mdsramadan/smpn2pajangan/refs/heads/main/images/logo%20smpn2pjg.png" alt="Logo" />
-      <h2>SMPN 2 PAJANGAN</h2>
-    </div>
-    <div class="content">
-      <h3>UJIAN BERBASIS ONLINE</h3>
-      <h4>Selamat Datang</h4>
-      <p>Silakan login menggunakan token ujian yang anda miliki</p>
-
-      <div id="errorMsg" class="error fade-message"></div>
-      <div id="successMsg" class="success fade-message"></div>
-
-      <form onsubmit="return checkToken();">
-        <input type="text" id="tokenInput" placeholder="Masukkan Token Ujian" />
-        <button type="submit">MASUK</button>
-      </form>
-    </div>
-    <div class="footer">
-      &copy; Admin SMPN 2 Pajangan
-      <br />
-      <div id="clockWIB">Memuat waktu...</div>
-    </div>
-  </div>
-
-  <div id="loadingScreen" class="loading-screen">
-    <div class="loading-spinner"></div>
+    <img src="https://github.com/smp2pajangan/loginujian/blob/main/logosmpn2pjg.png?raw=true" alt="Logo" class="logo" />
+    <h2>LOGIN UJIAN</h2>
+    <input type="text" id="inputToken" placeholder="Masukkan Token Ujian" />
+    <br />
+    <button onclick="cekToken()">Masuk</button>
+    <p class="message" id="message"></p>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAOBCX8x60pYqxtXmXMz2xc5dwC3HJH5EE",
@@ -113,88 +63,47 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    function showMessage(element, message) {
-      element.innerText = message;
-      element.classList.remove('show');
-      element.style.display = 'block';
-      requestAnimationFrame(() => {
-        element.classList.add('show');
-      });
-    }
-
-    function hideMessages() {
-      document.getElementById('errorMsg').classList.remove('show');
-      document.getElementById('errorMsg').style.display = 'none';
-      document.getElementById('successMsg').classList.remove('show');
-      document.getElementById('successMsg').style.display = 'none';
-    }
-
-    function checkToken() {
-      const input = document.getElementById('tokenInput').value.trim();
-      const errorMsg = document.getElementById('errorMsg');
-      const successMsg = document.getElementById('successMsg');
-      const loadingScreen = document.getElementById('loadingScreen');
-      hideMessages();
+    window.cekToken = async function () {
+      const input = document.getElementById('inputToken').value.trim();
+      const message = document.getElementById('message');
 
       if (!input) {
-        showMessage(errorMsg, "Token tidak boleh kosong!");
-        return false;
+        message.textContent = "Silakan masukkan token.";
+        return;
       }
 
-      const tokensRef = ref(db, 'tokens');
-      onValue(tokensRef, snapshot => {
+      try {
+        const snapshot = await get(ref(db, 'tokens'));
         let valid = false;
+        let url = "";
+        const now = new Date();
+
         snapshot.forEach(child => {
           const data = child.val();
-          const token = data.token;
           const start = new Date(data.startTime);
           const end = new Date(data.endTime);
-          const now = new Date();
-
-          if (
-            input === token &&
-            now >= start &&
-            now <= end
-          ) {
+          if (data.token === input && now >= start && now <= end) {
             valid = true;
-            showMessage(successMsg, "Token benar! Mohon tunggu...");
-            loadingScreen.style.display = "flex";
-            setTimeout(() => {
-              window.location.href = data.url;
-            }, 1000);
+            url = data.url;
           }
         });
 
-        if (!valid) {
-          showMessage(errorMsg, "Token tidak ditemukan, belum aktif, atau sudah kadaluarsa.");
+        if (valid) {
+          message.style.color = "green";
+          message.textContent = "Token valid. Mengarahkan ke ujian...";
+          setTimeout(() => {
+            window.location.href = url;
+          }, 1000);
+        } else {
+          message.style.color = "red";
+          message.textContent = "Token tidak valid atau belum aktif.";
         }
-      }, {
-        onlyOnce: true
-      });
-
-      return false;
-    }
-
-    function updateWIBClock() {
-      const clockElement = document.getElementById('clockWIB');
-      const now = new Date();
-      const options = {
-        timeZone: 'Asia/Bangkok',
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      };
-      const formatter = new Intl.DateTimeFormat('id-ID', options);
-      clockElement.innerText = formatter.format(now);
-    }
-
-    setInterval(updateWIBClock, 1000);
-    updateWIBClock();
+      } catch (err) {
+        console.error(err);
+        message.style.color = "red";
+        message.textContent = "Terjadi kesalahan, coba lagi.";
+      }
+    };
   </script>
 </body>
 </html>
