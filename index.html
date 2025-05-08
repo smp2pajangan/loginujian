@@ -2,106 +2,65 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login Token</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel Admin</title>
   <style>
-    /* CSS tetap sama seperti sebelumnya */
-    html, body {
-      margin: 0; padding: 0; height: 100%;
-      background-color: white; box-sizing: border-box;
+    body {
+      font-family: Arial, sans-serif;
+      background: #eef2f5;
+      margin: 0; padding: 20px;
     }
-    *, *::before, *::after { box-sizing: inherit; }
-    .container {
-      width: 100%; max-width: 400px; height: 90vh;
-      background: white; border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      margin: 5vh auto 0 auto; overflow: hidden;
-      display: flex; flex-direction: column; justify-content: space-between;
+    h2 {
+      text-align: center;
+      color: #0a57c3;
     }
-    .header {
-      background-color: #0a57c3; color: white;
-      text-align: center; padding: 20px;
+    .form-group, .token-list {
+      background: white; padding: 20px; border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1); margin: 20px auto;
+      max-width: 700px;
     }
-    .header img { height: 100px; margin-bottom: 10px; }
-    .header h2 { margin: 0; }
-    .content {
-      padding: 25px; text-align: center; flex-grow: 1;
-    }
-    .content h3 { color: #f48600; margin: 0 0 10px; }
-    .content p { font-size: 14px; color: #444; }
-    input[type="text"], button {
-      width: 100%; padding: 12px; margin: 15px 0;
-      border-radius: 5px; font-size: 16px;
+    input, button {
+      padding: 10px; margin: 5px 0;
+      border: 1px solid #ccc; border-radius: 5px;
+      font-size: 16px; width: 100%;
     }
     button {
-      background: #007bff; color: white; border: none;
-      border-radius: 20px; cursor: pointer;
-      transition: transform 0.1s ease;
+      background: #0a57c3; color: white;
+      cursor: pointer; border: none;
+      transition: 0.2s;
     }
-    button:active { transform: scale(0.96); }
-    .error { color: red; font-size: 14px; margin-top: 10px; }
-    .success { color: green; font-size: 14px; margin-top: 10px; }
-    .fade-message { opacity: 0; transform: translateY(10px); transition: 0.5s ease; display: none; }
-    .fade-message.show { display: block; opacity: 1; transform: translateY(0); }
-    .footer {
-      background-color: #f9f9f9; text-align: center;
-      font-size: 12px; padding: 10px;
+    button:hover { background: #084aa8; }
+    .token-item {
+      display: flex; justify-content: space-between; align-items: center;
+      margin: 10px 0; padding: 10px;
+      border-bottom: 1px solid #ccc;
     }
-    .loading-screen {
-      position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      display: none; justify-content: center; align-items: center;
-      z-index: 9999;
-    }
-    .loading-spinner {
-      border: 5px solid #f3f3f3;
-      border-top: 5px solid #0a57c3;
-      border-radius: 50%;
-      width: 50px; height: 50px;
-      animation: spin 2s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .token-actions button {
+      margin-left: 5px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <img src="https://github.com/smp2pajangan/loginujian/blob/main/logosmpn2pjg.png?raw=true" alt="Logo" />
-      <h2>SMPN 2 PAJANGAN</h2>
-    </div>
-    <div class="content">
-      <h3>UJIAN BERBASIS ONLINE</h3>
-      <h4>Selamat Datang</h4>
-      <p>Silakan login menggunakan token ujian yang anda miliki</p>
+  <h2>Panel Admin - Kelola Token Ujian</h2>
 
-      <div id="errorMsg" class="error fade-message"></div>
-      <div id="successMsg" class="success fade-message"></div>
-
-      <form onsubmit="return checkToken();">
-        <input type="text" id="tokenInput" placeholder="Masukkan Token Ujian" />
-        <button type="submit">MASUK</button>
-      </form>
-    </div>
-    <div class="footer">
-      ©Admin SMPN 2 Pajangan
-      <br />
-      <div id="clockWIB">Memuat waktu...</div>
-    </div>
+  <div class="form-group">
+    <h3>Tambah / Edit Token</h3>
+    <input type="text" id="tokenInput" placeholder="Token Ujian"/>
+    <input type="url" id="linkInput" placeholder="Link Tujuan (URL)"/>
+    <input type="datetime-local" id="waktuInput" placeholder="Waktu Mulai Ujian"/>
+    <button onclick="saveToken()">Simpan Token</button>
+    <input type="hidden" id="editId" />
   </div>
 
-  <!-- Loading Screen -->
-  <div id="loadingScreen" class="loading-screen">
-    <div class="loading-spinner"></div>
+  <div class="token-list">
+    <h3>Daftar Token Aktif</h3>
+    <div id="tokenContainer"></div>
   </div>
 
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBbFRUDzguwO1PHccpYHuijsP1fymv12bE",
@@ -111,87 +70,90 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const tokenRef = collection(db, "token");
 
-    function showMessage(element, message) {
-      element.innerText = message;
-      element.classList.remove('show');
-      element.style.display = 'block';
-      requestAnimationFrame(() => {
-        element.classList.add('show');
+    async function loadTokens() {
+      const container = document.getElementById('tokenContainer');
+      container.innerHTML = "";
+      const snapshot = await getDocs(tokenRef);
+      const now = new Date();
+
+      snapshot.forEach(async docSnap => {
+        const data = docSnap.data();
+        const createdAt = data.createdAt?.toDate?.() || new Date(data.createdAt);
+        const docId = docSnap.id;
+
+        // Hapus jika lebih dari 30 hari
+        if (createdAt && now - createdAt > 30 * 24 * 60 * 60 * 1000) {
+          await deleteDoc(doc(tokenRef, docId));
+          return;
+        }
+
+        const div = document.createElement("div");
+        div.className = "token-item";
+        div.innerHTML = `
+          <div>
+            <strong>${data.token}</strong><br/>
+            Link: ${data.link}<br/>
+            Waktu: ${new Date(data.waktu).toLocaleString('id-ID')}
+          </div>
+          <div class="token-actions">
+            <button onclick="editToken('${docId}', '${data.token}', '${data.link}', '${data.waktu}')">Edit</button>
+            <button onclick="deleteToken('${docId}')">Hapus</button>
+          </div>
+        `;
+        container.appendChild(div);
       });
     }
 
-    function hideMessages() {
-      document.getElementById('errorMsg').classList.remove('show');
-      document.getElementById('errorMsg').style.display = 'none';
-      document.getElementById('successMsg').classList.remove('show');
-      document.getElementById('successMsg').style.display = 'none';
-    }
+    window.saveToken = async function() {
+      const token = document.getElementById('tokenInput').value.trim();
+      const link = document.getElementById('linkInput').value.trim();
+      const waktu = document.getElementById('waktuInput').value;
+      const editId = document.getElementById('editId').value;
 
-    async function checkToken() {
-      const input = document.getElementById('tokenInput').value.trim();
-      const errorMsg = document.getElementById('errorMsg');
-      const successMsg = document.getElementById('successMsg');
-      const loadingScreen = document.getElementById('loadingScreen');
-      hideMessages();
-
-      if (!input) {
-        showMessage(errorMsg, "Token tidak boleh kosong!");
-        return false;
+      if (!token || !link || !waktu) {
+        alert("Semua kolom harus diisi!");
+        return;
       }
 
-      const q = query(collection(db, "token"), where("token", "==", input));
-      const snapshot = await getDocs(q);
-
-      if (snapshot.empty) {
-        showMessage(errorMsg, "Token tidak ditemukan!");
-        return false;
-      }
-
-      const data = snapshot.docs[0].data();
-      const now = new Date();
-      const waktu = new Date(data.waktu);
-      const expired = data.expiredAt ? new Date(data.expiredAt) : null;
-
-      if (expired && now > expired) {
-        showMessage(errorMsg, "Token sudah kedaluwarsa.");
-        return false;
-      }
-
-      if (now < waktu) {
-        showMessage(errorMsg, "Ujian belum dimulai.");
-        return false;
-      }
-
-      showMessage(successMsg, "Token benar! Mohon tunggu sedang memuat");
-      loadingScreen.style.display = "flex";
-      setTimeout(() => {
-        window.location.href = data.link;
-      }, 1000);
-
-      return false;
-    }
-
-    function updateWIBClock() {
-      const clockElement = document.getElementById('clockWIB');
-      const now = new Date();
-      const options = {
-        timeZone: 'Asia/Bangkok',
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
+      const payload = {
+        token,
+        link,
+        waktu,
+        createdAt: new Date()
       };
-      const formatter = new Intl.DateTimeFormat('id-ID', options);
-      clockElement.innerText = formatter.format(now);
+
+      if (editId) {
+        await updateDoc(doc(tokenRef, editId), payload);
+        document.getElementById('editId').value = "";
+        alert("Token berhasil diperbarui!");
+      } else {
+        await addDoc(tokenRef, payload);
+        alert("Token berhasil ditambahkan!");
+      }
+
+      document.getElementById('tokenInput').value = "";
+      document.getElementById('linkInput').value = "";
+      document.getElementById('waktuInput').value = "";
+      loadTokens();
     }
 
-    setInterval(updateWIBClock, 1000);
-    updateWIBClock();
+    window.editToken = function(id, token, link, waktu) {
+      document.getElementById('tokenInput').value = token;
+      document.getElementById('linkInput').value = link;
+      document.getElementById('waktuInput').value = waktu;
+      document.getElementById('editId').value = id;
+    }
+
+    window.deleteToken = async function(id) {
+      if (confirm("Yakin ingin menghapus token ini?")) {
+        await deleteDoc(doc(tokenRef, id));
+        loadTokens();
+      }
+    }
+
+    loadTokens();
   </script>
 </body>
 </html>
