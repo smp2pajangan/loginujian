@@ -35,29 +35,43 @@
       color: red;
     }
 
-    /* Popup styling */
-    #confirmPopup {
+    /* Popup Styles */
+    .popup-overlay {
       display: none;
       position: fixed;
+      z-index: 999;
       top: 0; left: 0;
-      width: 100%; height: 100%;
-      background-color: rgba(0, 0, 0, 0.6);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
     }
-    #confirmPopupContent {
-      background: white;
+
+    .popup-content {
+      background: #fff;
       padding: 20px;
       border-radius: 10px;
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-      color: #333;
+      width: 300px;
+      max-width: 80%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: left;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
-    #confirmPopupContent button {
-      margin: 10px;
-      padding: 10px 20px;
+
+    .popup-content h3 {
+      margin-top: 0;
+      color: #0066cc;
+    }
+
+    .popup-buttons {
+      margin-top: 20px;
+      text-align: right;
+    }
+
+    .popup-buttons button {
+      margin-left: 10px;
     }
   </style>
 </head>
@@ -72,12 +86,15 @@
   </div>
 
   <!-- Popup Konfirmasi -->
-  <div id="confirmPopup">
-    <div id="confirmPopupContent">
-      <h3>Konfirmasi Token</h3>
-      <p id="popupInfo"></p>
-      <button id="lanjutBtn">Lanjut</button>
-      <button onclick="document.getElementById('confirmPopup').style.display='none'">Batal</button>
+  <div class="popup-overlay" id="popup">
+    <div class="popup-content">
+      <h3>Konfirmasi Ujian</h3>
+      <p><strong>Mata Pelajaran:</strong> <span id="popupMapel"></span></p>
+      <p><strong>Kelas:</strong> <span id="popupKelas"></span></p>
+      <div class="popup-buttons">
+        <button onclick="tutupPopup()">Batal</button>
+        <button id="btnLanjut">Lanjut</button>
+      </div>
     </div>
   </div>
 
@@ -98,9 +115,13 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    let ujianUrl = "";
+
     window.cekToken = async function () {
       const input = document.getElementById('inputToken').value.trim();
       const message = document.getElementById('message');
+      message.textContent = "";
+      ujianUrl = "";
 
       if (!input) {
         message.textContent = "Silakan masukkan token.";
@@ -109,23 +130,25 @@
 
       try {
         const snapshot = await get(ref(db, 'tokens'));
-        let valid = false;
-        let dataValid = null;
         const now = new Date();
+        let dataToken = null;
 
         snapshot.forEach(child => {
           const data = child.val();
           const start = new Date(data.startTime);
           const end = new Date(data.endTime);
           if (data.token === input && now >= start && now <= end) {
-            valid = true;
-            dataValid = data;
+            dataToken = data;
           }
         });
 
-        if (valid && dataValid) {
-          message.textContent = "";
-          showConfirmationPopup(dataValid);
+        if (dataToken) {
+          // Tampilkan popup konfirmasi
+          document.getElementById("popupMapel").textContent = dataToken.subject;
+          document.getElementById("popupKelas").textContent = dataToken.kelas;
+          ujianUrl = dataToken.url;
+
+          document.getElementById("popup").style.display = "block";
         } else {
           message.style.color = "red";
           message.textContent = "Token tidak valid atau belum aktif.";
@@ -137,15 +160,15 @@
       }
     };
 
-    function showConfirmationPopup(data) {
-      document.getElementById('popupInfo').innerText =
-        `Mata Pelajaran: ${data.subject || '-'}\nKelas: ${data.kelas || '-'}`;
-      document.getElementById('confirmPopup').style.display = 'flex';
+    window.tutupPopup = function () {
+      document.getElementById("popup").style.display = "none";
+    };
 
-      document.getElementById('lanjutBtn').onclick = function () {
-        window.location.href = data.url;
-      };
-    }
+    document.getElementById("btnLanjut").addEventListener("click", function () {
+      if (ujianUrl) {
+        window.location.href = ujianUrl;
+      }
+    });
   </script>
 </body>
 </html>
