@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login Token</title>
+  <style>
+    /* CSS tetap sama seperti sebelumnya */
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      background-color: white; box-sizing: border-box;
+    }
+    *, *::before, *::after { box-sizing: inherit; }
+    .container {
+      width: 100%; max-width: 400px; height: 90vh;
+      background: white; border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin: 5vh auto 0 auto; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .header {
+      background-color: #0a57c3; color: white;
+      text-align: center; padding: 20px;
+    }
+    .header img { height: 100px; margin-bottom: 10px; }
+    .header h2 { margin: 0; }
+    .content {
+      padding: 25px; text-align: center; flex-grow: 1;
+    }
+    .content h3 { color: #f48600; margin: 0 0 10px; }
+    .content p { font-size: 14px; color: #444; }
+    input[type="text"], button {
+      width: 100%; padding: 12px; margin: 15px 0;
+      border-radius: 5px; font-size: 16px;
+    }
+    button {
+      background: #007bff; color: white; border: none;
+      border-radius: 20px; cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+    button:active { transform: scale(0.96); }
+    .error { color: red; font-size: 14px; margin-top: 10px; }
+    .success { color: green; font-size: 14px; margin-top: 10px; }
+    .fade-message { opacity: 0; transform: translateY(10px); transition: 0.5s ease; display: none; }
+    .fade-message.show { display: block; opacity: 1; transform: translateY(0); }
+    .footer {
+      background-color: #f9f9f9; text-align: center;
+      font-size: 12px; padding: 10px;
+    }
+    .loading-screen {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none; justify-content: center; align-items: center;
+      z-index: 9999;
+    }
+    .loading-spinner {
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #0a57c3;
+      border-radius: 50%;
+      width: 50px; height: 50px;
+      animation: spin 2s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="https://raw.githubusercontent.com/Mdsramadan/smpn2pajangan/refs/heads/main/images/logo%20smpn2pjg.png" alt="Logo" />
+      <h2>SMPN 2 PAJANGAN</h2>
+    </div>
+    <div class="content">
+      <h3>UJIAN BERBASIS ONLINE</h3>
+      <h4>Selamat Datang</h4>
+      <p>Silakan login menggunakan token ujian yang anda miliki</p>
+
+      <div id="errorMsg" class="error fade-message"></div>
+      <div id="successMsg" class="success fade-message"></div>
+
+      <form onsubmit="return checkToken();">
+        <input type="text" id="tokenInput" placeholder="Masukkan Token Ujian" />
+        <button type="submit">MASUK</button>
+      </form>
+    </div>
+    <div class="footer">
+      ©Admin SMPN 2 Pajangan
+      <br />
+      <div id="clockWIB">Memuat waktu...</div>
+    </div>
+  </div>
+
+  <!-- Loading Screen -->
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBbFRUDzguwO1PHccpYHuijsP1fymv12bE",
+      authDomain: "ujian-berbasis-online-89113.firebaseapp.com",
+      projectId: "ujian-berbasis-online-89113"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    function showMessage(element, message) {
+      element.innerText = message;
+      element.classList.remove('show');
+      element.style.display = 'block';
+      requestAnimationFrame(() => {
+        element.classList.add('show');
+      });
+    }
+
+    function hideMessages() {
+      document.getElementById('errorMsg').classList.remove('show');
+      document.getElementById('errorMsg').style.display = 'none';
+      document.getElementById('successMsg').classList.remove('show');
+      document.getElementById('successMsg').style.display = 'none';
+    }
+
+    async function checkToken() {
+      const input = document.getElementById('tokenInput').value.trim();
+      const errorMsg = document.getElementById('errorMsg');
+      const successMsg = document.getElementById('successMsg');
+      const loadingScreen = document.getElementById('loadingScreen');
+      hideMessages();
+
+      if (!input) {
+        showMessage(errorMsg, "Token tidak boleh kosong!");
+        return false;
+      }
+
+      const q = query(collection(db, "token"), where("token", "==", input));
+      const snapshot = await getDocs(q);
+
+      if (snapshot.empty) {
+        showMessage(errorMsg, "Token tidak ditemukan!");
+        return false;
+      }
+
+      const data = snapshot.docs[0].data();
+      const now = new Date();
+      const waktu = new Date(data.waktu);
+      const expired = data.expiredAt ? new Date(data.expiredAt) : null;
+
+      if (expired && now > expired) {
+        showMessage(errorMsg, "Token sudah kedaluwarsa.");
+        return false;
+      }
+
+      if (now < waktu) {
+        showMessage(errorMsg, "Ujian belum dimulai.");
+        return false;
+      }
+
+      showMessage(successMsg, "Token benar! Mohon tunggu sedang memuat");
+      loadingScreen.style.display = "flex";
+      setTimeout(() => {
+        window.location.href = data.link;
+      }, 1000);
+
+      return false;
+    }
+
+    function updateWIBClock() {
+      const clockElement = document.getElementById('clockWIB');
+      const now = new Date();
+      const options = {
+        timeZone: 'Asia/Bangkok',
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      };
+      const formatter = new Intl.DateTimeFormat('id-ID', options);
+      clockElement.innerText = formatter.format(now);
+    }
+
+    setInterval(updateWIBClock, 1000);
+    updateWIBClock();
+  </script>
+</body>
+</html>
