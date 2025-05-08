@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login Token</title>
+  <title>Login Token Ujian</title>
   <style>
-    /* CSS tetap sama seperti sebelumnya */
     html, body {
       margin: 0; padding: 0; height: 100%;
       background-color: white; box-sizing: border-box;
@@ -87,30 +86,32 @@
       </form>
     </div>
     <div class="footer">
-      Â©Admin SMPN 2 Pajangan
+      &copy; Admin SMPN 2 Pajangan
       <br />
       <div id="clockWIB">Memuat waktu...</div>
     </div>
   </div>
 
-  <!-- Loading Screen -->
   <div id="loadingScreen" class="loading-screen">
     <div class="loading-spinner"></div>
   </div>
 
-  <!-- Firebase SDK -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.7.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyBbFRUDzguwO1PHccpYHuijsP1fymv12bE",
-      authDomain: "ujian-berbasis-online-89113.firebaseapp.com",
-      projectId: "ujian-berbasis-online-89113"
+      apiKey: "AIzaSyAOBCX8x60pYqxtXmXMz2xc5dwC3HJH5EE",
+      authDomain: "ujian-online-berbasis-android.firebaseapp.com",
+      databaseURL: "https://ujian-online-berbasis-android-default-rtdb.firebaseio.com",
+      projectId: "ujian-online-berbasis-android",
+      storageBucket: "ujian-online-berbasis-android.appspot.com",
+      messagingSenderId: "923446282537",
+      appId: "1:923446282537:web:60d374dde8aca61f6a0f38"
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const db = getDatabase(app);
 
     function showMessage(element, message) {
       element.innerText = message;
@@ -128,7 +129,7 @@
       document.getElementById('successMsg').style.display = 'none';
     }
 
-    async function checkToken() {
+    function checkToken() {
       const input = document.getElementById('tokenInput').value.trim();
       const errorMsg = document.getElementById('errorMsg');
       const successMsg = document.getElementById('successMsg');
@@ -140,34 +141,36 @@
         return false;
       }
 
-      const q = query(collection(db, "token"), where("token", "==", input));
-      const snapshot = await getDocs(q);
+      const tokensRef = ref(db, 'tokens');
+      onValue(tokensRef, snapshot => {
+        let valid = false;
+        snapshot.forEach(child => {
+          const data = child.val();
+          const token = data.token;
+          const start = new Date(data.startTime);
+          const end = new Date(data.endTime);
+          const now = new Date();
 
-      if (snapshot.empty) {
-        showMessage(errorMsg, "Token tidak ditemukan!");
-        return false;
-      }
+          if (
+            input === token &&
+            now >= start &&
+            now <= end
+          ) {
+            valid = true;
+            showMessage(successMsg, "Token benar! Mohon tunggu...");
+            loadingScreen.style.display = "flex";
+            setTimeout(() => {
+              window.location.href = data.url;
+            }, 1000);
+          }
+        });
 
-      const data = snapshot.docs[0].data();
-      const now = new Date();
-      const waktu = new Date(data.waktu);
-      const expired = data.expiredAt ? new Date(data.expiredAt) : null;
-
-      if (expired && now > expired) {
-        showMessage(errorMsg, "Token sudah kedaluwarsa.");
-        return false;
-      }
-
-      if (now < waktu) {
-        showMessage(errorMsg, "Ujian belum dimulai.");
-        return false;
-      }
-
-      showMessage(successMsg, "Token benar! Mohon tunggu sedang memuat");
-      loadingScreen.style.display = "flex";
-      setTimeout(() => {
-        window.location.href = data.link;
-      }, 1000);
+        if (!valid) {
+          showMessage(errorMsg, "Token tidak ditemukan, belum aktif, atau sudah kadaluarsa.");
+        }
+      }, {
+        onlyOnce: true
+      });
 
       return false;
     }
