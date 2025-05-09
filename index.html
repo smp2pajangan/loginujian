@@ -199,76 +199,82 @@
     const loginBtn = document.getElementById('loginBtn');
 
     window.cekToken = async function () {
-      const input = document.getElementById('inputToken').value.trim();
-      if (!input) {
-        message.style.color = "red";
-        message.textContent = "Silakan masukkan token.";
-        return;
-      }
+  const input = document.getElementById('inputToken').value.trim();
+  if (!input) {
+    message.style.color = "red";
+    message.textContent = "Silakan masukkan token.";
+    return;
+  }
 
-      // disable & spinner
-      loginBtn.disabled = true;
-      loginBtn.style.opacity = 0.6;
-      message.style.color = "black";
-      message.innerHTML = `Memproses token... <span class="spinner"></span>`;
+  // disable & spinner
+  loginBtn.disabled = true;
+  loginBtn.style.opacity = 0.6;
+  message.style.color = "black";
+  message.innerHTML = `Memproses token... <span class="spinner"></span>`;
 
-      try {
-        const snapshot = await get(ref(db, 'tokens'));
-        let valid = false;
-        let url = "", kelas = "", mapel = "";
-        const now = new Date();
+  // Jika token admin, langsung redirect
+  if (input === "admin") {
+    window.location.href = "http://pajangan.github.io/adminujian";
+    return;
+  }
 
-        snapshot.forEach(child => {
-          const data = child.val();
-          const start = new Date(data.startTime);
-          const end = new Date(data.endTime);
-          if (data.token === input) {
-            if (now >= start && now <= end) {
-              valid = true;
-              url = data.url;
-              kelas = data.kelas || "-";
-              mapel = data.subject || data.mapel || "-";
-            } else {
-              valid = "expired";
-            }
-          }
-        });
+  try {
+    const snapshot = await get(ref(db, 'tokens'));
+    let valid = false;
+    let url = "", kelas = "", mapel = "";
+    const now = new Date();
 
-        if (valid === true) {
-          const modal = document.getElementById("confirmModal");
-          const modalText = document.getElementById("modalText");
-          const lanjutBtn = document.getElementById("btnLanjut");
-
-          modalText.innerHTML = `
-            Token valid.<br><br>
-            <strong>Mata Pelajaran:</strong> ${mapel}<br>
-            <strong>Kelas:</strong> ${kelas}<br><br>
-            Apakah Anda yakin ingin melanjutkan?
-          `;
-          modal.style.display = "flex";
-
-          lanjutBtn.onclick = function () {
-            window.location.href = url;
-          };
-        } else if (valid === "expired") {
-          message.style.color = "red";
-          message.textContent = "Token belum aktif atau Kadaluarsa";
-          loginBtn.disabled = false;
-          loginBtn.style.opacity = 1;
+    snapshot.forEach(child => {
+      const data = child.val();
+      const start = new Date(data.startTime);
+      const end = new Date(data.endTime);
+      if (data.token === input) {
+        if (now >= start && now <= end) {
+          valid = true;
+          url = data.url;
+          kelas = data.kelas || "-";
+          mapel = data.subject || data.mapel || "-";
         } else {
-          message.style.color = "red";
-          message.textContent = "Token yang anda masukan salah!";
-          loginBtn.disabled = false;
-          loginBtn.style.opacity = 1;
+          valid = "expired";
         }
-      } catch (err) {
-        console.error(err);
-        message.style.color = "red";
-        message.textContent = "Terjadi kesalahan, coba lagi.";
-        loginBtn.disabled = false;
-        loginBtn.style.opacity = 1;
       }
-    };
+    });
+
+    if (valid === true) {
+      const modal = document.getElementById("confirmModal");
+      const modalText = document.getElementById("modalText");
+      const lanjutBtn = document.getElementById("btnLanjut");
+
+      modalText.innerHTML = `
+        Token valid.<br><br>
+        <strong>Mata Pelajaran:</strong> ${mapel}<br>
+        <strong>Kelas:</strong> ${kelas}<br><br>
+        Apakah Anda yakin ingin melanjutkan?
+      `;
+      modal.style.display = "flex";
+
+      lanjutBtn.onclick = function () {
+        window.location.href = url;
+      };
+    } else if (valid === "expired") {
+      message.style.color = "red";
+      message.textContent = "Token belum aktif atau Kadaluarsa";
+      loginBtn.disabled = false;
+      loginBtn.style.opacity = 1;
+    } else {
+      message.style.color = "red";
+      message.textContent = "Token yang anda masukan salah!";
+      loginBtn.disabled = false;
+      loginBtn.style.opacity = 1;
+    }
+  } catch (err) {
+    console.error(err);
+    message.style.color = "red";
+    message.textContent = "Terjadi kesalahan, coba lagi.";
+    loginBtn.disabled = false;
+    loginBtn.style.opacity = 1;
+  }
+};
 
     window.tutupModal = function () {
       // tutup modal & reset state
