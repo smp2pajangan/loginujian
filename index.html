@@ -193,10 +193,19 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+const db = getDatabase(app);
 
-    const message = document.getElementById('message');
-    const loginBtn = document.getElementById('loginBtn');
+// Langkah 1: Bersihkan pesan jika kembali ke halaman login
+window.addEventListener('load', () => {
+  if (sessionStorage.getItem("justLoggedIn") === "true") {
+    sessionStorage.removeItem("justLoggedIn");
+    document.getElementById("message").innerHTML = "";
+  }
+});
+
+// Lanjutkan ke fungsi cekToken setelah ini
+const message = document.getElementById('message');
+const loginBtn = document.getElementById('loginBtn');
 
     window.cekToken = async function () {
   const input = document.getElementById('inputToken').value.trim();
@@ -214,9 +223,13 @@
 
   // Jika token admin, langsung redirect
   if (input === "admin") {
+  sessionStorage.setItem("justLoggedIn", "true");
+  message.innerHTML = `Memproses token... <span class="spinner"></span>`;
+  setTimeout(() => {
     window.location.href = "http://smp2pajangan.github.io/adminujian";
-    return;
-  }
+  }, 300); // beri sedikit delay agar pesan muncul sebentar
+  return;
+}
 
   try {
     const snapshot = await get(ref(db, 'tokens'));
