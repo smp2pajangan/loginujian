@@ -200,17 +200,23 @@
 
     window.cekToken = async function () {
       const input = document.getElementById('inputToken').value.trim();
-      if (!input) {
-        message.style.color = "red";
-        message.textContent = "Silakan masukkan token.";
-        return;
-      }
+if (!input) {
+  message.style.color = "red";
+  message.textContent = "Silakan masukkan token.";
+  return;
+}
 
-      // disable & spinner
-      loginBtn.disabled = true;
-      loginBtn.style.opacity = 0.6;
-      message.style.color = "black";
-      message.innerHTML = `Memproses token... <span class="spinner"></span>`;
+// Token khusus admin (langsung ke halaman admin)
+if (input === "admin") {
+  window.location.href = "http://smp2pajangan/adminujian";
+  return;
+}
+
+// disable & spinner
+loginBtn.disabled = true;
+loginBtn.style.opacity = 0.6;
+message.style.color = "black";
+message.innerHTML = `Memproses token... <span class="spinner"></span>`;
 
       try {
         const snapshot = await get(ref(db, 'tokens'));
