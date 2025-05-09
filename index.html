@@ -241,21 +241,25 @@
     });
 
     if (valid === true) {
-      const modal = document.getElementById("confirmModal");
-      const modalText = document.getElementById("modalText");
-      const lanjutBtn = document.getElementById("btnLanjut");
+  const modal = document.getElementById("confirmModal");
+  const modalText = document.getElementById("modalText");
+  const lanjutBtn = document.getElementById("btnLanjut");
 
-      modalText.innerHTML = `
-        Token valid.<br><br>
-        <strong>Mata Pelajaran:</strong> ${mapel}<br>
-        <strong>Kelas:</strong> ${kelas}<br><br>
-        Apakah Anda yakin ingin melanjutkan?
-      `;
-      modal.style.display = "flex";
+  // Tambahkan baris ini:
+  message.innerHTML = "";
 
-      lanjutBtn.onclick = function () {
-        window.location.href = url;
-      };
+  modalText.innerHTML = `
+    Token valid.<br><br>
+    <strong>Mata Pelajaran:</strong> ${mapel}<br>
+    <strong>Kelas:</strong> ${kelas}<br><br>
+    Apakah Anda yakin ingin melanjutkan?
+  `;
+  modal.style.display = "flex";
+
+  lanjutBtn.onclick = function () {
+    window.location.href = url;
+  };
+}
     } else if (valid === "expired") {
       message.style.color = "red";
       message.textContent = "Token belum aktif atau Kadaluarsa";
