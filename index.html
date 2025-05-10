@@ -160,7 +160,7 @@
 
       <p class="message" id="message"></p>
 
-      <input type="text" id="inputToken" placeholder="Masukkan Token Ujian" />
+      <input type="text" id="inputToken" placeholder="Masukkan Token Ujian" oninput="formatToken(this)" maxlength="10" />
       <button id="loginBtn" onclick="cekToken()">Login</button>
     </div>
     <div class="footer">
@@ -283,6 +283,9 @@ message.innerHTML = `Memproses token... <span class="spinner"></span>`;
       loginBtn.disabled = false;
       loginBtn.style.opacity = 1;
     };
+window.formatToken = function (el) {
+  el.value = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 10);
+};
 
     function updateDateTime() {
       const now = new Date();
