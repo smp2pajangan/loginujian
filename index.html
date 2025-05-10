@@ -155,8 +155,8 @@
     </div>
     <div class="card-body">
       <div class="judul-ujian">UJIAN BERBASIS ONLINE</div>
-      <p><strong>Selamat Datang</strong></p>
-      <p>Silakan login menggunakan token ujian yang anda miliki</p>
+      <p>Selamat datang</p>
+      <p>Silakan login menggunakan token ujian yang Anda miliki</p>
 
       <p class="message" id="message"></p>
 
@@ -169,7 +169,6 @@
     </div>
   </div>
 
-  <!-- Modal Konfirmasi -->
   <div id="confirmModal">
     <div class="modal-content">
       <p id="modalText"></p>
@@ -207,7 +206,7 @@ if (!input) {
 }
 
 // Token khusus admin (langsung ke halaman admin)
-if (input === "ADMIN") {
+if (input === "ADMINISTRATOR") {
   window.location.href = "http://smp2pajangan.github.io/adminujian";
   return;
 }
@@ -263,14 +262,14 @@ message.innerHTML = `Memproses token... <span class="spinner"></span>`;
           loginBtn.style.opacity = 1;
         } else {
           message.style.color = "red";
-          message.textContent = "Token yang anda masukan salah!";
+          message.textContent = "Token yang Anda masukkan salah!";
           loginBtn.disabled = false;
           loginBtn.style.opacity = 1;
         }
       } catch (err) {
         console.error(err);
         message.style.color = "red";
-        message.textContent = "Terjadi kesalahan, coba lagi.";
+        message.textContent = "Terjadi kesalahan, silakan coba lagi.";
         loginBtn.disabled = false;
         loginBtn.style.opacity = 1;
       }
