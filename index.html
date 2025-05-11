@@ -1,411 +1,331 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login Ujian Siswa</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #e0e0e0;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1),
-                  inset 0 -2px 4px rgba(255,255,255,0.7);
-      margin: 0;
-      padding: 20px;
-      text-align: center;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      box-sizing: border-box;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-
-    .container {
-      max-width: 400px;
-      width: 90%;
-      margin: 20px auto;
-      border: 1px solid #ddd;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      overflow: hidden;
-    }
-
-    .header-box {
-      background-color: #0066cc;
-      padding: 20px 15px;
-      color: white;
-    }
-
-    .header-box .logo {
-      width: 80px;
-    }
-
-    .title {
-      font-size: 22px;
-      font-weight: bold;
-      margin-top: 10px;
-      color: white;
-    }
-
-    .card-body {
-      padding: 20px;
-    }
-
-    .judul-ujian {
-      color: orange;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-
-    input {
-      padding: 10px;
-      width: calc(100% - 20px);
-      font-size: 16px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box;
-    }
-
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      width: 100%;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    button:active {
-      transform: scale(0.98);
-    }
-
-    .message {
-      margin-bottom: 10px;
-      font-size: 14px;
-      min-height: 20px;
-    }
-
-    .spinner {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid black;
-      border-radius: 50%;
-      width: 16px;
-      height: 16px;
-      animation: spin 1s linear infinite;
-      display: inline-block;
-      vertical-align: middle;
-      margin-left: 10px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .footer {
-      margin-top: 20px;
-      font-size: 12px;
-      color: #666;
-      padding-bottom: 10px;
-    }
-
-    #confirmModal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      opacity: 0;
-      transition: opacity 0.3s ease-in-out;
-    }
-
-    #confirmModal.show {
-      display: flex;
-      opacity: 1;
-    }
-
-    #confirmModal .modal-content {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 300px;
-      text-align: center;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-
-    #confirmModal button {
-      margin: 5px 5px 0 5px;
-      padding: 10px 15px;
-      width: auto;
-      border-radius: 5px;
-      border: none;
-      color: white;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-    }
-
-    #btnLanjut {
-      background-color: green;
-    }
-
-    #btnLanjut:hover {
-      background-color: darkgreen;
-    }
-
-    #btnLanjut:active {
-      transform: scale(0.98);
-    }
-
-    #btnBatal {
-      background-color: red;
-    }
-
-    #btnBatal:hover {
-      background-color: darkred;
-    }
-
-    #btnBatal:active {
-      transform: scale(0.98);
-    }
-
-    @media (max-width: 600px) {
-      .container {
-        margin-top: 40px;
-        margin-bottom: 40px;
-        border-radius: 0;
-        border: none;
-        box-shadow: none;
-        width: 100%;
-      }
-      .header-box {
-        border-radius: 0;
-      }
-    }
-
-    @media (max-width: 400px) {
-      .header-box .logo {
-        width: 60px;
-      }
-      .title {
-        font-size: 18px;
-      }
-      .card-body {
-        padding: 15px;
-      }
-      input {
-        font-size: 14px;
-        padding: 8px;
-      }
-      button {
-        font-size: 14px;
-        padding: 8px 15px;
-      }
-      .footer {
-        font-size: 10px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Ujian</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            opacity: 1;
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        #message {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            border-top-color: #000;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+            border-radius: 5px;
+            text-align: left;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal.show {
+            display: flex;
+        }
+        #btnLanjut {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+        #btnLanjut:hover {
+            background-color: #1e7e34;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header-box">
-      <img src="https://github.com/smp2pajangan/loginujian/blob/main/logosmpn2pjg.png?raw=true" alt="Logo" class="logo" />
-      <div class="title">SMPN 2 PAJANGAN</div>
+    <div class="login-container">
+        <h2>Login Ujian</h2>
+        <input type="text" id="inputToken" placeholder="Masukkan Token Ujian">
+        <button id="loginButton" onclick="cekToken()">Masuk</button>
+        <p id="message"></p>
     </div>
-    <div class="card-body">
-      <div class="judul-ujian">UJIAN BERBASIS ONLINE</div>
-      <p>Selamat datang</p>
-      <p>Silakan login menggunakan token ujian yang Anda miliki</p>
 
-      <p class="message" id="message"></p>
-
-      <input type="text" id="inputToken" placeholder="Masukkan Token Ujian" oninput="formatToken(this)" maxlength="10" />
-      <button id="loginBtn" onclick="cekToken()">Login</button>
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('confirmationModal').classList.remove('show');">&times;</span>
+            <p id="modalText"></p>
+            <button id="btnLanjut">Lanjut</button>
+        </div>
     </div>
-    <div class="footer">
-      © Admin SMPN 2 Pajangan<br>
-      <span id="datetime"></span>
-    </div>
-  </div>
 
-  <div id="confirmModal">
-    <div class="modal-content">
-      <p id="modalText"></p>
-      <button id="btnLanjut">Lanjut</button>
-      <button id="btnBatal" onclick="tutupModal()">Batal</button>
-    </div>
-  </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
 
-  <script>
-    document.addEventListener('contextmenu', function (e) {
-      e.preventDefault();
-    });
-  </script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyAOBCX8x60pYqxtXmXMz2xc5dwC3HJH5EE",
+          authDomain: "ujian-online-berbasis-android.firebaseapp.com",
+          databaseURL: "https://ujian-online-berbasis-android-default-rtdb.firebaseio.com",
+          projectId: "ujian-online-berbasis-android",
+          storageBucket: "ujian-online-berbasis-android.appspot.com",
+          messagingSenderId: "923446282537",
+          appId: "1:923446282537:web:60d374dde8aca61f6a0f38"
+        };
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAOBCX8x60pYqxtXmXMz2xc5dwC3HJH5EE",
-      authDomain: "ujian-online-berbasis-android.firebaseapp.com",
-      databaseURL: "https://ujian-online-berbasis-android-default-rtdb.firebaseio.com",
-      projectId: "ujian-online-berbasis-android",
-      storageBucket: "ujian-online-berbasis-android.appspot.com",
-      messagingSenderId: "923446282537",
-      appId: "1:923446282537:web:60d374dde8aca61f6a0f38"
-    };
+        const message = document.getElementById('message');
+        const loginBtn = document.getElementById('loginButton');
+        const confirmModal = document.getElementById('confirmationModal');
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+        window.cekToken = async function () {
+          const input = document.getElementById('inputToken').value.trim();
+          if (!input) {
+            message.style.color = "red";
+            message.textContent = "Silakan masukkan token.";
+            return;
+          }
 
-    const message = document.getElementById('message');
-    const loginBtn = document.getElementById('loginBtn');
-    const confirmModal = document.getElementById('confirmModal');
-    let holdTimer;
-    const holdDuration = 3000;
-    const maxTimeDifference = 10 * 60 * 1000; // Toleransi perbedaan waktu 10 menit
+          loginBtn.disabled = true;
+          loginBtn.style.opacity = 0.6;
+          message.style.color = "black";
+          message.innerHTML = `Memproses token... <span class="spinner"></span>`;
 
-    const startHoldTimer = () => {
-      holdTimer = setTimeout(() => {
-        window.location.href = "http://smp2pajangan.github.io/adminujian";
-      }, holdDuration);
-    };
+          try {
+            const snapshot = await get(ref(db, 'tokens'));
+            let valid = false;
+            let url = "", kelas = "", mapel = "";
+            const nowClientWIB = new Date().getTime(); // Waktu perangkat siswa dalam milisekon (WIB)
+            const maxTimeDifference = 10 * 60 * 1000; // Toleransi perbedaan waktu 10 menit
+            let tokenData = null;
 
-    const clearHoldTimer = () => {
-      clearTimeout(holdTimer);
-    };
-
-    loginBtn.addEventListener('mousedown', startHoldTimer);
-    loginBtn.addEventListener('mouseup', clearHoldTimer);
-    loginBtn.addEventListener('mouseleave', clearHoldTimer);
-
-    loginBtn.addEventListener('touchstart', startHoldTimer);
-    loginBtn.addEventListener('touchend', clearHoldTimer);
-    loginBtn.addEventListener('touchmove', clearHoldTimer);
-    loginBtn.addEventListener('touchcancel', clearHoldTimer);
-
-    window.cekToken = async function () {
-      const input = document.getElementById('inputToken').value.trim();
-      if (!input) {
-        message.style.color = "red";
-        message.textContent = "Silakan masukkan token.";
-        return;
-      }
-
-      loginBtn.disabled = true;
-      loginBtn.style.opacity = 0.6;
-      message.style.color = "black";
-      message.innerHTML = `Memproses token... <span class="spinner"></span>`;
-
-      try {
-        const snapshot = await get(ref(db, 'tokens'));
-        let valid = false;
-        let url = "", kelas = "", mapel = "";
-        const nowClient = new Date().getTime();
-
-        for (const child of snapshot.val() ? Object.values(snapshot.val()) : []) {
-          const data = child;
-          if (data.token === input) {
-            const startTime = new Date(data.startTime).getTime();
-            const endTime = new Date(data.endTime).getTime();
-            const serverTime = data.serverTime; // Kita asumsikan ini ada di data token
-
-            if (serverTime) {
-              const timeDifference = Math.abs(nowClient - serverTime);
-              if (timeDifference > maxTimeDifference) {
-                message.style.color = "red";
-                message.textContent = "Waktu perangkat Anda tidak sesuai. Silakan sesuaikan dengan waktu otomatis.";
-                loginBtn.disabled = false;
-                loginBtn.style.opacity = 1;
-                return;
+            for (const child of snapshot.val() ? Object.values(snapshot.val()) : []) {
+              const data = child;
+              if (data.token === input) {
+                tokenData = data;
+                break;
               }
             }
 
-            if (nowClient >= startTime && nowClient <= endTime) {
-              valid = true;
-              url = data.url;
-              kelas = data.kelas || "-";
-              mapel = data.subject || data.mapel || "-";
-              break;
+            if (tokenData) {
+              const startTime = new Date(tokenData.startTime).getTime();
+              const endTime = new Date(tokenData.endTime).getTime();
+              const serverTimeWIB = tokenData.serverTimeWIB;
+
+              if (serverTimeWIB) {
+                const timeDifference = Math.abs(nowClientWIB - serverTimeWIB);
+                if (timeDifference > maxTimeDifference) {
+                  message.style.color = "red";
+                  message.textContent = "Waktu perangkat Anda tidak sesuai. Silakan sesuaikan dengan waktu otomatis.";
+                  loginBtn.disabled = false;
+                  loginBtn.style.opacity = 1;
+                  return;
+                }
+              }
+
+              if (nowClientWIB >= startTime && nowClientWIB <= endTime) {
+                valid = true;
+                url = tokenData.url;
+                kelas = tokenData.kelas || "-";
+                mapel = tokenData.subject || tokenData.mapel || "-";
+              } else {
+                valid = "expired";
+              }
             } else {
-              valid = "expired";
+              message.style.color = "red";
+              message.textContent = "Token yang Anda masukkan salah!";
+              loginBtn.disabled = false;
+              loginBtn.style.opacity = 1;
+              return;
             }
+
+            if (valid === true) {
+              const modalText = document.getElementById("modalText");
+              const lanjutBtn = document.getElementById("btnLanjut");
+
+              modalText.innerHTML = `
+                Token valid.<br><br>
+                <strong>Mata Pelajaran:</strong> ${mapel}<br>
+                <strong>Kelas:</strong> ${kelas}<br><br>
+                Apakah Anda yakin ingin melanjutkan?
+              `;
+              confirmModal.classList.add('show');
+
+              lanjutBtn.onclick = function () {
+                window.location.href = url;
+              };
+            } else if (valid === "expired") {
+              message.style.color = "red";
+              message.textContent = "Token belum aktif atau Kadaluarsa";
+              loginBtn.disabled = false;
+              loginBtn.style.opacity = 1;
+            } else {
+              message.style.color = "red";
+              message.textContent = "Token yang Anda masukkan salah!";
+              loginBtn.disabled = false;
+              loginBtn.style.opacity = 1;
+            }
+          } catch (err) {
+            console.error(err);
+            message.style.color = "red";
+            message.textContent = "Terjadi kesalahan, silakan coba lagi.";
+            loginBtn.disabled = false;
+            loginBtn.style.opacity = 1;
           }
-        }
+        };
 
-        if (valid === true) {
-          const modalText = document.getElementById("modalText");
-          const lanjutBtn = document.getElementById("btnLanjut");
+        // Tambahkan event listener untuk menampilkan modal
+        document.addEventListener('DOMContentLoaded', () => {
+          const modal = document.getElementById('confirmationModal');
+          if (modal) {
+            modal.addEventListener('click', function(event) {
+              if (event.target === modal) {
+                modal.classList.remove('show');
+              }
+            });
+          }
 
-          modalText.innerHTML = `
-            Token valid.<br><br>
-            <strong>Mata Pelajaran:</strong> ${mapel}<br>
-            <strong>Kelas:</strong> ${kelas}<br><br>
-            Apakah Anda yakin ingin melanjutkan?
+          // Spinner animation CSS (optional, bisa ditambahkan di tag <style>)
+          const style = document.createElement('style');
+          style.textContent = `
+            .spinner {
+              display: inline-block;
+              width: 16px;
+              height: 16px;
+              border: 2px solid rgba(0, 0, 0, 0.3);
+              border-radius: 50%;
+              border-top-color: #000;
+              animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+              to { transform: rotate(360deg); }
+            }
+
+            .modal {
+              display: none; /* Hidden by default */
+              position: fixed; /* Stay in place */
+              z-index: 1; /* Sit on top */
+              left: 0;
+              top: 0;
+              width: 100%; /* Full width */
+              height: 100%; /* Full height */
+              overflow: auto; /* Enable scroll if needed */
+              background-color: rgb(0,0,0); /* Fallback color */
+              background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+              justify-content: center;
+              align-items: center;
+            }
+
+            .modal-content {
+              background-color: #fefefe;
+              margin: 15% auto; /* 15% from the top and centered */
+              padding: 20px;
+              border: 1px solid #888;
+              width: 80%; /* Could be more or less, depending on screen size */
+              border-radius: 5px;
+              text-align: left;
+            }
+
+            .close {
+              color: #aaa;
+              float: right;
+              font-size: 28px;
+              font-weight: bold;
+            }
+
+            .close:hover,
+            .close:focus {
+              color: black;
+              text-decoration: none;
+              cursor: pointer;
+            }
+
+            .modal.show {
+              display: flex;
+            }
           `;
-          confirmModal.classList.add('show');
-
-          lanjutBtn.onclick = function () {
-            window.location.href = url;
-          };
-        } else if (valid === "expired") {
-          message.style.color = "red";
-          message.textContent = "Token belum aktif atau Kadaluarsa";
-          loginBtn.disabled = false;
-          loginBtn.style.opacity = 1;
-        } else {
-          message.style.color = "red";
-          message.textContent = "Token yang Anda masukkan salah!";
-          loginBtn.disabled = false;
-          loginBtn.style.opacity = 1;
-        }
-      } catch (err) {
-        console.error(err);
-        message.style.color = "red";
-        message.textContent = "Terjadi kesalahan, silakan coba lagi.";
-        loginBtn.disabled = false;
-        loginBtn.style.opacity = 1;
-      }
-    };
-
-    window.tutupModal = function () {
-      confirmModal.classList.remove('show');
-      message.textContent = "";
-      loginBtn.disabled = false;
-      loginBtn.style.opacity = 1;
-    };
-
-    window.formatToken = function (el) {
-      el.value = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 10);
-    };
-
-    function updateDateTime() {
-      const now = new Date();
-      const options = {
-        weekday: 'long', year: 'numeric', month: 'long',
-        day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
-      };
-      document.getElementById("datetime").textContent = now.toLocaleDateString('id-ID', options);
-    }
-    setInterval(updateDateTime, 1000);
-    updateDateTime();
-  </script>
+          document.head.appendChild(style);
+        });
+    </script>
 </body>
 </html>
