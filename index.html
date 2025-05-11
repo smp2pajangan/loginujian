@@ -249,21 +249,6 @@
   </div>
 
   <script type="module">
-        document.addEventListener('DOMContentLoaded', function() {
-      const userAgent = navigator.userAgent.toLowerCase();
-      const isExambro = userAgent.includes('exambro'); // Contoh pengecekan, mungkin perlu disesuaikan
-
-      if (!isExambro) {
-        document.body.innerHTML = `
-          <div style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
-            <h1>Akses Ditolak</h1>
-            <p>Halaman ini hanya dapat dibuka melalui aplikasi ExamBrowser.</p>
-          </div>
-        `;
-      }
-    });
-
-
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
     import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
 
@@ -284,6 +269,20 @@
     const loginBtn = document.getElementById('loginBtn');
     const confirmModal = document.getElementById('confirmModal');
 
+    document.addEventListener('DOMContentLoaded', function() {
+      // const userAgent = navigator.userAgent.toLowerCase();
+      // const isExambro = userAgent.includes('exambro'); // Contoh pengecekan, mungkin perlu disesuaikan
+
+      // if (!isExambro) {
+      //   document.body.innerHTML = `
+      //     <div style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
+      //       <h1>Akses Ditolak</h1>
+      //       <p>Halaman ini hanya dapat dibuka melalui aplikasi ExamBrowser.</p>
+      //     </div>
+      //   `;
+      // }
+    });
+
     window.cekToken = async function () {
       const input = document.getElementById('inputToken').value.trim();
 if (!input) {
@@ -293,7 +292,7 @@ if (!input) {
 }
 
 // Token khusus admin (langsung ke halaman admin)
-if (input === "ADMIN12345") {
+if (input === "ADMINISTRATOR") {
   window.location.href = "http://smp2pajangan.github.io/adminujian";
   return;
 }
