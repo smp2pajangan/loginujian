@@ -7,52 +7,38 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #e0e0e0; /* Warna background abu-abu sedikit */
+      background-color: #e0e0e0; /* Warna abu-abu yang lebih terang sebagai dasar */
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), /* Bayangan atas */
+                  inset 0 -2px 4px rgba(255,255,255,0.7); /* Bayangan bawah */
+      margin: 0;
+      padding: 20px;
+      text-align: center;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      margin: 0;
-      padding: 20px;
       box-sizing: border-box;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-
-    .wrapper {
-      background-color: white;
-      border-radius: 20px; /* Melengkung di semua sisi */
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      max-width: 95%;
-      box-sizing: border-box;
-      margin-top: 20px; /* Beri jarak dari atas */
-      margin-bottom: 20px; /* Beri jarak dari bawah */
+      -webkit-user-select: none; /* Chrome/Safari */
+      -moz-user-select: none;    /* Firefox */
+      -ms-user-select: none;     /* IE10+ */
+      user-select: none;        /* Standard syntax */
     }
 
     .container {
-      width: 90%;
+      max-width: 400px;
+      width: 90%; /* Lebih responsif */
+      margin: 20px auto; /* Margin atas bawah disesuaikan */
+      border: 1px solid #ddd;
       background: white;
-      /* Border radius dihapus dari container karena sudah ada di wrapper */
-      box-shadow: none; /* Shadow dihapus dari container karena sudah ada di wrapper */
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       overflow: hidden;
-      margin-bottom: 20px;
-      box-sizing: border-box;
-      text-align: center;
-      border: none; /* Border dihapus dari container */
     }
 
     .header-box {
       background-color: #0066cc;
       padding: 20px 15px;
       color: white;
-      border-radius: 20px 20px 0 0; /* Melengkung di bagian atas sesuai wrapper */
     }
 
     .header-box .logo {
@@ -78,11 +64,11 @@
 
     input {
       padding: 10px;
-      width: calc(100% - 20px);
+      width: calc(100% - 20px); /* Agar tidak mentok ke tepi */
       font-size: 16px;
       margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+      border: 1px solid #ccc; /* Tambahkan border default */
+      border-radius: 5px; /* Tambahkan border radius pada input */
       box-sizing: border-box;
     }
 
@@ -95,11 +81,11 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease;
+      transition: background-color 0.3s ease, transform 0.2s ease; /* Tambahkan transisi */
     }
 
     button:hover {
-      background-color: #0056b3;
+      background-color: #0056b3; /* Efek hover */
     }
 
     button:active {
@@ -130,15 +116,10 @@
     }
 
     .footer {
-      margin-top: 20px;
+      margin-top: 20px; /* Tambah margin atas */
       font-size: 12px;
       color: #666;
       padding-bottom: 10px;
-      /* Tambahkan border radius bawah agar sesuai dengan wrapper */
-      border-radius: 0 0 20px 20px;
-      background-color: white; /* Optional: Jika ingin footer juga di dalam wrapper putih */
-      padding: 15px; /* Sesuaikan padding footer */
-      text-align: center; /* Agar teks footer tetap di tengah */
     }
 
     /* Modal Styling */
@@ -151,13 +132,13 @@
       justify-content: center;
       align-items: center;
       z-index: 1000;
-      opacity: 0;
-      transition: opacity 0.3s ease-in-out;
+      opacity: 0; /* Awalnya tidak terlihat */
+      transition: opacity 0.3s ease-in-out; /* Transisi fade-in */
     }
 
     #confirmModal.show {
-      display: flex;
-      opacity: 1;
+      display: flex; /* Tampilkan modal */
+      opacity: 1; /* Fade in */
     }
 
     #confirmModal .modal-content {
@@ -166,13 +147,13 @@
       border-radius: 10px;
       max-width: 300px;
       text-align: center;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2); /* Tambah shadow pada modal */
     }
 
     #confirmModal button {
       margin: 5px 5px 0 5px;
-      padding: 10px 15px;
-      width: auto;
+      padding: 10px 15px; /* Sedikit perubahan padding tombol modal */
+      width: auto; /* Lebar menyesuaikan konten */
       border-radius: 5px;
       border: none;
       color: white;
@@ -206,28 +187,28 @@
 
     /* Media Queries untuk Responsif */
     @media (max-width: 600px) {
-      .wrapper {
-        border-radius: 0;
-        margin: 0;
-        max-width: 100%;
+      .container {
+        margin-top: 40px;
+        margin-bottom: 40px;
+        border-radius: 0; /* Hilangkan border radius di layar kecil */
+        border: none;
+        box-shadow: none;
+        width: 100%;
       }
       .header-box {
-        border-radius: 0;
-      }
-      .footer {
         border-radius: 0;
       }
     }
 
     @media (max-width: 400px) {
       .header-box .logo {
-        width: 60px;
+        width: 60px; /* Ukuran logo lebih kecil di layar sangat kecil */
       }
       .title {
-        font-size: 18px;
+        font-size: 18px; /* Ukuran judul lebih kecil */
       }
       .card-body {
-        padding: 15px;
+        padding: 15px; /* Padding lebih kecil */
       }
       input {
         font-size: 14px;
@@ -244,34 +225,32 @@
   </style>
 </head>
 <body>
-  <div class="wrapper">
-    <div class="container">
-      <div class="header-box">
-        <img src="https://github.com/smp2pajangan/loginujian/blob/main/logosmpn2pjg.png?raw=true" alt="Logo" class="logo" />
-        <div class="title">SMPN 2 PAJANGAN</div>
-      </div>
-      <div class="card-body">
-        <div class="judul-ujian">UJIAN BERBASIS ONLINE</div>
-        <p>Selamat datang</p>
-        <p>Silakan login menggunakan token ujian yang Anda miliki</p>
-
-        <p class="message" id="message"></p>
-
-        <input type="text" id="inputToken" placeholder="Masukkan Token Ujian" oninput="formatToken(this)" maxlength="10" />
-        <button id="loginBtn" onclick="cekToken()">Login</button>
-      </div>
-      <div class="footer">
-        © Admin SMPN 2 Pajangan<br>
-        <span id="datetime"></span>
-      </div>
+  <div class="container">
+    <div class="header-box">
+      <img src="https://github.com/smp2pajangan/loginujian/blob/main/logosmpn2pjg.png?raw=true" alt="Logo" class="logo" />
+      <div class="title">SMPN 2 PAJANGAN</div>
     </div>
+    <div class="card-body">
+      <div class="judul-ujian">UJIAN BERBASIS ONLINE</div>
+      <p>Selamat datang</p>
+      <p>Silakan login menggunakan token ujian yang Anda miliki</p>
 
-    <div id="confirmModal">
-      <div class="modal-content">
-        <p id="modalText"></p>
-        <button id="btnLanjut">Lanjut</button>
-        <button id="btnBatal" onclick="tutupModal()">Batal</button>
-      </div>
+      <p class="message" id="message"></p>
+
+      <input type="text" id="inputToken" placeholder="Masukkan Token Ujian" oninput="formatToken(this)" maxlength="10" />
+      <button id="loginBtn" onclick="cekToken()">Login</button>
+    </div>
+    <div class="footer">
+      © Admin SMPN 2 Pajangan<br>
+      <span id="datetime"></span>
+    </div>
+  </div>
+
+  <div id="confirmModal">
+    <div class="modal-content">
+      <p id="modalText"></p>
+      <button id="btnLanjut">Lanjut</button>
+      <button id="btnBatal" onclick="tutupModal()">Batal</button>
     </div>
   </div>
 
@@ -301,33 +280,18 @@
     const message = document.getElementById('message');
     const loginBtn = document.getElementById('loginBtn');
     const confirmModal = document.getElementById('confirmModal');
-    let holdTimer;
-    const holdDuration = 3000; // 3 detik dalam milisekon
-
-    const startHoldTimer = () => {
-      holdTimer = setTimeout(() => {
-        window.location.href = "http://smp2pajangan.github.io/adminujian";
-      }, holdDuration);
-    };
-
-    const clearHoldTimer = () => {
-      clearTimeout(holdTimer);
-    };
-
-    loginBtn.addEventListener('mousedown', startHoldTimer);
-    loginBtn.addEventListener('mouseup', clearHoldTimer);
-    loginBtn.addEventListener('mouseleave', clearHoldTimer);
-
-    loginBtn.addEventListener('touchstart', startHoldTimer);
-    loginBtn.addEventListener('touchend', clearHoldTimer);
-    loginBtn.addEventListener('touchmove', clearHoldTimer);
-    loginBtn.addEventListener('touchcancel', clearHoldTimer);
 
     window.cekToken = async function () {
       const input = document.getElementById('inputToken').value.trim();
 if (!input) {
   message.style.color = "red";
   message.textContent = "Silakan masukkan token.";
+  return;
+}
+
+// Token khusus admin (langsung ke halaman admin)
+if (input === "ADMIN12345") {
+  window.location.href = "http://smp2pajangan.github.io/adminujian";
   return;
 }
 
