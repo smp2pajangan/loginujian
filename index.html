@@ -281,7 +281,7 @@
     const loginBtn = document.getElementById('loginBtn');
     const confirmModal = document.getElementById('confirmModal');
     let holdTimer;
-    const holdDuration = 5000; // 5 detik dalam milisekon
+    const holdDuration = 3000; // 3 detik dalam milisekon
 
     const startHoldTimer = () => {
       holdTimer = setTimeout(() => {
@@ -307,12 +307,6 @@
 if (!input) {
   message.style.color = "red";
   message.textContent = "Silakan masukkan token.";
-  return;
-}
-
-// Token khusus admin (langsung ke halaman admin)
-if (input === "ADMIN12345") {
-  window.location.href = "http://smp2pajangan.github.io/adminujian";
   return;
 }
 
