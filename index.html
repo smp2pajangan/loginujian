@@ -7,13 +7,13 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #e0e0e0; /* Warna background body */
+      background-color: #0066cc; /* Warna background biru */
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
       margin: 0;
-      padding: 20px; /* Agar wrapper tidak terlalu mepet tepi layar di awal */
+      padding: 20px;
       box-sizing: border-box;
       -webkit-user-select: none;
       -moz-user-select: none;
@@ -22,17 +22,17 @@
     }
 
     .wrapper {
-      background-color: white; /* Warna background wrapper (bisa sama dengan container atau berbeda) */
-      border-radius: 20px; /* Efek melengkung */
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Tambahkan shadow agar terlihat "naik" */
-      overflow: hidden; /* Untuk memastikan border-radius bekerja dengan baik pada konten di dalamnya */
+      background-color: white; /* Warna background wrapper */
+      border-radius: 20px 20px 0 0; /* Melengkung hanya di sudut kiri atas dan kanan atas */
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px; /* Beri sedikit ruang di dalam wrapper */
-      max-width: 95%; /* Agar tidak terlalu lebar di layar kecil */
-      max-height: 95%; /* Agar tidak terlalu tinggi */
+      padding: 20px;
+      max-width: 95%;
       box-sizing: border-box;
+      margin-top: 20px; /* Beri jarak dari atas agar lengkungan terlihat */
     }
 
     .container {
@@ -42,9 +42,9 @@
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       overflow: hidden;
-      margin-bottom: 20px; /* Beri jarak antara container dan modal (jika terlihat) */
+      margin-bottom: 20px;
       box-sizing: border-box;
-      text-align: center; /* Agar konten di dalam container tetap di tengah */
+      text-align: center;
     }
 
     .header-box {
@@ -76,11 +76,11 @@
 
     input {
       padding: 10px;
-      width: calc(100% - 20px); /* Agar tidak mentok ke tepi */
+      width: calc(100% - 20px);
       font-size: 16px;
       margin: 10px 0;
-      border: 1px solid #ccc; /* Tambahkan border default */
-      border-radius: 5px; /* Tambahkan border radius pada input */
+      border: 1px solid #ccc;
+      border-radius: 5px;
       box-sizing: border-box;
     }
 
@@ -93,11 +93,11 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease; /* Tambahkan transisi */
+      transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
     button:hover {
-      background-color: #0056b3; /* Efek hover */
+      background-color: #0056b3;
     }
 
     button:active {
@@ -128,7 +128,7 @@
     }
 
     .footer {
-      margin-top: 20px; /* Tambah margin atas */
+      margin-top: 20px;
       font-size: 12px;
       color: #666;
       padding-bottom: 10px;
@@ -144,13 +144,13 @@
       justify-content: center;
       align-items: center;
       z-index: 1000;
-      opacity: 0; /* Awalnya tidak terlihat */
-      transition: opacity 0.3s ease-in-out; /* Transisi fade-in */
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
     }
 
     #confirmModal.show {
-      display: flex; /* Tampilkan modal */
-      opacity: 1; /* Fade in */
+      display: flex;
+      opacity: 1;
     }
 
     #confirmModal .modal-content {
@@ -159,13 +159,13 @@
       border-radius: 10px;
       max-width: 300px;
       text-align: center;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2); /* Tambah shadow pada modal */
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
 
     #confirmModal button {
       margin: 5px 5px 0 5px;
-      padding: 10px 15px; /* Sedikit perubahan padding tombol modal */
-      width: auto; /* Lebar menyesuaikan konten */
+      padding: 10px 15px;
+      width: auto;
       border-radius: 5px;
       border: none;
       color: white;
@@ -202,7 +202,7 @@
       .container {
         margin-top: 40px;
         margin-bottom: 40px;
-        border-radius: 0; /* Hilangkan border radius di layar kecil */
+        border-radius: 0;
         border: none;
         box-shadow: none;
         width: 100%;
@@ -214,13 +214,13 @@
 
     @media (max-width: 400px) {
       .header-box .logo {
-        width: 60px; /* Ukuran logo lebih kecil di layar sangat kecil */
+        width: 60px;
       }
       .title {
-        font-size: 18px; /* Ukuran judul lebih kecil */
+        font-size: 18px;
       }
       .card-body {
-        padding: 15px; /* Padding lebih kecil */
+        padding: 15px;
       }
       input {
         font-size: 14px;
