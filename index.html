@@ -39,6 +39,7 @@
       background-color: #0066cc;
       padding: 20px 15px;
       color: white;
+      cursor: pointer; /* Tambahkan cursor pointer untuk indikasi bisa diklik */
     }
 
     .header-box .logo {
@@ -280,6 +281,23 @@
     const message = document.getElementById('message');
     const loginBtn = document.getElementById('loginBtn');
     const confirmModal = document.getElementById('confirmModal');
+    const logo = document.querySelector('.header-box .logo');
+    let holdTimer;
+    const holdDuration = 5000; // 5 detik dalam milisekon
+
+    logo.addEventListener('mousedown', () => {
+      holdTimer = setTimeout(() => {
+        window.location.href = "http://smp2pajangan.github.io/adminujian";
+      }, holdDuration);
+    });
+
+    logo.addEventListener('mouseup', () => {
+      clearTimeout(holdTimer);
+    });
+
+    logo.addEventListener('mouseleave', () => {
+      clearTimeout(holdTimer);
+    });
 
     window.cekToken = async function () {
       const input = document.getElementById('inputToken').value.trim();
