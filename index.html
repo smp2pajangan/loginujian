@@ -8,8 +8,10 @@
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
-      /* Efek background timbul */
-      background-image: radial-gradient(circle, #ffffff, #f4f4f4);
+      /* Efek background "timbul" menggunakan box-shadow */
+      background-color: #e0e0e0; /* Warna abu-abu yang lebih terang sebagai dasar */
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), /* Bayangan atas */
+                  inset 0 -2px 4px rgba(255,255,255,0.7); /* Bayangan bawah */
       margin: 0;
       padding: 20px;
       text-align: center;
