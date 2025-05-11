@@ -7,32 +7,44 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #e0e0e0; /* Warna abu-abu yang lebih terang sebagai dasar */
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), /* Bayangan atas */
-                  inset 0 -2px 4px rgba(255,255,255,0.7); /* Bayangan bawah */
-      margin: 0;
-      padding: 20px;
-      text-align: center;
+      background-color: #e0e0e0; /* Warna background body */
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      margin: 0;
+      padding: 20px; /* Agar wrapper tidak terlalu mepet tepi layar di awal */
       box-sizing: border-box;
-      -webkit-user-select: none; /* Chrome/Safari */
-      -moz-user-select: none;    /* Firefox */
-      -ms-user-select: none;     /* IE10+ */
-      user-select: none;        /* Standard syntax */
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    .wrapper {
+      background-color: white; /* Warna background wrapper (bisa sama dengan container atau berbeda) */
+      border-radius: 20px; /* Efek melengkung */
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Tambahkan shadow agar terlihat "naik" */
+      overflow: hidden; /* Untuk memastikan border-radius bekerja dengan baik pada konten di dalamnya */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px; /* Beri sedikit ruang di dalam wrapper */
+      max-width: 95%; /* Agar tidak terlalu lebar di layar kecil */
+      max-height: 95%; /* Agar tidak terlalu tinggi */
+      box-sizing: border-box;
     }
 
     .container {
-      max-width: 400px;
-      width: 90%; /* Lebih responsif */
-      margin: 20px auto; /* Margin atas bawah disesuaikan */
+      width: 90%;
       border: 1px solid #ddd;
       background: white;
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       overflow: hidden;
+      margin-bottom: 20px; /* Beri jarak antara container dan modal (jika terlihat) */
+      box-sizing: border-box;
+      text-align: center; /* Agar konten di dalam container tetap di tengah */
     }
 
     .header-box {
@@ -225,32 +237,34 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header-box">
-      <img src="https://github.com/smp2pajangan/loginujian/blob/main/logosmpn2pjg.png?raw=true" alt="Logo" class="logo" />
-      <div class="title">SMPN 2 PAJANGAN</div>
-    </div>
-    <div class="card-body">
-      <div class="judul-ujian">UJIAN BERBASIS ONLINE</div>
-      <p>Selamat datang</p>
-      <p>Silakan login menggunakan token ujian yang Anda miliki</p>
+  <div class="wrapper">
+    <div class="container">
+      <div class="header-box">
+        <img src="https://github.com/smp2pajangan/loginujian/blob/main/logosmpn2pjg.png?raw=true" alt="Logo" class="logo" />
+        <div class="title">SMPN 2 PAJANGAN</div>
+      </div>
+      <div class="card-body">
+        <div class="judul-ujian">UJIAN BERBASIS ONLINE</div>
+        <p>Selamat datang</p>
+        <p>Silakan login menggunakan token ujian yang Anda miliki</p>
 
-      <p class="message" id="message"></p>
+        <p class="message" id="message"></p>
 
-      <input type="text" id="inputToken" placeholder="Masukkan Token Ujian" oninput="formatToken(this)" maxlength="10" />
-      <button id="loginBtn" onclick="cekToken()">Login</button>
+        <input type="text" id="inputToken" placeholder="Masukkan Token Ujian" oninput="formatToken(this)" maxlength="10" />
+        <button id="loginBtn" onclick="cekToken()">Login</button>
+      </div>
+      <div class="footer">
+        © Admin SMPN 2 Pajangan<br>
+        <span id="datetime"></span>
+      </div>
     </div>
-    <div class="footer">
-      © Admin SMPN 2 Pajangan<br>
-      <span id="datetime"></span>
-    </div>
-  </div>
 
-  <div id="confirmModal">
-    <div class="modal-content">
-      <p id="modalText"></p>
-      <button id="btnLanjut">Lanjut</button>
-      <button id="btnBatal" onclick="tutupModal()">Batal</button>
+    <div id="confirmModal">
+      <div class="modal-content">
+        <p id="modalText"></p>
+        <button id="btnLanjut">Lanjut</button>
+        <button id="btnBatal" onclick="tutupModal()">Batal</button>
+      </div>
     </div>
   </div>
 
