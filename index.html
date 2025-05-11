@@ -280,6 +280,7 @@
     const confirmModal = document.getElementById('confirmModal');
     let holdTimer;
     const holdDuration = 3000;
+    const maxTimeDifference = 10 * 60 * 1000; // Toleransi perbedaan waktu 10 menit
 
     const startHoldTimer = () => {
       holdTimer = setTimeout(() => {
@@ -317,23 +318,37 @@
         const snapshot = await get(ref(db, 'tokens'));
         let valid = false;
         let url = "", kelas = "", mapel = "";
-        const now = new Date();
+        const nowClient = new Date().getTime();
 
-        snapshot.forEach(child => {
-          const data = child.val();
-          const start = new Date(data.startTime);
-          const end = new Date(data.endTime);
+        for (const child of snapshot.val() ? Object.values(snapshot.val()) : []) {
+          const data = child;
           if (data.token === input) {
-            if (now >= start && now <= end) {
+            const startTime = new Date(data.startTime).getTime();
+            const endTime = new Date(data.endTime).getTime();
+            const serverTime = data.serverTime; // Kita asumsikan ini ada di data token
+
+            if (serverTime) {
+              const timeDifference = Math.abs(nowClient - serverTime);
+              if (timeDifference > maxTimeDifference) {
+                message.style.color = "red";
+                message.textContent = "Waktu perangkat Anda tidak sesuai. Silakan sesuaikan dengan waktu otomatis.";
+                loginBtn.disabled = false;
+                loginBtn.style.opacity = 1;
+                return;
+              }
+            }
+
+            if (nowClient >= startTime && nowClient <= endTime) {
               valid = true;
               url = data.url;
               kelas = data.kelas || "-";
               mapel = data.subject || data.mapel || "-";
+              break;
             } else {
               valid = "expired";
             }
           }
-        });
+        }
 
         if (valid === true) {
           const modalText = document.getElementById("modalText");
