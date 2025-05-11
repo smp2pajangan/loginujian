@@ -7,9 +7,9 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #e0e0e0; /* Warna abu-abu yang lebih terang sebagai dasar */
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), /* Bayangan atas */
-                  inset 0 -2px 4px rgba(255,255,255,0.7); /* Bayangan bawah */
+      background-color: #e0e0e0;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1),
+                  inset 0 -2px 4px rgba(255,255,255,0.7);
       margin: 0;
       padding: 20px;
       text-align: center;
@@ -18,16 +18,16 @@
       align-items: center;
       min-height: 100vh;
       box-sizing: border-box;
-      -webkit-user-select: none; /* Chrome/Safari */
-      -moz-user-select: none;    /* Firefox */
-      -ms-user-select: none;     /* IE10+ */
-      user-select: none;        /* Standard syntax */
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
     }
 
     .container {
       max-width: 400px;
-      width: 90%; /* Lebih responsif */
-      margin: 20px auto; /* Margin atas bawah disesuaikan */
+      width: 90%;
+      margin: 20px auto;
       border: 1px solid #ddd;
       background: white;
       border-radius: 10px;
@@ -64,11 +64,11 @@
 
     input {
       padding: 10px;
-      width: calc(100% - 20px); /* Agar tidak mentok ke tepi */
+      width: calc(100% - 20px);
       font-size: 16px;
       margin: 10px 0;
-      border: 1px solid #ccc; /* Tambahkan border default */
-      border-radius: 5px; /* Tambahkan border radius pada input */
+      border: 1px solid #ccc;
+      border-radius: 5px;
       box-sizing: border-box;
     }
 
@@ -81,11 +81,11 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease; /* Tambahkan transisi */
+      transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
     button:hover {
-      background-color: #0056b3; /* Efek hover */
+      background-color: #0056b3;
     }
 
     button:active {
@@ -116,13 +116,12 @@
     }
 
     .footer {
-      margin-top: 20px; /* Tambah margin atas */
+      margin-top: 20px;
       font-size: 12px;
       color: #666;
       padding-bottom: 10px;
     }
 
-    /* Modal Styling */
     #confirmModal {
       display: none;
       position: fixed;
@@ -132,13 +131,13 @@
       justify-content: center;
       align-items: center;
       z-index: 1000;
-      opacity: 0; /* Awalnya tidak terlihat */
-      transition: opacity 0.3s ease-in-out; /* Transisi fade-in */
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
     }
 
     #confirmModal.show {
-      display: flex; /* Tampilkan modal */
-      opacity: 1; /* Fade in */
+      display: flex;
+      opacity: 1;
     }
 
     #confirmModal .modal-content {
@@ -147,13 +146,13 @@
       border-radius: 10px;
       max-width: 300px;
       text-align: center;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2); /* Tambah shadow pada modal */
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
 
     #confirmModal button {
       margin: 5px 5px 0 5px;
-      padding: 10px 15px; /* Sedikit perubahan padding tombol modal */
-      width: auto; /* Lebar menyesuaikan konten */
+      padding: 10px 15px;
+      width: auto;
       border-radius: 5px;
       border: none;
       color: white;
@@ -185,12 +184,11 @@
       transform: scale(0.98);
     }
 
-    /* Media Queries untuk Responsif */
     @media (max-width: 600px) {
       .container {
         margin-top: 40px;
         margin-bottom: 40px;
-        border-radius: 0; /* Hilangkan border radius di layar kecil */
+        border-radius: 0;
         border: none;
         box-shadow: none;
         width: 100%;
@@ -202,13 +200,13 @@
 
     @media (max-width: 400px) {
       .header-box .logo {
-        width: 60px; /* Ukuran logo lebih kecil di layar sangat kecil */
+        width: 60px;
       }
       .title {
-        font-size: 18px; /* Ukuran judul lebih kecil */
+        font-size: 18px;
       }
       .card-body {
-        padding: 15px; /* Padding lebih kecil */
+        padding: 15px;
       }
       input {
         font-size: 14px;
@@ -281,7 +279,7 @@
     const loginBtn = document.getElementById('loginBtn');
     const confirmModal = document.getElementById('confirmModal');
     let holdTimer;
-    const holdDuration = 3000; // 3 detik dalam milisekon
+    const holdDuration = 3000;
 
     const startHoldTimer = () => {
       holdTimer = setTimeout(() => {
@@ -304,17 +302,16 @@
 
     window.cekToken = async function () {
       const input = document.getElementById('inputToken').value.trim();
-if (!input) {
-  message.style.color = "red";
-  message.textContent = "Silakan masukkan token.";
-  return;
-}
+      if (!input) {
+        message.style.color = "red";
+        message.textContent = "Silakan masukkan token.";
+        return;
+      }
 
-// disable & spinner
-loginBtn.disabled = true;
-loginBtn.style.opacity = 0.6;
-message.style.color = "black";
-message.innerHTML = `Memproses token... <span class="spinner"></span>`;
+      loginBtn.disabled = true;
+      loginBtn.style.opacity = 0.6;
+      message.style.color = "black";
+      message.innerHTML = `Memproses token... <span class="spinner"></span>`;
 
       try {
         const snapshot = await get(ref(db, 'tokens'));
@@ -348,7 +345,7 @@ message.innerHTML = `Memproses token... <span class="spinner"></span>`;
             <strong>Kelas:</strong> ${kelas}<br><br>
             Apakah Anda yakin ingin melanjutkan?
           `;
-          confirmModal.classList.add('show'); // Tampilkan modal dengan menambahkan kelas 'show'
+          confirmModal.classList.add('show');
 
           lanjutBtn.onclick = function () {
             window.location.href = url;
@@ -374,15 +371,15 @@ message.innerHTML = `Memproses token... <span class="spinner"></span>`;
     };
 
     window.tutupModal = function () {
-      confirmModal.classList.remove('show'); // Sembunyikan modal dengan menghapus kelas 'show'
+      confirmModal.classList.remove('show');
       message.textContent = "";
       loginBtn.disabled = false;
       loginBtn.style.opacity = 1;
     };
 
-window.formatToken = function (el) {
-  el.value = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 10);
-};
+    window.formatToken = function (el) {
+      el.value = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 10);
+    };
 
     function updateDateTime() {
       const now = new Date();
