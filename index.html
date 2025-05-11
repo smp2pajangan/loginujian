@@ -323,7 +323,7 @@
           const data = child.val();
           const start = new Date(data.startTime);
           const end = new Date(data.endTime);
-          if (data.token === input) {
+          if (data.token === input && data.isActive === true) {
             if (now >= start && now <= end) {
               valid = true;
               url = data.url;
@@ -332,6 +332,8 @@
             } else {
               valid = "expired";
             }
+          } else if (data.token === input && data.isActive === false) {
+            valid = "inactive";
           }
         });
 
@@ -353,6 +355,11 @@
         } else if (valid === "expired") {
           message.style.color = "red";
           message.textContent = "Token belum aktif atau Kadaluarsa";
+          loginBtn.disabled = false;
+          loginBtn.style.opacity = 1;
+        } else if (valid === "inactive") {
+          message.style.color = "red";
+          message.textContent = "Token saat ini tidak aktif.";
           loginBtn.disabled = false;
           loginBtn.style.opacity = 1;
         } else {
