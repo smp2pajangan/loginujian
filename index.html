@@ -225,7 +225,7 @@
 <body>
   <div class="container">
     <div class="header-box">
-      <img src="https://github.com/smp2pajangan/loginujian/blob/main/logosmpn2pjg.png?raw=true" alt="Logo" class="logo" />
+      <img src="https://raw.githubusercontent.com/smp2pajangan/customlink/refs/heads/main/logosmpn2pjg.png" alt="Logo" class="logo" />
       <div class="title">SMPN 2 PAJANGAN</div>
     </div>
     <div class="card-body">
@@ -278,27 +278,6 @@
     const message = document.getElementById('message');
     const loginBtn = document.getElementById('loginBtn');
     const confirmModal = document.getElementById('confirmModal');
-    let holdTimer;
-    const holdDuration = 3000;
-
-    const startHoldTimer = () => {
-      holdTimer = setTimeout(() => {
-        window.location.href = "http://smp2pajangan.github.io/adminujian";
-      }, holdDuration);
-    };
-
-    const clearHoldTimer = () => {
-      clearTimeout(holdTimer);
-    };
-
-    loginBtn.addEventListener('mousedown', startHoldTimer);
-    loginBtn.addEventListener('mouseup', clearHoldTimer);
-    loginBtn.addEventListener('mouseleave', clearHoldTimer);
-
-    loginBtn.addEventListener('touchstart', startHoldTimer);
-    loginBtn.addEventListener('touchend', clearHoldTimer);
-    loginBtn.addEventListener('touchmove', clearHoldTimer);
-    loginBtn.addEventListener('touchcancel', clearHoldTimer);
 
     window.cekToken = async function () {
       const input = document.getElementById('inputToken').value.trim();
