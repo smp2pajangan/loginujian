@@ -145,30 +145,8 @@
       padding: 20px;
       border-radius: 10px;
       max-width: 300px;
-      text-align: left; /* Ubah default text-align menjadi left */
+      text-align: center;
       box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-
-    #confirmModal h4 {
-      text-align: center;
-      margin-bottom: 15px;
-    }
-
-    #confirmModal p {
-      margin-bottom: 8px;
-    }
-
-    #confirmModal p:last-child {
-      margin-bottom: 0;
-    }
-
-    #confirmModal .modal-content > p:nth-child(4) { /* Untuk pesan selamat mengerjakan */
-      text-align: center;
-      margin-top: 15px;
-    }
-
-    #confirmModal .modal-content > p:nth-child(5) { /* Untuk pesan selamat mengerjakan */
-      text-align: center;
     }
 
     #confirmModal button {
@@ -180,11 +158,6 @@
       color: white;
       cursor: pointer;
       transition: background-color 0.3s ease, transform 0.2s ease;
-    }
-
-    #confirmModal > div > div > div { /* Container tombol */
-      text-align: center;
-      margin-top: 20px;
     }
 
     #btnLanjut {
@@ -271,20 +244,20 @@
     </div>
   </div>
 
-  <div id="confirmModal">
-    <div class="modal-content">
-      <h4 style="text-align: center; margin-bottom: 15px;">DATA UJIAN ONLINE</h4>
+    <div id="confirmModal">
+    <div class="modal-content" style="text-align: left;">
+      <h4 style="text-align: center; margin-bottom: 12px; font-size: 1.6em; margin-top: 5px;">DATA UJIAN ONLINE</h4>
       <p><strong>MAPEL :</strong> <span id="modalMapel"></span></p>
       <p><strong>KELAS :</strong> <span id="modalKelas"></span></p>
-      <p style="margin-top: 15px; text-align: center;">Jika data ujian di atas sudah benar, klik lanjutkan!</p>
+      <p style="margin-top: 8px; text-align: center;">Jika data ujian di atas sudah benar, klik lanjutkan!</p>
       <p style="text-align: center;">Selamat mengerjakan :)</p>
-      <div style="text-align: center; margin-top: 20px;">
+      <div style="text-align: center; margin-top: 8px;">
         <button id="btnLanjut">Lanjutkan</button>
         <button id="btnBatal" onclick="tutupModal()">Batal</button>
       </div>
     </div>
   </div>
-
+  
   <script>
     document.addEventListener('contextmenu', function (e) {
       e.preventDefault();
@@ -309,11 +282,8 @@
     const db = getDatabase(app);
 
     const message = document.getElementById('message');
-    const loginBtn = documentgetElementById('loginBtn');
+    const loginBtn = document.getElementById('loginBtn');
     const confirmModal = document.getElementById('confirmModal');
-    const modalMapelElement = document.getElementById("modalMapel");
-    const modalKelasElement = document.getElementById("modalKelas");
-    const lanjutBtn = document.getElementById("btnLanjut");
 
     window.cekToken = async function () {
       const input = document.getElementById('inputToken').value.trim();
@@ -359,10 +329,14 @@
             }
           }
         });
+                if (valid === true) {
+          const modalMapelElement = document.getElementById("modalMapel");
+          const modalKelasElement = document.getElementById("modalKelas");
+          const lanjutBtn = document.getElementById("btnLanjut");
 
-        if (valid === true) {
           modalMapelElement.textContent = mapel;
           modalKelasElement.textContent = kelas;
+
           confirmModal.classList.add('show');
 
           lanjutBtn.onclick = function () {
