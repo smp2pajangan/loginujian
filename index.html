@@ -302,17 +302,25 @@
           const data = child.val();
           const start = new Date(data.startTime);
           const end = new Date(data.endTime);
-          if (data.token === input && data.isActive === true) {
-            if (now >= start && now <= end) {
+
+          if (data.token === input) {
+            if (data.isForceActive === true) {
               valid = true;
               url = data.url;
               kelas = data.kelas || "-";
               mapel = data.subject || data.mapel || "-";
+            } else if (data.isActive === true) {
+              if (now >= start && now <= end) {
+                valid = true;
+                url = data.url;
+                kelas = data.kelas || "-";
+                mapel = data.subject || data.mapel || "-";
+              } else {
+                valid = "expired";
+              }
             } else {
-              valid = "expired";
+              valid = "inactive";
             }
-          } else if (data.token === input && data.isActive === false) {
-            valid = "inactive";
           }
         });
 
