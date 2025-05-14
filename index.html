@@ -145,8 +145,30 @@
       padding: 20px;
       border-radius: 10px;
       max-width: 300px;
-      text-align: center;
+      text-align: left; /* Ubah default text-align menjadi left */
       box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    #confirmModal h4 {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    #confirmModal p {
+      margin-bottom: 8px;
+    }
+
+    #confirmModal p:last-child {
+      margin-bottom: 0;
+    }
+
+    #confirmModal .modal-content > p:nth-child(4) { /* Untuk pesan selamat mengerjakan */
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    #confirmModal .modal-content > p:nth-child(5) { /* Untuk pesan selamat mengerjakan */
+      text-align: center;
     }
 
     #confirmModal button {
@@ -158,6 +180,11 @@
       color: white;
       cursor: pointer;
       transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    #confirmModal > div > div > div { /* Container tombol */
+      text-align: center;
+      margin-top: 20px;
     }
 
     #btnLanjut {
@@ -246,9 +273,15 @@
 
   <div id="confirmModal">
     <div class="modal-content">
-      <p id="modalText"></p>
-      <button id="btnLanjut">Lanjut</button>
-      <button id="btnBatal" onclick="tutupModal()">Batal</button>
+      <h4 style="text-align: center; margin-bottom: 15px;">DATA UJIAN ONLINE</h4>
+      <p><strong>MAPEL :</strong> <span id="modalMapel"></span></p>
+      <p><strong>KELAS :</strong> <span id="modalKelas"></span></p>
+      <p style="margin-top: 15px; text-align: center;">Jika data ujian di atas sudah benar, klik lanjutkan!</p>
+      <p style="text-align: center;">Selamat mengerjakan :)</p>
+      <div style="text-align: center; margin-top: 20px;">
+        <button id="btnLanjut">Lanjutkan</button>
+        <button id="btnBatal" onclick="tutupModal()">Batal</button>
+      </div>
     </div>
   </div>
 
@@ -276,8 +309,11 @@
     const db = getDatabase(app);
 
     const message = document.getElementById('message');
-    const loginBtn = document.getElementById('loginBtn');
+    const loginBtn = documentgetElementById('loginBtn');
     const confirmModal = document.getElementById('confirmModal');
+    const modalMapelElement = document.getElementById("modalMapel");
+    const modalKelasElement = document.getElementById("modalKelas");
+    const lanjutBtn = document.getElementById("btnLanjut");
 
     window.cekToken = async function () {
       const input = document.getElementById('inputToken').value.trim();
@@ -325,15 +361,8 @@
         });
 
         if (valid === true) {
-          const modalText = document.getElementById("modalText");
-          const lanjutBtn = document.getElementById("btnLanjut");
-
-          modalText.innerHTML = `
-            Token valid.<br><br>
-            <strong>Mata Pelajaran:</strong> ${mapel}<br>
-            <strong>Kelas:</strong> ${kelas}<br><br>
-            Apakah Anda yakin ingin melanjutkan?
-          `;
+          modalMapelElement.textContent = mapel;
+          modalKelasElement.textContent = kelas;
           confirmModal.classList.add('show');
 
           lanjutBtn.onclick = function () {
