@@ -57,7 +57,8 @@
     }
 
     .judul-ujian {
-      color: orange;
+      color: #0066cc; /* Warna biru seperti header */
+      font-size: 22px; /* Ukuran sama dengan SMPN 2 PAJANGAN */
       font-weight: bold;
       margin: 10px 0;
     }
@@ -95,7 +96,7 @@
     .message {
       margin-bottom: 10px;
       font-size: 14px;
-      min-height: 20px;
+      min-height: 30px; /* Sesuaikan tinggi minimum jika perlu */
     }
 
     .spinner {
@@ -234,11 +235,12 @@
       <p>Silakan login menggunakan token ujian yang Anda miliki</p>
 
       <div id="locationBlocked" style="display: none; color: red; margin-bottom: 10px; font-weight: bold;">
-        AKSES UJIAN DIBLOKIR, SILAHKAN AKTIFKAN LOKASI ANDA DI SMP NEGERI 2 PAJANGAN!
+        AKSES UJIAN DIBLOKIR, silahkan aktifkan lokasi perangkat Anda di SMPN 2 Pajangan! Setelah diaktifkan, silahkan refresh halaman login!
       </div>
       <p class="message" id="message"></p>
+      <p id="locationStatus" style="color: gray; font-size: 12px;">Memuat status lokasi...</p>
 
-      <input type="text" id="inputToken" placeholder="Masukkan Token Ujian" oninput="formatToken(this)" maxlength="10" />
+      <input type="text" id="inputToken" placeholder="Masukkan Token Ujian" oninput="formatToken(this)" maxlength="10" disabled />
       <button id="loginBtn" onclick="cekToken()" disabled style="opacity: 0.6;">Login</button>
     </div>
     <div class="footer">
@@ -299,6 +301,8 @@
     const message = document.getElementById('message');
     const loginBtn = document.getElementById('loginBtn');
     const confirmModal = document.getElementById('confirmModal');
+    const locationStatus = document.getElementById('locationStatus');
+    const inputToken = document.getElementById('inputToken');
 
     function isTouchDevice() {
       return window.matchMedia('(pointer: coarse)').matches;
@@ -334,7 +338,7 @@
         loginBtn.style.opacity = 1;
       } else {
         locationBlockedDiv.style.display = 'block';
-        locationBlockedDiv.textContent = 'AKSES UJIAN DIBLOKIR, SILAHKAN AKTIFKAN LOKASI ANDA DI SMP NEGERI 2 PAJANGAN!';
+        locationBlockedDiv.textContent = 'AKSES UJIAN DIBLOKIR, silahkan aktifkan lokasi perangkat Anda di SMPN 2 Pajangan! Setelah diaktifkan, silahkan refresh halaman login!';
         isLocationValid = false;
         loginBtn.disabled = true; // Nonaktifkan tombol login jika lokasi tidak valid
         loginBtn.style.opacity = 0.6;
@@ -348,11 +352,11 @@
     function handleLocationError(error) {
       console.error("Error getting location:", error);
       locationBlockedDiv.style.display = 'block';
-      locationBlockedDiv.textContent = 'AKSES UJIAN DIBLOKIR, SILAHKAN AKTIFKAN LOKASI ANDA DI SMP NEGERI 2 PAJANGAN!';
+      locationBlockedDiv.textContent = 'AKSES UJIAN DIBLOKIR, silahkan aktifkan lokasi perangkat Anda di SMPN 2 Pajangan! Setelah diaktifkan, silahkan refresh halaman login!';
       message.style.color = "orange";
       switch(error.code) {
         case error.PERMISSION_DENIED:
-          message.textContent = "Akses lokasi ditolak. Mohon aktifkan di pengaturan perangkat Anda.";
+          message.textContent = "Lokasi belum diaktifkan, mohon aktifkan lokasi di pengaturan perangkat Anda.";
           break;
         case error.POSITION_UNAVAILABLE:
           message.textContent = "Informasi lokasi tidak tersedia.";
@@ -389,21 +393,38 @@
         isLocationValid = true;
         loginBtn.disabled = false;
         loginBtn.style.opacity = 1;
+        inputToken.disabled = false;
+      } else if (!isLocationEnabled) {
+        locationBlockedDiv.style.display = 'none';
+        isLocationValid = true;
+        loginBtn.disabled = false;
+        loginBtn.style.opacity = 1;
+        inputToken.disabled = false;
       }
     }
 
     // Ambil status fitur lokasi dari Firebase saat halaman dimuat
     get(child(settingsRef, 'isLocationEnabled')).then((snapshot) => {
+      locationStatus.style.display = 'block'; // Tampilkan pesan pemuatan
+
       if (snapshot.exists()) {
         isLocationEnabled = snapshot.val();
-        getLocation(); // Panggil getLocation setelah mendapatkan status dari Firebase
       } else {
-        console.log("Tidak dapat mengambil status fitur lokasi.");
-        getLocation(); // Tetap coba jalankan getLocation dengan nilai default
+        console.log("Tidak dapat mengambil status fitur lokasi, menggunakan default.");
       }
+      locationStatus.style.display = 'none'; // Sembunyikan pesan pemuatan setelah mendapatkan status
+      getLocation(); // Panggil getLocation setelah mendapatkan status dari Firebase
+      inputToken.disabled = false; // Aktifkan input
+      loginBtn.disabled = isLocationEnabled && isTouchDevice() && !isLocationValid; // Atur status tombol login berdasarkan status lokasi awal
+      loginBtn.style.opacity = loginBtn.disabled ? 0.6 : 1;
+
     }).catch((error) => {
       console.error(error);
+      locationStatus.style.display = 'none'; // Sembunyikan pesan pemuatan jika error
       getLocation(); // Tetap coba jalankan getLocation jika ada error
+      inputToken.disabled = false; // Aktifkan input
+      loginBtn.disabled = isLocationEnabled && isTouchDevice() && !isLocationValid; // Atur status tombol login berdasarkan status lokasi awal
+      loginBtn.style.opacity = loginBtn.disabled ? 0.6 : 1;
     });
 
     window.cekToken = async function () {
@@ -426,7 +447,7 @@
       message.innerHTML = `Memproses token... <span class="spinner"></span>`;
 
       try {
-        const snapshot= await get(ref(db, 'tokens'));
+        const snapshot = await get(ref(db, 'tokens'));
         let valid = false;
         let url = "", kelas = "", mapel = "";
         const now = new Date();
