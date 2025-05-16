@@ -234,7 +234,7 @@
       <p>Silakan login menggunakan token ujian yang Anda miliki</p>
 
       <div id="locationBlocked" style="display: none; color: red; margin-bottom: 10px; font-weight: bold;">
-        Akses ujian diblokir. Silakan aktifkan lokasi Anda di sekitar SMPN 2 Pajangan.
+        AKSES UJIAN DIBLOKIR, SILAHKAN AKTIFKAN LOKASI ANDA DI SMP NEGERI 2 PAJANGAN!
       </div>
       <p class="message" id="message"></p>
 
@@ -269,7 +269,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAOBCX8x60pYqxtXmXMz2xc5dwC3HJH5EE",
@@ -284,15 +284,25 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    // Referensi ke node setlokasi di Firebase
+    const settingsRef = ref(db, 'setlokasi');
+
+    // Variabel kontrol fitur lokasi
+    let isLocationEnabled = true; // Default aktif
+
     // Koordinat pusat lokasi yang diizinkan
-    const allowedLatitude = -7.8589918;
-    const allowedLongitude = 110.2658000;
-    const allowedRadiusKm = 0.7; // Radius dalam kilometer (700 meter)
+    const allowedLatitude = -7.8589546;
+    const allowedLongitude = 110.2655596;
+    const allowedRadiusKm = 0.075; // Radius dalam kilometer (75 meter)
 
     const locationBlockedDiv = document.getElementById('locationBlocked');
     const message = document.getElementById('message');
     const loginBtn = document.getElementById('loginBtn');
     const confirmModal = document.getElementById('confirmModal');
+
+    function isMobileDevice() {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
 
     function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
       const R = 6371; // Radius of the earth in km
@@ -312,7 +322,7 @@
       return deg * (Math.PI / 180)
     }
 
-    let isLocationValid = false;
+    let isLocationValid = !isMobileDevice(); // Default true jika bukan HP
 
     function checkLocation(latitude, longitude) {
       const distance = getDistanceFromLatLonInKm(allowedLatitude, allowedLongitude, latitude, longitude);
@@ -324,6 +334,7 @@
         loginBtn.style.opacity = 1;
       } else {
         locationBlockedDiv.style.display = 'block';
+        locationBlockedDiv.textContent = 'AKSES UJIAN DIBLOKIR, SILAHKAN AKTIFKAN LOKASI ANDA DI SMP NEGERI 2 PAJANGAN!';
         isLocationValid = false;
         loginBtn.disabled = true; // Nonaktifkan tombol login jika lokasi tidak valid
         loginBtn.style.opacity = 0.6;
@@ -337,6 +348,7 @@
     function handleLocationError(error) {
       console.error("Error getting location:", error);
       locationBlockedDiv.style.display = 'block';
+      locationBlockedDiv.textContent = 'AKSES UJIAN DIBLOKIR, SILAHKAN AKTIFKAN LOKASI ANDA DI SMP NEGERI 2 PAJANGAN!';
       message.style.color = "orange";
       switch(error.code) {
         case error.PERMISSION_DENIED:
@@ -357,28 +369,54 @@
     }
 
     function getLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(handleLocation, handleLocationError, {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        });
+      if (isLocationEnabled) {
+        if (isMobileDevice()) {
+          if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(handleLocation, handleLocationError, {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 0
+            });
+          } else {
+            locationBlockedDiv.style.display = 'block';
+            locationBlockedDiv.textContent = 'Geolocation tidak didukung oleh perangkat ini.';
+            message.style.color = "red";
+            loginBtn.disabled = true;
+            loginBtn.style.opacity = 0.6;
+          }
+        } else {
+          // Jika bukan perangkat seluler dan lokasi diaktifkan (mungkin untuk testing di desktop)
+          locationBlockedDiv.style.display = 'none';
+          loginBtn.disabled = false;
+          loginBtn.style.opacity = 1;
+        }
       } else {
-        locationBlockedDiv.style.display = 'block';
-        message.style.color = "red";
-        message.textContent = "Geolocation tidak didukung oleh browser ini.";
-        loginBtn.disabled = true;
-        loginBtn.style.opacity = 0.6;
+        // Jika fitur lokasi dinonaktifkan
+        locationBlockedDiv.style.display = 'none';
+        isLocationValid = true;
+        loginBtn.disabled = false;
+        loginBtn.style.opacity = 1;
       }
     }
 
-    // Panggil getLocation saat halaman dimuat
-    getLocation();
+    // Ambil status fitur lokasi dari Firebase saat halaman dimuat
+    get(child(settingsRef, 'isLocationEnabled')).then((snapshot) => {
+      if (snapshot.exists()) {
+        isLocationEnabled = snapshot.val();
+        getLocation(); // Panggil getLocation setelah mendapatkan status dari Firebase
+      } else {
+        console.log("Tidak dapat mengambil status fitur lokasi.");
+        getLocation(); // Tetap coba jalankan getLocation dengan nilai default
+      }
+    }).catch((error) => {
+      console.error(error);
+      getLocation(); // Tetap coba jalankan getLocation jika ada error
+    });
 
     window.cekToken = async function () {
-      if (!isLocationValid) {
+      if (isLocationEnabled && !isLocationValid && isMobileDevice()) {
         message.style.color = "red";
-        message.textContent = "Lokasi Anda belum diverifikasi. Pastikan Anda berada di area SMPN 2 Pajangan.";
+        message.textContent = "Lokasi Anda belum diverifikasi. Pastikan Anda berada di area SMP NEGERI 2 PAJANGAN!";
         return;
       }
 
@@ -488,4 +526,3 @@
   </script>
 </body>
 </html>
-
