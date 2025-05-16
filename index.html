@@ -145,7 +145,7 @@
       padding: 20px;
       border-radius: 10px;
       max-width: 300px;
-      text-align: center;
+      text-align: left;
       box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
 
@@ -233,10 +233,13 @@
       <p>Selamat datang</p>
       <p>Silakan login menggunakan token ujian yang Anda miliki</p>
 
+      <div id="locationBlocked" style="display: none; color: red; margin-bottom: 10px; font-weight: bold;">
+        Akses ujian diblokir. Silakan aktifkan lokasi Anda di sekitar SMPN 2 Pajangan.
+      </div>
       <p class="message" id="message"></p>
 
       <input type="text" id="inputToken" placeholder="Masukkan Token Ujian" oninput="formatToken(this)" maxlength="10" />
-      <button id="loginBtn" onclick="cekToken()">Login</button>
+      <button id="loginBtn" onclick="cekToken()" disabled style="opacity: 0.6;">Login</button>
     </div>
     <div class="footer">
       © Admin SMPN 2 Pajangan<br>
@@ -257,7 +260,7 @@
       </div>
     </div>
   </div>
-  
+
   <script>
     document.addEventListener('contextmenu', function (e) {
       e.preventDefault();
@@ -281,11 +284,104 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    // Koordinat pusat lokasi yang diizinkan
+    const allowedLatitude = -7.8589918;
+    const allowedLongitude = 110.2658000;
+    const allowedRadiusKm = 0.7; // Radius dalam kilometer (700 meter)
+
+    const locationBlockedDiv = document.getElementById('locationBlocked');
     const message = document.getElementById('message');
     const loginBtn = document.getElementById('loginBtn');
     const confirmModal = document.getElementById('confirmModal');
 
+    function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+      const R = 6371; // Radius of the earth in km
+      const dLat = deg2rad(lat2 - lat1);
+      const dLon = deg2rad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2)
+      ;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const d = R * c; // Distance in km
+      return d;
+    }
+
+    function deg2rad(deg) {
+      return deg * (Math.PI / 180)
+    }
+
+    let isLocationValid = false;
+
+    function checkLocation(latitude, longitude) {
+      const distance = getDistanceFromLatLonInKm(allowedLatitude, allowedLongitude, latitude, longitude);
+      if (distance <= allowedRadiusKm) {
+        locationBlockedDiv.style.display = 'none';
+        isLocationValid = true;
+        message.textContent = ""; // Bersihkan pesan lokasi
+        loginBtn.disabled = false; // Aktifkan tombol login jika lokasi valid
+        loginBtn.style.opacity = 1;
+      } else {
+        locationBlockedDiv.style.display = 'block';
+        isLocationValid = false;
+        loginBtn.disabled = true; // Nonaktifkan tombol login jika lokasi tidak valid
+        loginBtn.style.opacity = 0.6;
+      }
+    }
+
+    function handleLocation(position) {
+      checkLocation(position.coords.latitude, position.coords.longitude);
+    }
+
+    function handleLocationError(error) {
+      console.error("Error getting location:", error);
+      locationBlockedDiv.style.display = 'block';
+      message.style.color = "orange";
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          message.textContent = "Akses lokasi ditolak. Mohon aktifkan di pengaturan perangkat Anda.";
+          break;
+        case error.POSITION_UNAVAILABLE:
+          message.textContent = "Informasi lokasi tidak tersedia.";
+          break;
+        case error.TIMEOUT:
+          message.textContent = "Waktu permintaan lokasi habis.";
+          break;
+        case error.UNKNOWN_ERROR:
+          message.textContent = "Terjadi kesalahan yang tidak diketahui dengan layanan lokasi.";
+          break;
+      }
+      loginBtn.disabled = true;
+      loginBtn.style.opacity = 0.6;
+    }
+
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(handleLocation, handleLocationError, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        });
+      } else {
+        locationBlockedDiv.style.display = 'block';
+        message.style.color = "red";
+        message.textContent = "Geolocation tidak didukung oleh browser ini.";
+        loginBtn.disabled = true;
+        loginBtn.style.opacity = 0.6;
+      }
+    }
+
+    // Panggil getLocation saat halaman dimuat
+    getLocation();
+
     window.cekToken = async function () {
+      if (!isLocationValid) {
+        message.style.color = "red";
+        message.textContent = "Lokasi Anda belum diverifikasi. Pastikan Anda berada di area SMPN 2 Pajangan.";
+        return;
+      }
+
       const input = document.getElementById('inputToken').value.trim();
       if (!input) {
         message.style.color = "red";
@@ -329,17 +425,18 @@
             }
           }
         });
-                if (valid === true) {
+        if (valid === true) {
           const modalMapelElement = document.getElementById("modalMapel");
           const modalKelasElement = document.getElementById("modalKelas");
-          const lanjutBtn = document.getElementById("btnLanjut");
+          const lanjutBtnModal = document.getElementById("btnLanjut");
+          const confirmModal = document.getElementById("confirmModal");
 
           modalMapelElement.textContent = mapel;
           modalKelasElement.textContent = kelas;
 
           confirmModal.classList.add('show');
 
-          lanjutBtn.onclick = function () {
+          lanjutBtnModal.onclick = function () {
             window.location.href = url;
           };
         } else if (valid === "expired") {
@@ -391,3 +488,4 @@
   </script>
 </body>
 </html>
+
