@@ -300,8 +300,8 @@
     const loginBtn = document.getElementById('loginBtn');
     const confirmModal = document.getElementById('confirmModal');
 
-    function isMobileDevice() {
-      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    function isTouchDevice() {
+      return window.matchMedia('(pointer: coarse)').matches;
     }
 
     function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
@@ -322,7 +322,7 @@
       return deg * (Math.PI / 180)
     }
 
-    let isLocationValid = !isMobileDevice(); // Default true jika bukan HP
+    let isLocationValid = !isTouchDevice(); // Default true jika bukan perangkat sentuh
 
     function checkLocation(latitude, longitude) {
       const distance = getDistanceFromLatLonInKm(allowedLatitude, allowedLongitude, latitude, longitude);
@@ -369,29 +369,22 @@
     }
 
     function getLocation() {
-      if (isLocationEnabled) {
-        if (isMobileDevice()) {
-          if (navigator.geolocation) {
-            navigator.geolocation.watchPosition(handleLocation, handleLocationError, {
-              enableHighAccuracy: true,
-              timeout: 10000,
-              maximumAge: 0
-            });
-          } else {
-            locationBlockedDiv.style.display = 'block';
-            locationBlockedDiv.textContent = 'Geolocation tidak didukung oleh perangkat ini.';
-            message.style.color = "red";
-            loginBtn.disabled = true;
-            loginBtn.style.opacity = 0.6;
-          }
+      if (isLocationEnabled && isTouchDevice()) {
+        if (navigator.geolocation) {
+          navigator.geolocation.watchPosition(handleLocation, handleLocationError, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          });
         } else {
-          // Jika bukan perangkat seluler dan lokasi diaktifkan (mungkin untuk testing di desktop)
-          locationBlockedDiv.style.display = 'none';
-          loginBtn.disabled = false;
-          loginBtn.style.opacity = 1;
+          locationBlockedDiv.style.display = 'block';
+          locationBlockedDiv.textContent = 'Geolocation tidak didukung oleh perangkat ini.';
+          message.style.color = "red";
+          loginBtn.disabled = true;
+          loginBtn.style.opacity = 0.6;
         }
-      } else {
-        // Jika fitur lokasi dinonaktifkan
+      } else if (!isTouchDevice()) {
+        // Jika bukan perangkat sentuh, langsung anggap lokasi valid dan aktifkan tombol login
         locationBlockedDiv.style.display = 'none';
         isLocationValid = true;
         loginBtn.disabled = false;
@@ -414,7 +407,7 @@
     });
 
     window.cekToken = async function () {
-      if (isLocationEnabled && !isLocationValid && isMobileDevice()) {
+      if (isLocationEnabled && isTouchDevice() && !isLocationValid) {
         message.style.color = "red";
         message.textContent = "Lokasi Anda belum diverifikasi. Pastikan Anda berada di area SMP NEGERI 2 PAJANGAN!";
         return;
@@ -433,7 +426,7 @@
       message.innerHTML = `Memproses token... <span class="spinner"></span>`;
 
       try {
-        const snapshot = await get(ref(db, 'tokens'));
+        const snapshot= await get(ref(db, 'tokens'));
         let valid = false;
         let url = "", kelas = "", mapel = "";
         const now = new Date();
