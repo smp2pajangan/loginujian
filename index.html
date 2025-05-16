@@ -67,10 +67,12 @@
       padding: 10px;
       width: calc(100% - 20px);
       font-size: 16px;
-      margin: 10px 0;
+      margin: 10px auto; /* Tambahkan auto margin kiri dan kanan untuk tengah */
+      display: block; /* Pastikan menjadi blok agar margin auto bekerja */
       border: 1px solid #ccc;
       border-radius: 5px;
       box-sizing: border-box;
+      text-align: center; /* Teks di dalam input juga di tengah */
     }
 
     button {
@@ -83,6 +85,8 @@
       border-radius: 5px;
       cursor: pointer;
       transition: background-color 0.3s ease, transform 0.2s ease;
+      margin: 10px auto; /* Tambahkan auto margin kiri dan kanan untuk tengah */
+      display: block; /* Pastikan menjadi blok */
     }
 
     button:hover {
@@ -97,6 +101,7 @@
       margin-bottom: 10px;
       font-size: 14px;
       min-height: 30px; /* Sesuaikan tinggi minimum jika perlu */
+      text-align: center;
     }
 
     .spinner {
@@ -234,14 +239,14 @@
       <p>Selamat datang</p>
       <p>Silakan login menggunakan token ujian yang Anda miliki</p>
 
-      <div id="locationBlocked" style="display: none; color: red; margin-bottom: 10px; font-weight: bold;">
+      <div id="locationBlocked" style="display: none; color: red; margin-bottom: 10px; font-weight: bold; text-align: center;">
         AKSES UJIAN DIBLOKIR, silahkan aktifkan lokasi perangkat Anda di SMPN 2 Pajangan! Setelah diaktifkan, silahkan refresh halaman login!
       </div>
       <p class="message" id="message"></p>
-      <p id="locationStatus" style="color: gray; font-size: 12px;">Memuat status lokasi...</p>
+      <p id="locationStatus" style="color: gray; font-size: 12px; text-align: center;">Memuat status lokasi...</p>
 
-      <input type="text" id="inputToken" placeholder="Masukkan Token Ujian" oninput="formatToken(this)" maxlength="10" style="display: none;" />
-      <button id="loginBtn" onclick="cekToken()" disabled style="opacity: 0.6; display: none;">Login</button>
+      <input type="text" id="inputToken" placeholder="Masukkan Token Ujian" oninput="formatToken(this)" maxlength="10" style="display: none; margin-left: auto; margin-right: auto; text-align: center;" />
+      <button id="loginBtn" onclick="cekToken()" disabled style="opacity: 0.6; display: none; margin-left: auto; margin-right: auto;">Login</button>
     </div>
     <div class="footer">
       © Admin SMPN 2 Pajangan<br>
@@ -291,11 +296,11 @@
 
     // Variabel kontrol fitur lokasi
     let isLocationEnabled = true; // Default aktif
+    let firebaseAllowedRadiusKm = 0.075; // Default radius, akan diperbarui dari Firebase
 
-    // Koordinat pusat lokasi yang diizinkan
+    // Koordinat pusat lokasi yang diizinkan (tetap statis di sisi siswa)
     const allowedLatitude = -7.8589546;
     const allowedLongitude = 110.2655596;
-    const allowedRadiusKm = 0.075; // Radius dalam kilometer (75 meter)
 
     const locationBlockedDiv = document.getElementById('locationBlocked');
     const message = document.getElementById('message');
@@ -330,7 +335,8 @@
 
     function checkLocation(latitude, longitude) {
       const distance = getDistanceFromLatLonInKm(allowedLatitude, allowedLongitude, latitude, longitude);
-      if (distance <= allowedRadiusKm) {
+      // Gunakan firebaseAllowedRadiusKm di sini
+      if (distance <= firebaseAllowedRadiusKm) {
         locationBlockedDiv.style.display = 'none';
         isLocationValid = true;
         message.textContent = ""; // Bersihkan pesan lokasi
@@ -395,7 +401,7 @@
         isLocationValid = true;
         inputToken.style.display = 'block';
         loginBtn.style.display = 'block';
-        loginBtn.disabled = false;
+        loginBtn.disabled = false
         loginBtn.style.opacity = 1;
       } else if (!isLocationEnabled) {
         // Jika fitur lokasi dinonaktifkan, langsung tampilkan input dan tombol login
@@ -408,26 +414,29 @@
       }
     }
 
-    // Ambil status fitur lokasi dari Firebase saat halaman dimuat
-    get(child(settingsRef, 'isLocationEnabled')).then((snapshot) => {
-      locationStatus.style.display = 'block'; // Tampilkan pesan pemuatan
+    // Ambil status dan radius dari Firebase saat halaman dimuat
+    get(settingsRef).then((snapshot) => {
+      locationStatus.style.display = 'block';
 
       if (snapshot.exists()) {
-        isLocationEnabled = snapshot.val();
+        const settings = snapshot.val();
+        isLocationEnabled = settings.isLocationEnabled !== undefined ? settings.isLocationEnabled : true;
+        firebaseAllowedRadiusKm = settings.allowedRadiusKm !== undefined ? settings.allowedRadiusKm : 0.075;
+        console.log("Status Lokasi dari Firebase:", isLocationEnabled);
+        console.log("Radius dari Firebase:", firebaseAllowedRadiusKm);
       } else {
-        console.log("Tidak dapat mengambil status fitur lokasi, menggunakan default.");
+        console.log("Tidak dapat mengambil pengaturan lokasi dari Firebase, menggunakan default.");
       }
-      locationStatus.style.display = 'none'; // Sembunyikan pesan pemuatan setelah mendapatkan status
-      getLocation(); // Panggil getLocation setelah mendapatkan status dari Firebase
+      locationStatus.style.display = 'none';
+      getLocation();
 
     }).catch((error) => {
-      console.error(error);
-      locationStatus.style.display = 'none'; // Sembunyikan pesan pemuatan jika error
-      getLocation(); // Tetap coba jalankan getLocation jika ada error
+      console.error("Gagal mengambil pengaturan lokasi dari Firebase:", error);
+      locationStatus.style.display = 'none';
+      getLocation();
     });
 
     window.cekToken = async function () {
-      // Logika cek token tetap sama
       const input = document.getElementById('inputToken').value.trim();
       if (!input) {
         message.style.color = "red";
@@ -534,3 +543,4 @@
   </script>
 </body>
 </html>
+
