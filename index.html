@@ -240,8 +240,8 @@
       <p class="message" id="message"></p>
       <p id="locationStatus" style="color: gray; font-size: 12px;">Memuat status lokasi...</p>
 
-      <input type="text" id="inputToken" placeholder="Masukkan Token Ujian" oninput="formatToken(this)" maxlength="10" disabled />
-      <button id="loginBtn" onclick="cekToken()" disabled style="opacity: 0.6;">Login</button>
+      <input type="text" id="inputToken" placeholder="Masukkan Token Ujian" oninput="formatToken(this)" maxlength="10" style="display: none;" />
+      <button id="loginBtn" onclick="cekToken()" disabled style="opacity: 0.6; display: none;">Login</button>
     </div>
     <div class="footer">
       © Admin SMPN 2 Pajangan<br>
@@ -326,7 +326,7 @@
       return deg * (Math.PI / 180)
     }
 
-    let isLocationValid = !isTouchDevice(); // Default true jika bukan perangkat sentuh
+    let isLocationValid = false; // Default false
 
     function checkLocation(latitude, longitude) {
       const distance = getDistanceFromLatLonInKm(allowedLatitude, allowedLongitude, latitude, longitude);
@@ -334,14 +334,16 @@
         locationBlockedDiv.style.display = 'none';
         isLocationValid = true;
         message.textContent = ""; // Bersihkan pesan lokasi
-        loginBtn.disabled = false; // Aktifkan tombol login jika lokasi valid
+        inputToken.style.display = 'block'; // Tampilkan input token
+        loginBtn.style.display = 'block'; // Tampilkan tombol login
+        loginBtn.disabled = false; // Aktifkan tombol login
         loginBtn.style.opacity = 1;
       } else {
         locationBlockedDiv.style.display = 'block';
         locationBlockedDiv.textContent = 'AKSES UJIAN DIBLOKIR, silahkan aktifkan lokasi perangkat Anda di SMPN 2 Pajangan! Setelah diaktifkan, silahkan refresh halaman login!';
         isLocationValid = false;
-        loginBtn.disabled = true; // Nonaktifkan tombol login jika lokasi tidak valid
-        loginBtn.style.opacity = 0.6;
+        inputToken.style.display = 'none'; // Sembunyikan input token
+        loginBtn.style.display = 'none'; // Sembunyikan tombol login
       }
     }
 
@@ -368,8 +370,8 @@
           message.textContent = "Terjadi kesalahan yang tidak diketahui dengan layanan lokasi.";
           break;
       }
-      loginBtn.disabled = true;
-      loginBtn.style.opacity = 0.6;
+      inputToken.style.display = 'none'; // Sembunyikan input token
+      loginBtn.style.display = 'none'; // Sembunyikan tombol login
     }
 
     function getLocation() {
@@ -384,22 +386,25 @@
           locationBlockedDiv.style.display = 'block';
           locationBlockedDiv.textContent = 'Geolocation tidak didukung oleh perangkat ini.';
           message.style.color = "red";
-          loginBtn.disabled = true;
-          loginBtn.style.opacity = 0.6;
+          inputToken.style.display = 'none'; // Sembunyikan input token
+          loginBtn.style.display = 'none'; // Sembunyikan tombol login
         }
       } else if (!isTouchDevice()) {
-        // Jika bukan perangkat sentuh, langsung anggap lokasi valid dan aktifkan tombol login
+        // Jika bukan perangkat sentuh, langsung tampilkan input dan tombol login
         locationBlockedDiv.style.display = 'none';
         isLocationValid = true;
+        inputToken.style.display = 'block';
+        loginBtn.style.display = 'block';
         loginBtn.disabled = false;
         loginBtn.style.opacity = 1;
-        inputToken.disabled = false;
       } else if (!isLocationEnabled) {
+        // Jika fitur lokasi dinonaktifkan, langsung tampilkan input dan tombol login
         locationBlockedDiv.style.display = 'none';
         isLocationValid = true;
+        inputToken.style.display = 'block';
+        loginBtn.style.display = 'block';
         loginBtn.disabled = false;
         loginBtn.style.opacity = 1;
-        inputToken.disabled = false;
       }
     }
 
@@ -414,26 +419,15 @@
       }
       locationStatus.style.display = 'none'; // Sembunyikan pesan pemuatan setelah mendapatkan status
       getLocation(); // Panggil getLocation setelah mendapatkan status dari Firebase
-      inputToken.disabled = false; // Aktifkan input
-      loginBtn.disabled = isLocationEnabled && isTouchDevice() && !isLocationValid; // Atur status tombol login berdasarkan status lokasi awal
-      loginBtn.style.opacity = loginBtn.disabled ? 0.6 : 1;
 
     }).catch((error) => {
       console.error(error);
       locationStatus.style.display = 'none'; // Sembunyikan pesan pemuatan jika error
       getLocation(); // Tetap coba jalankan getLocation jika ada error
-      inputToken.disabled = false; // Aktifkan input
-      loginBtn.disabled = isLocationEnabled && isTouchDevice() && !isLocationValid; // Atur status tombol login berdasarkan status lokasi awal
-      loginBtn.style.opacity = loginBtn.disabled ? 0.6 : 1;
     });
 
     window.cekToken = async function () {
-      if (isLocationEnabled && isTouchDevice() && !isLocationValid) {
-        message.style.color = "red";
-        message.textContent = "Lokasi Anda belum diverifikasi. Pastikan Anda berada di area SMP NEGERI 2 PAJANGAN!";
-        return;
-      }
-
+      // Logika cek token tetap sama
       const input = document.getElementById('inputToken').value.trim();
       if (!input) {
         message.style.color = "red";
