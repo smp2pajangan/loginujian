@@ -148,11 +148,55 @@
 
     #confirmModal .modal-content {
       background: white;
-      padding: 20px;
+      padding: 25px; /* Padding lebih besar */
       border-radius: 10px;
-      max-width: 300px;
+      max-width: 380px; /* Lebar sedikit lebih besar */
       text-align: left;
       box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    #confirmModal .modal-content h4 {
+        font-size: 1.8em; /* Ukuran judul lebih besar */
+        font-weight: bold;
+        color: #0066cc; /* Warna biru */
+        margin-bottom: 15px;
+        text-align: center;
+    }
+
+    #confirmModal .modal-content .info-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+    }
+
+    #confirmModal .modal-content .info-table tr {
+        border-bottom: 1px solid #eee; /* Garis pemisah antar baris */
+    }
+
+    #confirmModal .modal-content .info-table tr:last-child {
+        border-bottom: none; /* Hapus garis di baris terakhir */
+    }
+
+    #confirmModal .modal-content .info-table td {
+        padding: 8px 0; /* Padding vertikal untuk sel */
+        font-size: 1.1em; /* Ukuran teks sedikit lebih besar */
+    }
+
+    #confirmModal .modal-content .info-table td:first-child {
+        font-weight: bold;
+        color: #333;
+        width: 120px; /* Lebar tetap untuk kolom label */
+        padding-right: 10px; /* Spasi antara label dan nilai */
+    }
+
+    #confirmModal .modal-content .info-table td:last-child {
+        text-align: left;
+        color: #000;
+    }
+
+    #confirmModal .modal-content .button-container {
+        text-align: center;
+        margin-top: 20px; /* Spasi dari teks di atas */
     }
 
     #confirmModal button {
@@ -167,11 +211,11 @@
     }
 
     #btnLanjut {
-      background-color: green;
+      background-color: #28a745; /* Warna hijau */
     }
 
     #btnLanjut:hover {
-      background-color: darkgreen;
+      background-color: #218838;
     }
 
     #btnLanjut:active {
@@ -179,11 +223,11 @@
     }
 
     #btnBatal {
-      background-color: red;
+      background-color: #dc3545; /* Warna merah */
     }
 
     #btnBatal:hover {
-      background-color: darkred;
+      background-color: #c82333;
     }
 
     #btnBatal:active {
@@ -201,6 +245,19 @@
       }
       .header-box {
         border-radius: 0;
+      }
+      #confirmModal .modal-content {
+          padding: 20px;
+          max-width: 90%;
+      }
+      #confirmModal .modal-content h4 {
+          font-size: 1.5em;
+      }
+      #confirmModal .modal-content .info-table td {
+          font-size: 1em;
+      }
+      #confirmModal .modal-content .info-table td:first-child {
+          width: 90px; /* Sesuaikan lebar label untuk mobile */
       }
     }
 
@@ -255,15 +312,29 @@
   </div>
 
   <div id="confirmModal">
-    <div class="modal-content" style="text-align: left;">
-      <h4 style="text-align: center; margin-bottom: 12px; font-size: 1.6em; margin-top: 5px;">DATA UJIAN ONLINE</h4>
-      <p><strong>ID Siswa :</strong> <span id="modalIdSiswa"></span></p>
-      <p><strong>Nama Lengkap :</strong> <span id="modalNamaLengkap"></span></p>
-      <p><strong>Kelas :</strong> <span id="modalKelas"></span></p>
-      <p><strong>MAPEL :</strong> <span id="modalMapel"></span></p>
-      <p style="margin-top: 8px; text-align: center;">Jika data ujian di atas sudah benar, klik lanjutkan!</p>
-      <p style="text-align: center;">Selamat mengerjakan :)</p>
-      <div style="text-align: center; margin-top: 8px;">
+    <div class="modal-content">
+      <h4>DATA UJIAN ONLINE</h4>
+      <table class="info-table">
+        <tr>
+          <td>ID Siswa</td>
+          <td>: <span id="modalIdSiswa"></span></td>
+        </tr>
+        <tr>
+          <td>Nama Lengkap</td>
+          <td>: <span id="modalNamaLengkap"></span></td>
+        </tr>
+        <tr>
+          <td>Kelas</td>
+          <td>: <span id="modalKelas"></span></td>
+        </tr>
+        <tr>
+          <td>Mapel</td>
+          <td>: <span id="modalMapel"></span></td>
+        </tr>
+      </table>
+      <p style="margin-top: 15px; text-align: center; font-size: 1em;">Jika data ujian di atas sudah benar, klik lanjutkan!</p>
+      <p style="text-align: center; font-size: 1em;">Selamat mengerjakan :)</p>
+      <div class="button-container">
         <button id="btnLanjut">Lanjutkan</button>
         <button id="btnBatal" onclick="tutupModal()">Batal</button>
       </div>
@@ -555,10 +626,10 @@
             }
 
             // All validations passed, show confirmation modal
-            document.getElementById("modalMapel").textContent = foundToken.subject || "-";
-            document.getElementById("modalKelas").textContent = foundToken.kelas || "-";
             document.getElementById("modalIdSiswa").textContent = foundStudent.id || "-";
             document.getElementById("modalNamaLengkap").textContent = foundStudent.name || "-";
+            document.getElementById("modalKelas").textContent = foundStudent.class || "-"; // Mengambil kelas lengkap dari data siswa
+            document.getElementById("modalMapel").textContent = foundToken.subject || "-";
 
             confirmModal.classList.add('show');
 
