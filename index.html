@@ -245,8 +245,8 @@
       <p class="message" id="message"></p>
       <p id="locationStatus" style="color: gray; font-size: 12px; text-align: center;">Memuat status lokasi...</p>
 
-      <input type="text" id="inputToken" placeholder="Masukkan Token Ujian" oninput="formatToken(this)" maxlength="10" style="display: none; margin-left: auto; margin-right: auto; text-align: center;" />
-      <button id="loginBtn" onclick="cekToken()" disabled style="opacity: 0.6; display: none; margin-left: auto; margin-right: auto;">Login</button>
+      <input type="text" id="inputToken" placeholder="TOKEN-IDSiswa (Contoh: ABCDE-001)" oninput="formatToken(this)" maxlength="14" style="margin-left: auto; margin-right: auto; text-align: center;" />
+      <button id="loginBtn" onclick="cekToken()" disabled style="opacity: 0.6; margin-left: auto; margin-right: auto;">Login</button>
     </div>
     <div class="footer">
       © Admin SMPN 2 Pajangan<br>
@@ -254,11 +254,13 @@
     </div>
   </div>
 
-    <div id="confirmModal">
+  <div id="confirmModal">
     <div class="modal-content" style="text-align: left;">
       <h4 style="text-align: center; margin-bottom: 12px; font-size: 1.6em; margin-top: 5px;">DATA UJIAN ONLINE</h4>
+      <p><strong>ID Siswa :</strong> <span id="modalIdSiswa"></span></p>
+      <p><strong>Nama Lengkap :</strong> <span id="modalNamaLengkap"></span></p>
+      <p><strong>Kelas :</strong> <span id="modalKelas"></span></p>
       <p><strong>MAPEL :</strong> <span id="modalMapel"></span></p>
-      <p><strong>KELAS  :</strong> <span id="modalKelas"></span></p>
       <p style="margin-top: 8px; text-align: center;">Jika data ujian di atas sudah benar, klik lanjutkan!</p>
       <p style="text-align: center;">Selamat mengerjakan :)</p>
       <div style="text-align: center; margin-top: 8px;">
@@ -269,6 +271,7 @@
   </div>
 
   <script>
+    // Mencegah klik kanan
     document.addEventListener('contextmenu', function (e) {
       e.preventDefault();
     });
@@ -276,7 +279,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+    import { getDatabase, ref, get, child, runTransaction } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAOBCX8x60pYqxtXmXMz2xc5dwC3HJH5EE",
@@ -291,8 +294,11 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Referensi ke node setlokasi di Firebase
+    // Referensi ke node setlokasi, students, dan exam_access_status di Firebase
     const settingsRef = ref(db, 'setlokasi');
+    const studentsRef = ref(db, 'students');
+    const tokensRef = ref(db, 'tokens');
+    const examAccessStatusRef = ref(db, 'exam_access_status');
 
     // Variabel kontrol fitur lokasi
     let isLocationEnabled = true; // Default aktif
@@ -308,6 +314,11 @@
     const confirmModal = document.getElementById('confirmModal');
     const locationStatus = document.getElementById('locationStatus');
     const inputToken = document.getElementById('inputToken');
+
+    // Helper function to pad student ID with leading zeros
+    function padStudentId(id) {
+        return String(id).padStart(3, '0');
+    }
 
     function isTouchDevice() {
       return window.matchMedia('(pointer: coarse)').matches;
@@ -396,7 +407,7 @@
           loginBtn.style.display = 'none'; // Sembunyikan tombol login
         }
       } else if (!isTouchDevice()) {
-        // Jika bukan perangkat sentuh, langsung tampilkan input dan tombol login
+        // Jika bukan perangkat sentuh, atau jika lokasi dinonaktifkan di admin panel, langsung tampilkan input dan tombol login
         locationBlockedDiv.style.display = 'none';
         isLocationValid = true;
         inputToken.style.display = 'block';
@@ -437,86 +448,168 @@
     });
 
     window.cekToken = async function () {
-      const input = document.getElementById('inputToken').value.trim();
-      if (!input) {
-        message.style.color = "red";
-        message.textContent = "Silakan masukkan token.";
-        return;
-      }
-
-      loginBtn.disabled = true;
-      loginBtn.style.opacity = 0.6;
-      message.style.color = "black";
-      message.innerHTML = `Memproses token... <span class="spinner"></span>`;
-
-      try {
-        const snapshot = await get(ref(db, 'tokens'));
-        let valid = false;
-        let url = "", kelas = "", mapel = "";
-        const now = new Date();
-
-        snapshot.forEach(child => {
-          const data = child.val();
-          const start = new Date(data.startTime);
-          const end = new Date(data.endTime);
-
-          if (data.token === input) {
-            if (data.isForceActive === true) {
-              valid = true;
-              url = data.url;
-              kelas = data.kelas || "-";
-              mapel = data.subject || data.mapel || "-";
-            } else if (data.isActive === true) {
-              if (now >= start && now <= end) {
-                valid = true;
-                url = data.url;
-                kelas = data.kelas || "-";
-                mapel = data.subject || data.mapel || "-";
-              } else {
-                valid = "expired";
-              }
-            } else {
-              valid = "inactive";
-            }
-          }
-        });
-        if (valid === true) {
-          const modalMapelElement = document.getElementById("modalMapel");
-          const modalKelasElement = document.getElementById("modalKelas");
-          const lanjutBtnModal = document.getElementById("btnLanjut");
-          const confirmModal = document.getElementById("confirmModal");
-
-          modalMapelElement.textContent = mapel;
-          modalKelasElement.textContent = kelas;
-
-          confirmModal.classList.add('show');
-
-          lanjutBtnModal.onclick = function () {
-            window.location.href = url;
-          };
-        } else if (valid === "expired") {
-          message.style.color = "red";
-          message.textContent = "Token belum aktif atau Kadaluarsa";
-          loginBtn.disabled = false;
-          loginBtn.style.opacity = 1;
-        } else if (valid === "inactive") {
-          message.style.color = "red";
-          message.textContent = "Token saat ini tidak aktif.";
-          loginBtn.disabled = false;
-          loginBtn.style.opacity = 1;
-        } else {
-          message.style.color = "red";
-          message.textContent = "Token yang Anda masukkan salah!";
-          loginBtn.disabled = false;
-          loginBtn.style.opacity = 1;
+        const fullInput = document.getElementById('inputToken').value.trim();
+        if (!fullInput) {
+            message.style.color = "red";
+            message.textContent = "Silakan masukkan Token-ID Siswa.";
+            return;
         }
-      } catch (err) {
-        console.error(err);
-        message.style.color = "red";
-        message.textContent = "Terjadi kesalahan, silakan coba lagi.";
-        loginBtn.disabled = false;
-        loginBtn.style.opacity = 1;
-      }
+
+        const parts = fullInput.split('-');
+        if (parts.length !== 2) {
+            message.style.color = "red";
+            message.textContent = "Format input salah. Gunakan TOKEN-IDSiswa (Contoh: ABCDE-001).";
+            return;
+        }
+
+        const inputTokenValue = parts[0].trim();
+        const inputStudentId = padStudentId(parts[1].trim());
+
+        loginBtn.disabled = true;
+        loginBtn.style.opacity = 0.6;
+        message.style.color = "black";
+        message.innerHTML = `Memproses data... <span class="spinner"></span>`;
+
+        try {
+            const tokensSnapshot = await get(tokensRef);
+            const studentsSnapshot = await get(studentsRef);
+
+            let foundToken = null;
+            let foundStudent = null;
+
+            // 1. Find the token
+            tokensSnapshot.forEach(child => {
+                const data = child.val();
+                if (data.token === inputTokenValue.toUpperCase()) {
+                    foundToken = { ...data, key: child.key };
+                    return true; // Break loop
+                }
+            });
+
+            if (!foundToken) {
+                message.style.color = "red";
+                message.textContent = "Token ujian tidak ditemukan!";
+                loginBtn.disabled = false;
+                loginBtn.style.opacity = 1;
+                return;
+            }
+
+            // Check token validity (active, force-active, expired)
+            const now = new Date();
+            const startTime = new Date(foundToken.startTime);
+            const endTime = new Date(foundToken.endTime);
+            let tokenStatus = ''; // 'valid', 'expired', 'inactive'
+
+            if (foundToken.isForceActive === true) {
+                tokenStatus = 'valid';
+            } else if (foundToken.isActive === true) {
+                if (now >= startTime && now <= endTime) {
+                    tokenStatus = 'valid';
+                } else {
+                    tokenStatus = 'expired'; // Token is active but outside time window
+                }
+            } else {
+                tokenStatus = 'inactive'; // Token is not active and not force-active
+            }
+
+            if (tokenStatus !== 'valid') {
+                message.style.color = "red";
+                if (tokenStatus === 'expired') {
+                    message.textContent = "Token belum aktif atau sudah kadaluarsa.";
+                } else { // 'inactive'
+                    message.textContent = "Token saat ini tidak aktif.";
+                }
+                loginBtn.disabled = false;
+                loginBtn.style.opacity = 1;
+                return;
+            }
+
+            // 2. Find the student
+            studentsSnapshot.forEach(child => {
+                const data = child.val();
+                if (data.id === inputStudentId) {
+                    foundStudent = { ...data, key: child.key };
+                    return true; // Break loop
+                }
+            });
+
+            if (!foundStudent) {
+                message.style.color = "red";
+                message.textContent = `ID Siswa '${inputStudentId}' tidak ditemukan!`;
+                loginBtn.disabled = false;
+                loginBtn.style.opacity = 1;
+                return;
+            }
+
+            // 3. Validate student's class matches token's class
+            // Extract numeric part of student's class (e.g., '7' from '7A')
+            const studentClassNumericMatch = foundStudent.class.match(/^\d+/);
+            const studentClassNumeric = studentClassNumericMatch ? studentClassNumericMatch[0] : null;
+
+            if (!studentClassNumeric || studentClassNumeric !== foundToken.kelas) {
+                message.style.color = "red";
+                message.textContent = `Siswa dari kelas ${foundStudent.class} tidak dapat mengakses token untuk kelas ${foundToken.kelas}.`;
+                loginBtn.disabled = false;
+                loginBtn.style.opacity = 1;
+                return;
+            }
+
+            // All validations passed, show confirmation modal
+            document.getElementById("modalMapel").textContent = foundToken.subject || "-";
+            document.getElementById("modalKelas").textContent = foundToken.kelas || "-";
+            document.getElementById("modalIdSiswa").textContent = foundStudent.id || "-";
+            document.getElementById("modalNamaLengkap").textContent = foundStudent.name || "-";
+
+            confirmModal.classList.add('show');
+
+            // Set up the "Lanjutkan" button to record access and redirect
+            document.getElementById("btnLanjut").onclick = async function () {
+                message.innerHTML = `Mencatat akses ujian... <span class="spinner"></span>`;
+                confirmModal.classList.remove('show'); // Hide modal immediately
+
+                const examAccessRef = child(examAccessStatusRef, `${foundToken.key}/${foundStudent.id}`);
+
+                try {
+                    await runTransaction(examAccessRef, (currentAccess) => {
+                        const nowAccess = Date.now();
+                        const SPAM_THRESHOLD_MS = 5000; // 5 seconds
+
+                        if (currentAccess === null) {
+                            return {
+                                firstAccessTime: nowAccess,
+                                lastAccessTime: nowAccess,
+                                accessCount: 1
+                            };
+                        } else {
+                            if (nowAccess - (currentAccess.lastAccessTime || 0) > SPAM_THRESHOLD_MS) {
+                                currentAccess.accessCount = (currentAccess.accessCount || 0) + 1;
+                                currentAccess.lastAccessTime = nowAccess;
+                            } else {
+                                currentAccess.lastAccessTime = nowAccess; // Still update last access time for spam clicks
+                            }
+                            return currentAccess;
+                        }
+                    });
+                    console.log(`Akses token ${foundToken.key} oleh siswa ${foundStudent.id} berhasil dicatat.`);
+                    window.location.href = foundToken.url; // Redirect after successful access recording
+                } catch (error) {
+                    console.error("Gagal mencatat akses token:", error);
+                    message.style.color = "orange";
+                    message.textContent = "Gagal mencatat akses ujian, namun Anda akan tetap dialihkan.";
+                    // Even if recording fails, still redirect as per previous behavior
+                    setTimeout(() => {
+                        window.location.href = foundToken.url;
+                    }, 1500); // Give user time to read message
+                }
+            };
+
+        } catch (err) {
+            console.error(err);
+            message.style.color = "red";
+            message.textContent = "Terjadi kesalahan, silakan coba lagi.";
+            loginBtn.disabled = false;
+            loginBtn.style.opacity = 1;
+        }
     };
 
     window.tutupModal = function () {
@@ -524,10 +617,29 @@
       message.textContent = "";
       loginBtn.disabled = false;
       loginBtn.style.opacity = 1;
+      document.getElementById('inputToken').value = ''; // Clear input on cancel
     };
 
     window.formatToken = function (el) {
-      el.value = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 10);
+        let value = el.value.toUpperCase();
+        // Allow only alphanumeric characters and one hyphen
+        value = value.replace(/[^A-Z0-9-]/g, '');
+
+        const parts = value.split('-');
+        let formattedValue = '';
+
+        if (parts[0]) {
+            formattedValue += parts[0].substring(0, 10); // Limit token part to 10 chars
+        }
+
+        if (parts.length > 1) {
+            formattedValue += '-';
+            if (parts[1]) {
+                formattedValue += parts[1].substring(0, 3); // Limit ID part to 3 chars
+            }
+        }
+
+        el.value = formattedValue;
     };
 
     function updateDateTime() {
@@ -543,4 +655,3 @@
   </script>
 </body>
 </html>
-
