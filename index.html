@@ -108,7 +108,7 @@
 
         .spinner {
             border: 3px solid #f3f3f3;
-            border-top: 3px solid black;
+            border-top: 33px solid black;
             border-radius: 50%;
             width: 16px;
             height: 16px;
@@ -583,7 +583,7 @@
                 <option value="">-- Pilih Nama Siswa --</option>
             </select>
 
-            <input type="text" id="inputToken" placeholder="TOKEN-IDSiswa (Contoh: ABCDE-001)" oninput="formatToken(this)" maxlength="14" />
+            <input type="text" id="inputToken" placeholder="TOKEN-IDSiswa (Contoh: ABCDE-001)" maxlength="14" />
             <button id="loginBtn" onclick="cekToken()" disabled>Login</button>
         </div>
         <div class="footer">
@@ -688,12 +688,12 @@
         const studentsRef = ref(db, 'students');
         const tokensRef = ref(db, 'tokens');
         const examAccessStatusRef = ref(db, 'exam_access_status');
-        const adminSettingsRef = ref(db, 'admin_settings'); // NEW: Referensi ke admin_settings
+        const adminSettingsRef = ref(db, 'admin_settings');
 
         // Variabel kontrol fitur lokasi
         let isLocationEnabled = true;
         let firebaseAllowedRadiusKm = 0.075;
-        let examUnlockPassword = ''; // NEW: Untuk menyimpan password pembuka kunci dari Firebase
+        let examUnlockPassword = '';
 
         // Koordinat pusat lokasi yang diizinkan (tetap statis di sisi siswa)
         const allowedLatitude = -7.8589546;
@@ -706,12 +706,12 @@
         const examIframe = document.getElementById('examIframe');
         const fullscreenOverlay = document.getElementById('fullscreenOverlay');
         const overlayUnderstandBtn = document.getElementById('overlayUnderstandBtn');
-        const warningOverlay = document.getElementById('warningOverlay'); // NEW
-        const warningCountdown = document.getElementById('warningCountdown'); // NEW
-        const lockedOverlay = document.getElementById('lockedOverlay');     // NEW
-        const passwordInput = document.getElementById('passwordInput');     // NEW
-        const unlockButton = document.getElementById('unlockButton');       // NEW
-        const unlockErrorMessage = document.getElementById('unlockErrorMessage'); // NEW
+        const warningOverlay = document.getElementById('warningOverlay');
+        const warningCountdown = document.getElementById('warningCountdown');
+        const lockedOverlay = document.getElementById('lockedOverlay');
+        const passwordInput = document.getElementById('passwordInput');
+        const unlockButton = document.getElementById('unlockButton');
+        const unlockErrorMessage = document.getElementById('unlockErrorMessage');
 
 
         const locationBlockedDiv = document.getElementById('locationBlocked');
@@ -726,13 +726,12 @@
         const modalMessage = document.getElementById('modalMessage');
         const modalExamDuration = document.getElementById('modalExamDuration');
 
-        // Variabel untuk menyimpan semua data siswa yang dimuat
         let allStudentsData = [];
         let selectedStudentData = null;
         let isLocationValid = false;
         let foundTokenGlobal = null;
         let countdownInterval;
-        let currentTotalSeconds; // NEW: Menyimpan total detik saat ini untuk overlay peringatan
+        let currentTotalSeconds;
 
         // --- Fungsi Utilitas ---
 
@@ -799,6 +798,12 @@
          * @param {HTMLInputElement} inputElement - Bidang input untuk token.
          */
         window.formatToken = function (inputElement) {
+            // Memastikan inputElement dan inputElement.value tidak undefined
+            if (!inputElement || typeof inputElement.value === 'undefined') {
+                console.error("Error: inputElement or its value is undefined in formatToken.");
+                return; // Hentikan eksekusi jika inputElement tidak valid
+            }
+
             let value = inputElement.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
             if (value.length > 5 && value.indexOf('-') === -1) {
                 value = value.substring(0, 5) + '-' + value.substring(5);
@@ -1011,13 +1016,13 @@
          * @param {number} durationInMinutes - Durasi ujian dalam menit.
          */
         function startCountdown(durationInMinutes) {
-            currentTotalSeconds = durationInMinutes * 60; // Inisialisasi currentTotalSeconds
+            currentTotalSeconds = durationInMinutes * 60;
 
             if (countdownInterval) {
                 clearInterval(countdownInterval);
             }
 
-            countdownDisplay.style.display = 'block'; // Pastikan countdown di atas terlihat
+            countdownDisplay.style.display = 'block';
 
             countdownInterval = setInterval(() => {
                 const minutes = Math.floor(currentTotalSeconds / 60);
@@ -1026,21 +1031,20 @@
                 const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                 countdownDisplay.textContent = `Sisa Waktu: ${formattedTime}`;
 
-                // Logic for 5-minute warning overlay
                 if (currentTotalSeconds <= 300 && currentTotalSeconds > 0) {
-                    countdownDisplay.style.display = 'none'; // Sembunyikan countdown di atas
-                    warningCountdown.textContent = formattedTime; // Perbarui waktu di overlay peringatan
-                    warningOverlay.style.display = 'flex'; // Tampilkan overlay peringatan
+                    countdownDisplay.style.display = 'none';
+                    warningCountdown.textContent = formattedTime;
+                    warningOverlay.style.display = 'flex';
                 } else {
-                    warningOverlay.style.display = 'none'; // Sembunyikan overlay peringatan jika tidak dalam 5 menit terakhir
+                    warningOverlay.style.display = 'none';
                 }
 
                 if (currentTotalSeconds <= 0) {
                     clearInterval(countdownInterval);
                     countdownDisplay.textContent = "Waktu Habis! Ujian Terkunci.";
-                    countdownDisplay.style.display = 'block'; // Pastikan pesan waktu habis terlihat
-                    warningOverlay.style.display = 'none'; // Sembunyikan overlay peringatan
-                    showLockedOverlay(); // Tampilkan overlay terkunci
+                    countdownDisplay.style.display = 'block';
+                    warningOverlay.style.display = 'none';
+                    showLockedOverlay();
                 } else {
                     currentTotalSeconds--;
                 }
@@ -1053,8 +1057,8 @@
          */
         function showOverlay() {
             fullscreenOverlay.style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // Mencegah scrolling pada body
-            examIframe.style.pointerEvents = 'none'; // Mencegah interaksi dengan iframe
+            document.body.style.overflow = 'hidden';
+            examIframe.style.pointerEvents = 'none';
         }
 
         /**
@@ -1062,8 +1066,8 @@
          */
         function hideOverlay() {
             fullscreenOverlay.style.display = 'none';
-            document.body.style.overflow = ''; // Mengaktifkan kembali scrolling pada body
-            examIframe.style.pointerEvents = 'auto'; // Mengaktifkan kembali interaksi dengan iframe
+            document.body.style.overflow = '';
+            examIframe.style.pointerEvents = 'auto';
         }
 
         /**
@@ -1071,11 +1075,11 @@
          */
         function showLockedOverlay() {
             lockedOverlay.style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // Pastikan body tidak bisa discroll
-            examIframe.style.pointerEvents = 'none'; // Pastikan iframe tidak bisa diinteraksi
-            examIframe.style.filter = 'grayscale(100%) blur(5px)'; // Efek visual terkunci
-            passwordInput.value = ''; // Bersihkan input password
-            unlockErrorMessage.style.display = 'none'; // Sembunyikan pesan error
+            document.body.style.overflow = 'hidden';
+            examIframe.style.pointerEvents = 'none';
+            examIframe.style.filter = 'grayscale(100%) blur(5px)';
+            passwordInput.value = '';
+            unlockErrorMessage.style.display = 'none';
         }
 
         /**
@@ -1087,7 +1091,7 @@
                 lockedOverlay.style.display = 'none';
                 document.body.style.overflow = '';
                 examIframe.style.pointerEvents = 'auto';
-                examIframe.style.filter = 'none'; // Hapus efek visual terkunci
+                examIframe.style.filter = 'none';
                 unlockErrorMessage.style.display = 'none';
             } else {
                 unlockErrorMessage.textContent = "Password salah!";
@@ -1163,9 +1167,9 @@
                 examContainer.style.display = 'flex';
 
                 examIframe.src = googleFormUrl;
-                startCountdown(examDurationMinutes); // Waktu mundur mulai berjalan di sini
+                startCountdown(examDurationMinutes);
 
-                showOverlay(); // Overlay instruksi muncul di atas iframe yang sudah dimuat
+                showOverlay();
 
             } catch (error) {
                 console.error("Gagal mencatat akses token atau mengarahkan:", error);
@@ -1189,7 +1193,7 @@
                     showOverlay();
                 }, 1500);
             } finally {
-                // Tidak perlu updateLoginButtonStatus() di sini karena kita sudah beralih ke tampilan ujian
+                // No need to updateLoginButtonStatus() here as we transition to exam view
             }
         }
 
@@ -1326,7 +1330,8 @@
                 e.preventDefault();
             });
 
-            inputToken.addEventListener('input', window.formatToken);
+            // Hanya menggunakan addEventListener untuk formatToken
+            inputToken.addEventListener('input', () => window.formatToken(inputToken)); // Memanggil dengan inputToken sebagai argumen
             inputToken.addEventListener('input', updateLoginButtonStatus);
             selectKelas.addEventListener('change', window.filterStudentsByClass);
             selectKelas.addEventListener('change', updateLoginButtonStatus);
@@ -1337,7 +1342,7 @@
             });
 
             overlayUnderstandBtn.addEventListener('click', hideOverlay);
-            unlockButton.addEventListener('click', handleUnlockExam); // Event listener for unlock button
+            unlockButton.addEventListener('click', handleUnlockExam);
 
             updateDateTime();
             setInterval(updateDateTime, 1000);
@@ -1366,7 +1371,6 @@
                     console.log("Tidak dapat mengambil pengaturan lokasi dari Firebase, menggunakan default.");
                 }
 
-                // NEW: Load admin settings for unlock password
                 const adminSettingsSnapshot = await get(adminSettingsRef);
                 if (adminSettingsSnapshot.exists()) {
                     const adminSettings = adminSettingsSnapshot.val();
