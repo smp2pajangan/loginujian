@@ -466,6 +466,57 @@
             min-height: 1.2em;
         }
 
+        /* NEW: Styles for Submission Confirmation Overlay */
+        #submissionConfirmationOverlay {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.9); /* Dark, semi-transparent background */
+            z-index: 10001; /* Higher than other overlays */
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+
+        #submissionConfirmationOverlay h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        #submissionConfirmationOverlay p {
+            font-size: 1.5em;
+            margin-bottom: 40px;
+        }
+
+        #submissionConfirmationOverlay button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 8px;
+            background-color: #4CAF50; /* Green button */
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,128,0,0.4);
+        }
+
+        #submissionConfirmationOverlay button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+
+        #submissionConfirmationOverlay button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0,128,0,0.4);
+        }
+
 
         @media (max-width: 600px) {
             .container {
@@ -528,6 +579,16 @@
             #unlockButton {
                 font-size: 1em;
                 padding: 10px 20px;
+            }
+            #submissionConfirmationOverlay h1 {
+                font-size: 2.5em;
+            }
+            #submissionConfirmationOverlay p {
+                font-size: 1.2em;
+            }
+            #submissionConfirmationOverlay button {
+                font-size: 1em;
+                padding: 12px 25px;
             }
         }
 
@@ -664,9 +725,15 @@
         </div>
     </div>
 
+    <div id="submissionConfirmationOverlay">
+        <h1>SELAMAT!</h1>
+        <p>JAWABAN ANDA BERHASIL TERKIRIM!</p>
+        <button id="backToLoginFromSubmissionBtn">KEMBALI</button>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-        import { getDatabase, ref, get, child, runTransaction, set } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+        import { getDatabase, ref, get, child, runTransaction, set, onValue, off } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
 
         // Konfigurasi Firebase
         const firebaseConfig = {
@@ -689,7 +756,7 @@
         const tokensRef = ref(db, 'tokens');
         const examAccessStatusRef = ref(db, 'exam_access_status');
         const adminSettingsRef = ref(db, 'admin_settings');
-        const submittedExamsRef = ref(db, 'submitted_exams'); // NEW: Referensi ke node submitted_exams
+        const submittedExamsRef = ref(db, 'submitted_exams');
 
         // Variabel kontrol fitur lokasi
         let isLocationEnabled = true;
@@ -714,7 +781,6 @@
         const unlockButton = document.getElementById('unlockButton');
         const unlockErrorMessage = document.getElementById('unlockErrorMessage');
 
-
         const locationBlockedDiv = document.getElementById('locationBlocked');
         const message = document.getElementById('message');
         const loginBtn = document.getElementById('loginBtn');
@@ -727,12 +793,18 @@
         const modalMessage = document.getElementById('modalMessage');
         const modalExamDuration = document.getElementById('modalExamDuration');
 
+        // NEW: Elemen untuk Overlay Konfirmasi Submit
+        const submissionConfirmationOverlay = document.getElementById('submissionConfirmationOverlay');
+        const backToLoginFromSubmissionBtn = document.getElementById('backToLoginFromSubmissionBtn');
+
+
         let allStudentsData = [];
         let selectedStudentData = null;
         let isLocationValid = false;
         let foundTokenGlobal = null;
         let countdownInterval;
         let currentTotalSeconds;
+        let submissionListenerRef = null;
 
         // --- Fungsi Utilitas ---
 
@@ -1025,7 +1097,7 @@
 
             countdownDisplay.style.display = 'block';
 
-            countdownInterval = setInterval(async () => { // Gunakan async karena ada operasi Firebase di dalamnya
+            countdownInterval = setInterval(async () => {
                 const minutes = Math.floor(currentTotalSeconds / 60);
                 const seconds = currentTotalSeconds % 60;
 
@@ -1046,14 +1118,9 @@
                     countdownDisplay.style.display = 'block';
                     warningOverlay.style.display = 'none';
                     showLockedOverlay();
-                    // NEW: Catat siswa sebagai sudah submit ketika waktu habis (fallback jika GAS gagal)
-                    // Ini adalah fallback jika GAS gagal mencatat submit.
-                    // Namun, karena kita mengandalkan GAS, bagian ini bisa dipertimbangkan untuk dihapus
-                    // atau hanya digunakan sebagai logging tambahan, bukan sebagai penanda submit utama.
-                    // Untuk menjaga konsistensi dengan diskusi sebelumnya, kita akan tetap mencatatnya di sini.
+                    // Catat siswa sebagai sudah submit ketika waktu habis (fallback jika GAS gagal)
                     if (foundTokenGlobal && selectedStudentData) {
                         try {
-                            // Menggunakan inputToken.value.split('-')[0].trim().toUpperCase() sebagai kunci
                             const tokenPrefix = inputToken.value.split('-')[0].trim().toUpperCase();
                             await set(child(submittedExamsRef, `${tokenPrefix}/${selectedStudentData.id}`), {
                                 name: selectedStudentData.name,
@@ -1120,6 +1187,69 @@
             }
         }
 
+        /**
+         * Menampilkan overlay konfirmasi submit.
+         * HARUSNYA HANYA DIPANGGIL KETIKA SISWA SUDAH BERADA DI DALAM UJIAN
+         */
+        function showSubmissionConfirmationOverlay() {
+            loginContainer.style.display = 'none';
+            examContainer.style.display = 'none';
+            submissionConfirmationOverlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            // Pastikan untuk menghentikan semua interval dan listener saat overlay ini muncul
+            if (countdownInterval) clearInterval(countdownInterval);
+            if (submissionListenerRef) {
+                off(submissionListenerRef); // Detach listener
+                submissionListenerRef = null; // Reset reference
+            }
+        }
+
+        /**
+         * Menyembunyikan overlay konfirmasi submit.
+         */
+        function hideSubmissionConfirmationOverlay() {
+            submissionConfirmationOverlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        // Fungsi untuk memulai listener status submit saat ujian berlangsung
+        function startSubmissionStatusListener() {
+            if (!foundTokenGlobal || !selectedStudentData) {
+                console.warn("Data token atau siswa tidak lengkap untuk memulai listener submit.");
+                return;
+            }
+
+            const tokenPrefix = inputToken.value.split('-')[0].trim().toUpperCase();
+            const studentId = selectedStudentData.id;
+            
+            // Dapatkan referensi ke path spesifik siswa di submitted_exams
+            const studentSubmissionRef = child(submittedExamsRef, `${tokenPrefix}/${studentId}`);
+
+            // Pastikan listener sebelumnya sudah dilepaskan sebelum memasang yang baru
+            if (submissionListenerRef) {
+                off(submissionListenerRef);
+                submissionListenerRef = null;
+            }
+
+            // Simpan referensi listener agar bisa di-detach nanti
+            submissionListenerRef = studentSubmissionRef; 
+
+            // Pasang listener onValue
+            onValue(studentSubmissionRef, (snapshot) => {
+                if (snapshot.exists() && snapshot.val().isSubmitted === true) {
+                    console.log("Deteksi: Jawaban siswa sudah tercatat di Firebase secara real-time.");
+                    // Hanya tampilkan overlay jika examContainer masih terlihat (siswa di dalam ujian)
+                    if (examContainer.style.display === 'flex') {
+                        showSubmissionConfirmationOverlay();
+                        examIframe.src = ''; // Opsional: Kosongkan iframe agar tidak ada konten ujian yang terlihat
+                    }
+                }
+            }, (error) => {
+                console.error("Gagal mendengarkan status submit:", error);
+            });
+            console.log("Real-time listener untuk status submit dimulai.");
+        }
+
         // --- Logika Login dan Modal ---
 
         /**
@@ -1145,19 +1275,24 @@
                 message.style.color = "red";
                 message.textContent = "Terjadi kesalahan saat menyiapkan tautan ujian. Coba lagi.";
                 updateLoginButtonStatus();
+                loginContainer.style.display = 'flex'; // Pastikan container login terlihat
+                examContainer.style.display = 'none'; // Pastikan container ujian tersembunyi
                 return;
             }
 
             // Ekstrak TOKEN-ID Prefix dari userEnteredTokenId (misal: ABCDE dari ABCDE-001)
             const tokenPrefixFromInput = userEnteredTokenId.split('-')[0].trim().toUpperCase();
 
-            // NEW: Double check status submit (opsional, karena sudah dicek di cekToken)
+            // Pengecekan status submit: Jika sudah submit, tampilkan pesan di halaman login
             const hasSubmittedSnapshot = await get(child(submittedExamsRef, `${tokenPrefixFromInput}/${selectedStudentData.id}`));
-            if (hasSubmittedSnapshot.exists()) {
+            if (hasSubmittedSnapshot.exists() && hasSubmittedSnapshot.val().isSubmitted === true) {
                 message.style.color = "red";
                 message.textContent = "Anda sudah menyelesaikan ujian ini dan tidak dapat login kembali.";
+                loginContainer.style.display = 'flex'; // Pastikan container login terlihat
+                examContainer.style.display = 'none'; // Pastikan container ujian tersembunyi
                 updateLoginButtonStatus();
-                return;
+                // TIDAK MEMANGGIL showSubmissionConfirmationOverlay() DI SINI
+                return; // Hentikan eksekusi lebih lanjut
             }
 
             const examAccessRef = child(examAccessStatusRef, `${foundTokenGlobal.key}/${selectedStudentData.id}`);
@@ -1195,6 +1330,8 @@
                     message.style.color = "red";
                     message.textContent = "Konfigurasi ujian tidak lengkap. Harap hubungi administrator.";
                     updateLoginButtonStatus();
+                    loginContainer.style.display = 'flex'; // Pastikan container login terlihat
+                    examContainer.style.display = 'none'; // Pastikan container ujian tersembunyi
                     return;
                 }
 
@@ -1210,13 +1347,19 @@
 
                 examIframe.src = googleFormUrl;
                 startCountdown(examDurationMinutes);
-
                 showOverlay();
+
+                // Mulai real-time listener status submit HANYA KETIKA MASUK UJIAN
+                startSubmissionStatusListener();
 
             } catch (error) {
                 console.error("Gagal mencatat akses token atau mengarahkan:", error);
                 message.style.color = "orange";
                 message.textContent = "Gagal mencatat akses ujian, namun Anda akan tetap dialihkan.";
+                // Pastikan container login terlihat jika terjadi error yang menghalangi pengalihan
+                loginContainer.style.display = 'flex';
+                examContainer.style.display = 'none';
+
                 setTimeout(() => {
                     const tokenEntryId = foundTokenGlobal.tokenEntryId;
                     const nameEntryId = foundTokenGlobal.nameEntryId;
@@ -1239,6 +1382,8 @@
                     examIframe.src = googleFormUrl;
                     startCountdown(examDurationMinutes);
                     showOverlay();
+                    // Mulai real-time listener status submit (juga di fallback)
+                    startSubmissionStatusListener();
                 }, 1500);
             } finally {
                 // No need to updateLoginButtonStatus() here as we transition to exam view
@@ -1285,8 +1430,19 @@
             message.innerHTML = `Memproses data... <span class="spinner"></span>`;
 
             try {
-                const tokensSnapshot = await get(tokensRef);
+                // Pengecekan status submit: Jika sudah submit, tampilkan pesan di halaman login
+                const tokenKeyForSubmittedCheck = inputTokenPrefix;
+                const hasSubmittedSnapshot = await get(child(submittedExamsRef, `${tokenKeyForSubmittedCheck}/${selectedStudentId}`));
 
+                if (hasSubmittedSnapshot.exists() && hasSubmittedSnapshot.val().isSubmitted === true) {
+                    message.style.color = "red";
+                    message.textContent = "Anda sudah menyelesaikan ujian ini dan tidak dapat login kembali.";
+                    updateLoginButtonStatus();
+                    // JANGAN MEMANGGIL showSubmissionConfirmationOverlay() DI SINI
+                    return; // Hentikan eksekusi lebih lanjut
+                }
+
+                const tokensSnapshot = await get(tokensRef);
                 let foundToken = null;
 
                 tokensSnapshot.forEach(child => {
@@ -1306,20 +1462,6 @@
                 }
 
                 foundTokenGlobal = foundToken; // Simpan untuk penggunaan global
-
-                // --- NEW: Cek status submit dari Firebase menggunakan TOKEN-ID Prefix ---
-                // Kunci untuk submitted_exams adalah TOKEN-ID Prefix (misal: ABCDE)
-                const tokenKeyForSubmittedCheck = inputTokenPrefix;
-
-                const hasSubmittedSnapshot = await get(child(submittedExamsRef, `${tokenKeyForSubmittedCheck}/${selectedStudentId}`));
-
-                if (hasSubmittedSnapshot.exists()) {
-                    message.style.color = "red";
-                    message.textContent = "Anda sudah menyelesaikan ujian ini dan tidak dapat login kembali.";
-                    updateLoginButtonStatus();
-                    return;
-                }
-                // --- END NEW CHECK ---
 
                 const now = new Date();
                 const startTime = new Date(foundToken.startTime);
@@ -1405,6 +1547,13 @@
 
             overlayUnderstandBtn.addEventListener('click', hideOverlay);
             unlockButton.addEventListener('click', handleUnlockExam);
+            
+            // Event listener untuk tombol KEMBALI di overlay konfirmasi submit
+            backToLoginFromSubmissionBtn.addEventListener('click', () => {
+                // Langsung redirect ke URL yang ditentukan
+                window.location.href = 'https://smp2pajangan.github.io/customlink'; 
+            });
+
 
             updateDateTime();
             setInterval(updateDateTime, 1000);
