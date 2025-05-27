@@ -108,7 +108,7 @@
 
         .spinner {
             border: 3px solid #f3f3f3;
-            border-top: 33px solid black;
+            border-top: 3px solid black; /* Perbaikan: 3px bukan 33px */
             border-radius: 50%;
             width: 16px;
             height: 16px;
@@ -666,7 +666,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-        import { getDatabase, ref, get, child, runTransaction } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+        import { getDatabase, ref, get, child, runTransaction, set } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
 
         // Konfigurasi Firebase
         const firebaseConfig = {
@@ -683,12 +683,13 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Referensi ke node setlokasi, students, dan exam_access_status di Firebase
+        // Referensi ke node Firebase
         const settingsRef = ref(db, 'setlokasi');
         const studentsRef = ref(db, 'students');
         const tokensRef = ref(db, 'tokens');
         const examAccessStatusRef = ref(db, 'exam_access_status');
         const adminSettingsRef = ref(db, 'admin_settings');
+        const submittedExamsRef = ref(db, 'submitted_exams'); // NEW: Referensi ke node submitted_exams
 
         // Variabel kontrol fitur lokasi
         let isLocationEnabled = true;
@@ -1024,7 +1025,7 @@
 
             countdownDisplay.style.display = 'block';
 
-            countdownInterval = setInterval(() => {
+            countdownInterval = setInterval(async () => { // Gunakan async karena ada operasi Firebase di dalamnya
                 const minutes = Math.floor(currentTotalSeconds / 60);
                 const seconds = currentTotalSeconds % 60;
 
@@ -1045,6 +1046,26 @@
                     countdownDisplay.style.display = 'block';
                     warningOverlay.style.display = 'none';
                     showLockedOverlay();
+                    // NEW: Catat siswa sebagai sudah submit ketika waktu habis (fallback jika GAS gagal)
+                    // Ini adalah fallback jika GAS gagal mencatat submit.
+                    // Namun, karena kita mengandalkan GAS, bagian ini bisa dipertimbangkan untuk dihapus
+                    // atau hanya digunakan sebagai logging tambahan, bukan sebagai penanda submit utama.
+                    // Untuk menjaga konsistensi dengan diskusi sebelumnya, kita akan tetap mencatatnya di sini.
+                    if (foundTokenGlobal && selectedStudentData) {
+                        try {
+                            // Menggunakan inputToken.value.split('-')[0].trim().toUpperCase() sebagai kunci
+                            const tokenPrefix = inputToken.value.split('-')[0].trim().toUpperCase();
+                            await set(child(submittedExamsRef, `${tokenPrefix}/${selectedStudentData.id}`), {
+                                name: selectedStudentData.name,
+                                class: selectedStudentData.class,
+                                timestamp: new Date().toISOString(),
+                                isSubmitted: true
+                            });
+                            console.log(`Siswa ${selectedStudentData.id} dengan token ${tokenPrefix} tercatat sudah submit (waktu habis).`);
+                        } catch (error) {
+                            console.error("Gagal mencatat submit siswa (waktu habis):", error);
+                        }
+                    }
                 } else {
                     currentTotalSeconds--;
                 }
@@ -1127,6 +1148,18 @@
                 return;
             }
 
+            // Ekstrak TOKEN-ID Prefix dari userEnteredTokenId (misal: ABCDE dari ABCDE-001)
+            const tokenPrefixFromInput = userEnteredTokenId.split('-')[0].trim().toUpperCase();
+
+            // NEW: Double check status submit (opsional, karena sudah dicek di cekToken)
+            const hasSubmittedSnapshot = await get(child(submittedExamsRef, `${tokenPrefixFromInput}/${selectedStudentData.id}`));
+            if (hasSubmittedSnapshot.exists()) {
+                message.style.color = "red";
+                message.textContent = "Anda sudah menyelesaikan ujian ini dan tidak dapat login kembali.";
+                updateLoginButtonStatus();
+                return;
+            }
+
             const examAccessRef = child(examAccessStatusRef, `${foundTokenGlobal.key}/${selectedStudentData.id}`);
 
             try {
@@ -1152,14 +1185,23 @@
                 });
                 console.log(`Access to token ${foundTokenGlobal.key} by student ${selectedStudentData.id} berhasil dicatat.`);
 
-                const tokenEntryId = foundTokenGlobal.tokenEntryId || 'YOUR_TOKEN_ENTRY_ID';
-                const nameEntryId = foundTokenGlobal.nameEntryId || 'YOUR_NAME_ENTRY_ID';
-                const classEntryId = foundTokenGlobal.classEntryId || 'YOUR_CLASS_ENTRY_ID';
+                // Ambil entry IDs dari data token di Firebase
+                const tokenEntryId = foundTokenGlobal.tokenEntryId;
+                const nameEntryId = foundTokenGlobal.nameEntryId;
+                const classEntryId = foundTokenGlobal.classEntryId;
 
-                const googleFormUrl = `${foundTokenGlobal.url}?usp=pp_url` +
-                                        `&entry.${tokenEntryId}=${encodeURIComponent(userEnteredTokenId)}` +
-                                        `&entry.${nameEntryId}=${encodeURIComponent(selectedStudentData.name)}` +
-                                        `&entry.${classEntryId}=${encodeURIComponent(selectedStudentData.class)}`;
+                if (!tokenEntryId || !nameEntryId || !classEntryId) {
+                    console.error("Error: Google Form Entry IDs tidak ditemukan di data token Firebase.");
+                    message.style.color = "red";
+                    message.textContent = "Konfigurasi ujian tidak lengkap. Harap hubungi administrator.";
+                    updateLoginButtonStatus();
+                    return;
+                }
+
+                let googleFormUrl = `${foundTokenGlobal.url}?usp=pp_url` +
+                                    `&entry.${tokenEntryId}=${encodeURIComponent(userEnteredTokenId)}` +
+                                    `&entry.${nameEntryId}=${encodeURIComponent(selectedStudentData.name)}` +
+                                    `&entry.${classEntryId}=${encodeURIComponent(selectedStudentData.class)}`;
 
                 console.log("Mengarahkan ke Google Form URL:", googleFormUrl);
 
@@ -1176,14 +1218,20 @@
                 message.style.color = "orange";
                 message.textContent = "Gagal mencatat akses ujian, namun Anda akan tetap dialihkan.";
                 setTimeout(() => {
-                    const tokenEntryId = foundTokenGlobal.tokenEntryId || 'YOUR_TOKEN_ENTRY_ID';
-                    const nameEntryId = foundTokenGlobal.nameEntryId || 'YOUR_NAME_ENTRY_ID';
-                    const classEntryId = foundTokenGlobal.classEntryId || 'YOUR_CLASS_ENTRY_ID';
+                    const tokenEntryId = foundTokenGlobal.tokenEntryId;
+                    const nameEntryId = foundTokenGlobal.nameEntryId;
+                    const classEntryId = foundTokenGlobal.classEntryId;
 
-                    const googleFormUrl = `${foundTokenGlobal.url}?usp=pp_url` +
-                                            `&entry.${tokenEntryId}=${encodeURIComponent(userEnteredTokenId)}` +
-                                            `&entry.${nameEntryId}=${encodeURIComponent(selectedStudentData.name)}` +
-                                            `&entry.${classEntryId}=${encodeURIComponent(selectedStudentData.class)}`;
+                    if (!tokenEntryId || !nameEntryId || !classEntryId) {
+                        console.error("Error (fallback): Google Form Entry IDs tidak ditemukan di data token Firebase.");
+                        return; // Jangan coba alihkan jika ID tidak ada
+                    }
+
+                    let googleFormUrl = `${foundTokenGlobal.url}?usp=pp_url` +
+                                        `&entry.${tokenEntryId}=${encodeURIComponent(userEnteredTokenId)}` +
+                                        `&entry.${nameEntryId}=${encodeURIComponent(selectedStudentData.name)}` +
+                                        `&entry.${classEntryId}=${encodeURIComponent(selectedStudentData.class)}`;
+
                     console.log("Mengarahkan ke Google Form URL (fallback):", googleFormUrl);
 
                     loginContainer.style.display = 'none';
@@ -1204,7 +1252,7 @@
         window.cekToken = async function () {
             const selectedClass = selectKelas.value;
             const selectedStudentId = selectNamaSiswa.value;
-            const fullInputToken = inputToken.value.trim();
+            const fullInputToken = inputToken.value.trim(); // Contoh: ABCDE-001
 
             if (!selectedClass || !selectedStudentId || !fullInputToken) {
                 message.style.color = "red";
@@ -1221,8 +1269,8 @@
                 return;
             }
 
-            const inputTokenValue = parts[0].trim();
-            const inputStudentIdFromToken = padStudentId(parts[1].trim());
+            const inputTokenPrefix = parts[0].trim().toUpperCase(); // Ambil ABCDE
+            const inputStudentIdFromToken = padStudentId(parts[1].trim()); // Ambil 001
 
             if (inputStudentIdFromToken !== selectedStudentId) {
                 message.style.color = "red";
@@ -1243,8 +1291,9 @@
 
                 tokensSnapshot.forEach(child => {
                     const data = child.val();
-                    if (data.token === inputTokenValue.toUpperCase()) {
-                        foundToken = { ...data, key: child.key };
+                    // Cocokkan dengan inputTokenPrefix (misal: ABCDE)
+                    if (data.token.toUpperCase() === inputTokenPrefix) {
+                        foundToken = { ...data, key: child.key }; // 'key' adalah kunci unik Firebase (-NuX-Y-Z)
                         return true;
                     }
                 });
@@ -1256,7 +1305,21 @@
                     return;
                 }
 
-                foundTokenGlobal = foundToken;
+                foundTokenGlobal = foundToken; // Simpan untuk penggunaan global
+
+                // --- NEW: Cek status submit dari Firebase menggunakan TOKEN-ID Prefix ---
+                // Kunci untuk submitted_exams adalah TOKEN-ID Prefix (misal: ABCDE)
+                const tokenKeyForSubmittedCheck = inputTokenPrefix;
+
+                const hasSubmittedSnapshot = await get(child(submittedExamsRef, `${tokenKeyForSubmittedCheck}/${selectedStudentId}`));
+
+                if (hasSubmittedSnapshot.exists()) {
+                    message.style.color = "red";
+                    message.textContent = "Anda sudah menyelesaikan ujian ini dan tidak dapat login kembali.";
+                    updateLoginButtonStatus();
+                    return;
+                }
+                // --- END NEW CHECK ---
 
                 const now = new Date();
                 const startTime = new Date(foundToken.startTime);
@@ -1330,8 +1393,7 @@
                 e.preventDefault();
             });
 
-            // Hanya menggunakan addEventListener untuk formatToken
-            inputToken.addEventListener('input', () => window.formatToken(inputToken)); // Memanggil dengan inputToken sebagai argumen
+            inputToken.addEventListener('input', () => window.formatToken(inputToken));
             inputToken.addEventListener('input', updateLoginButtonStatus);
             selectKelas.addEventListener('change', window.filterStudentsByClass);
             selectKelas.addEventListener('change', updateLoginButtonStatus);
