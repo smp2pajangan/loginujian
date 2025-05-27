@@ -234,6 +234,43 @@
             transform: scale(0.98);
         }
 
+        /* New CSS for checkbox container */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; /* Align to the left */
+            margin-top: 15px;
+            margin-bottom: 15px;
+            font-size: 1em;
+            color: #333;
+            padding-left: 10px; /* Add some padding from the left edge of the modal content */
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin: 0 8px 0 0; /* Adjust margin for spacing */
+            cursor: pointer;
+            vertical-align: middle;
+            box-shadow: none; /* Remove default input shadow */
+            display: inline-block; /* Ensure it's inline with text */
+        }
+
+        .checkbox-container label {
+            cursor: pointer;
+            vertical-align: middle;
+        }
+
+        #modalMessage {
+            color: red;
+            font-size: 0.9em;
+            text-align: center;
+            margin-top: -10px; /* Adjust spacing from checkbox */
+            margin-bottom: 10px;
+            min-height: 1.2em; /* Ensure space for message */
+        }
+
+
         @media (max-width: 600px) {
             .container {
                 margin-top: 40px;
@@ -259,6 +296,9 @@
             #confirmModal .modal-content .info-table td:first-child {
                 width: 90px; /* Adjust label width for mobile */
             }
+            .checkbox-container {
+                padding-left: 5px; /* Adjust padding for mobile */
+            }
         }
 
         @media (max-width: 400px) {
@@ -281,6 +321,9 @@
             }
             .footer {
                 font-size: 10px;
+            }
+            .checkbox-container {
+                font-size: 0.9em; /* Smaller font for mobile */
             }
         }
     </style>
@@ -340,9 +383,12 @@
                     <td>: <span id="modalMapel"></span></td>
                 </tr>
             </table>
-            <p style="margin-top: 15px; text-align: center; font-size: 1em;">Jika data ujian di atas sudah benar, klik lanjutkan!</p>
-            <p style="text-align: center; font-size: 1em;">Selamat mengerjakan :)</p>
-            <div class="button-container">
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="confirmCheckbox">
+                <label for="confirmCheckbox">Data di atas sudah benar</label>
+            </div>
+            <p id="modalMessage" style="display: none;"></p> <div class="button-container">
                 <button id="btnLanjut">Lanjutkan</button>
                 <button id="btnBatal" onclick="tutupModal()">Batal</button>
             </div>
@@ -391,6 +437,8 @@
         const inputToken = document.getElementById('inputToken');
         const selectKelas = document.getElementById('selectKelas');
         const selectNamaSiswa = document.getElementById('selectNamaSiswa');
+        const confirmCheckbox = document.getElementById('confirmCheckbox'); // Checkbox element
+        const modalMessage = document.getElementById('modalMessage'); // Modal message element
 
         // Variabel untuk menyimpan semua data siswa yang dimuat
         let allStudentsData = [];
@@ -500,6 +548,8 @@
         window.tutupModal = function () {
             confirmModal.classList.remove('show');
             message.textContent = ""; // Hapus pesan sebelumnya
+            modalMessage.textContent = ""; // Clear modal message
+            confirmCheckbox.checked = false; // Uncheck the checkbox
             updateLoginButtonStatus(); // Pastikan status tombol login benar setelah menutup modal
         };
 
@@ -687,9 +737,18 @@
          * Mencatat akses ujian dan mengarahkan ke Google Form.
          * @param {string} userEnteredTokenId - Nilai TOKEN-IDSiswa yang diinput oleh pengguna.
          */
-        async function handleLanjutClick(userEnteredTokenId) { // Menerima parameter baru
+        async function handleLanjutClick(userEnteredTokenId) {
+            // Check if the confirmation checkbox is checked
+            if (!confirmCheckbox.checked) {
+                modalMessage.style.display = 'block';
+                modalMessage.textContent = "Anda harus mencentang 'Data di atas sudah benar' untuk melanjutkan.";
+                return; // Stop the function if checkbox is not checked
+            } else {
+                modalMessage.style.display = 'none'; // Hide message if checkbox is checked
+            }
+
             message.innerHTML = `Mencatat akses ujian... <span class="spinner"></span>`;
-            confirmModal.classList.remove('show'); // Sembunyikan modal segera
+            confirmModal.classList.remove('show'); // Hide modal immediately
 
             // Pastikan foundTokenGlobal dan selectedStudentData tersedia
             if (!foundTokenGlobal || !selectedStudentData) {
@@ -732,7 +791,7 @@
                 const classEntryId = foundTokenGlobal.classEntryId || 'YOUR_CLASS_ENTRY_ID';
 
                 const googleFormUrl = `${foundTokenGlobal.url}?usp=pp_url` +
-                                        `&entry.${tokenEntryId}=${encodeURIComponent(userEnteredTokenId)}` + // Gunakan userEnteredTokenId di sini
+                                        `&entry.${tokenEntryId}=${encodeURIComponent(userEnteredTokenId)}` +
                                         `&entry.${nameEntryId}=${encodeURIComponent(selectedStudentData.name)}` +
                                         `&entry.${classEntryId}=${encodeURIComponent(selectedStudentData.class)}`;
 
@@ -750,7 +809,7 @@
                     const classEntryId = foundTokenGlobal.classEntryId || 'YOUR_CLASS_ENTRY_ID';
 
                     const googleFormUrl = `${foundTokenGlobal.url}?usp=pp_url` +
-                                            `&entry.${tokenEntryId}=${encodeURIComponent(userEnteredTokenId)}` + // Gunakan userEnteredTokenId di sini
+                                            `&entry.${tokenEntryId}=${encodeURIComponent(userEnteredTokenId)}` +
                                             `&entry.${nameEntryId}=${encodeURIComponent(selectedStudentData.name)}` +
                                             `&entry.${classEntryId}=${encodeURIComponent(selectedStudentData.class)}`;
                     console.log("Mengarahkan ke Google Form URL (fallback):", googleFormUrl);
@@ -874,6 +933,12 @@
                 document.getElementById("modalNamaLengkap").textContent = selectedStudentData.name || "-";
                 document.getElementById("modalKelas").textContent = selectedStudentData.class || "-"; // Mengambil kelas lengkap dari data siswa
                 document.getElementById("modalMapel").textContent = foundToken.subject || "-";
+
+                // Reset checkbox dan pesan modal setiap kali modal dibuka
+                confirmCheckbox.checked = false;
+                modalMessage.style.display = 'none';
+                modalMessage.textContent = '';
+
 
                 confirmModal.classList.add('show');
                 message.textContent = ""; // Hapus pesan saat modal ditampilkan
