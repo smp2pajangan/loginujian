@@ -99,6 +99,15 @@
             transform: scale(0.98);
         }
 
+        /* Gaya khusus untuk tombol Batal */
+        #btnBatal {
+            background-color: #dc3545; /* Merah */
+        }
+
+        #btnBatal:hover {
+            background-color: #c82333; /* Merah lebih gelap saat hover */
+        }
+
         .message {
             margin-bottom: 10px;
             font-size: 14px;
@@ -352,7 +361,7 @@
             transform: scale(0.98);
         }
 
-        /* NEW: Warning Overlay (5 minutes left) */
+        /* NEW: Warning Overlay (5 minutes left) - UPDATED STYLES for transparency */
         #warningOverlay {
             display: none; /* Hidden by default */
             position: fixed;
@@ -360,32 +369,46 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(0, 0, 0, 0); /* Fully transparent */
+            background: rgba(0, 0, 0, 0); /* Fully transparent background */
             z-index: 900; /* Above iframe, below other overlays */
             justify-content: center;
             align-items: center;
-            pointer-events: none; /* Allow clicks to pass through */
+            overflow: hidden; /* Prevent scrolling on overlay */
+            pointer-events: none; /* Allow interaction with the content box */
         }
 
-        .warning-content {
+        .warning-content-box { /* New class for the content box */
+            background: rgba(255, 255, 255, 0.03); /* White with 3% opacity */
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: none; /* No shadow for very transparent box */
             text-align: center;
-            pointer-events: none; /* Ensure content also allows clicks through */
+            box-sizing: border-box;
+            pointer-events: none; /* Ensure content box is not interactive */
         }
 
         #warningCountdown {
             font-size: 4em; /* Large font for countdown */
             font-weight: bold;
-            color: red;
+            color: red; /* Red color for countdown */
             text-shadow: 0 0 10px rgba(255,0,0,0.5);
             margin-bottom: 10px;
-            pointer-events: none;
+            pointer-events: none; /* Still allow clicks to pass through this specific element */
+            animation: blink-smooth 1.5s infinite alternate; /* Smooth blinking effect */
+        }
+
+        @keyframes blink-smooth {
+            0% { opacity: 1; }
+            100% { opacity: 0.5; }
         }
 
         #warningMessage {
             font-size: 1.5em; /* Adjust font size as needed */
-            color: red;
+            color: black; /* Black color for the message */
             font-weight: bold;
-            pointer-events: none;
+            pointer-events: none; /* Still allow clicks to pass through this specific element */
         }
 
         /* NEW: Locked Overlay (Time's Up) */
@@ -572,11 +595,16 @@
                 font-size: 1em;
                 padding: 10px 20px;
             }
+            /* Updated media queries for warning overlay */
             #warningCountdown {
                 font-size: 3em;
             }
             #warningMessage {
                 font-size: 1.2em;
+            }
+            .warning-content-box {
+                padding: 20px;
+                max-width: 90%;
             }
             #lockedTitle {
                 font-size: 2em;
@@ -596,11 +624,11 @@
                 font-size: 2em; /* Smaller for mobile */
             }
             #submissionConfirmationOverlay p {
-                font-size: 1em; /* Smaller for mobile */
+                font-size: 1.2em; /* Smaller for mobile */
             }
             #submissionConfirmationOverlay button {
                 font-size: 1em;
-                padding: 10px 20px;
+                padding: 12px 25px;
             }
             .submission-content {
                 padding: 20px;
@@ -722,8 +750,7 @@
     </div>
 
     <div id="warningOverlay" style="display: none;">
-        <div class="warning-content">
-            <div id="warningCountdown"></div>
+        <div class="warning-content-box"> <div id="warningCountdown"></div>
             <div id="warningMessage">SEGERA KIRIMKAN JAWABAN, JANGAN SAMPAI KEHABISAN WAKTU!</div>
         </div>
     </div>
@@ -896,7 +923,7 @@
             if (value.length > 5 && value.indexOf('-') === -1) {
                 value = value.substring(0, 5) + '-' + value.substring(5);
             }
-            inputElement.value = value;
+            inputToken.value = value; // Menggunakan inputToken.value secara langsung
             updateLoginButtonStatus();
         };
 
@@ -1240,9 +1267,6 @@
             }
 
             // Simpan referensi listener agar bisa di-detach nanti
-            submissionListenerRef = studentSubmissionRef; 
-
-            // Pasang listener onValue
             onValue(studentSubmissionRef, (snapshot) => {
                 if (snapshot.exists() && snapshot.val().isSubmitted === true) {
                     console.log("Deteksi: Jawaban siswa sudah tercatat di Firebase secara real-time.");
@@ -1299,7 +1323,6 @@
                 loginContainer.style.display = 'flex'; // Pastikan container login terlihat
                 examContainer.style.display = 'none'; // Pastikan container ujian tersembunyi
                 updateLoginButtonStatus();
-                // TIDAK MEMANGGIL showSubmissionConfirmationOverlay() DI SINI
                 return; // Hentikan eksekusi lebih lanjut
             }
 
@@ -1357,6 +1380,9 @@
                 startCountdown(examDurationMinutes);
                 showOverlay();
 
+                // PENTING: Tambahkan entri riwayat baru setelah masuk ke ujian
+                history.pushState(null, '', location.href);
+
                 // Mulai real-time listener status submit HANYA KETIKA MASUK UJIAN
                 startSubmissionStatusListener();
 
@@ -1390,6 +1416,8 @@
                     examIframe.src = googleFormUrl;
                     startCountdown(examDurationMinutes);
                     showOverlay();
+                    // PENTING: Tambahkan entri riwayat baru setelah masuk ke ujian (fallback)
+                    history.pushState(null, '', location.href);
                     // Mulai real-time listener status submit (juga di fallback)
                     startSubmissionStatusListener();
                 }, 1500);
@@ -1446,7 +1474,6 @@
                     message.style.color = "red";
                     message.textContent = "Anda sudah menyelesaikan ujian ini dan tidak dapat login kembali.";
                     updateLoginButtonStatus();
-                    // JANGAN MEMANGGIL showSubmissionConfirmationOverlay() DI SINI
                     return; // Hentikan eksekusi lebih lanjut
                 }
 
@@ -1561,6 +1588,16 @@
                 // Langsung redirect ke URL yang ditentukan
                 window.location.href = 'https://smp2pajangan.github.io/customlink'; 
             });
+
+            // PENTING: Tambahkan event listener untuk mencegah tombol kembali browser
+            window.onpopstate = function(event) {
+                // Jika examContainer sedang ditampilkan, berarti siswa berada di dalam ujian
+                if (examContainer.style.display === 'flex') {
+                    // Dorong ulang status saat ini ke riwayat, secara efektif membatalkan navigasi kembali
+                    history.pushState(null, '', location.href);
+                    console.log("Navigasi kembali dicegah selama ujian.");
+                }
+            };
 
 
             updateDateTime();
