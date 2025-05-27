@@ -877,7 +877,8 @@
                 return; // Hentikan eksekusi jika inputElement tidak valid
             }
 
-            let value = inputElement.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            // PERBAIKAN: Izinkan tanda hubung (-) dalam ekspresi reguler
+            let value = inputElement.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
             if (value.length > 5 && value.indexOf('-') === -1) {
                 value = value.substring(0, 5) + '-' + value.substring(5);
             }
@@ -1118,21 +1119,7 @@
                     countdownDisplay.style.display = 'block';
                     warningOverlay.style.display = 'none';
                     showLockedOverlay();
-                    // Catat siswa sebagai sudah submit ketika waktu habis (fallback jika GAS gagal)
-                    if (foundTokenGlobal && selectedStudentData) {
-                        try {
-                            const tokenPrefix = inputToken.value.split('-')[0].trim().toUpperCase();
-                            await set(child(submittedExamsRef, `${tokenPrefix}/${selectedStudentData.id}`), {
-                                name: selectedStudentData.name,
-                                class: selectedStudentData.class,
-                                timestamp: new Date().toISOString(),
-                                isSubmitted: true
-                            });
-                            console.log(`Siswa ${selectedStudentData.id} dengan token ${tokenPrefix} tercatat sudah submit (waktu habis).`);
-                        } catch (error) {
-                            console.error("Gagal mencatat submit siswa (waktu habis):", error);
-                        }
-                    }
+                    // LOGIKA UNTUK MENCATAT SUBMIT SAAT WAKTU HABIS DIHAPUS DARI SINI
                 } else {
                     currentTotalSeconds--;
                 }
@@ -1313,7 +1300,7 @@
                             currentAccess.accessCount = (currentAccess.accessCount || 0) + 1;
                             currentAccess.lastAccessTime = nowAccess;
                         } else {
-                            currentAccess.lastAccessTime = nowAccess;
+                            currentAccess.lastAccessTime = nowAccess; // Perbaikan: should be lastAccessTime
                         }
                         return currentAccess;
                     }
