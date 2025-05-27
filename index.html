@@ -1,872 +1,948 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login Ujian Siswa</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #e0e0e0;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1),
-                  inset 0 -2px 4px rgba(255,255,255,0.7);
-      margin: 0;
-      padding: 20px;
-      text-align: center;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      box-sizing: border-box;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Ujian Siswa</title>
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif; /* Using Inter font */
+            background-color: #e0e0e0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1),
+                        inset 0 -2px 4px rgba(255,255,255,0.7);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
 
-    .container {
-      max-width: 400px;
-      width: 90%;
-      margin: 20px auto;
-      border: 1px solid #ddd;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      overflow: hidden;
-    }
+        .container {
+            max-width: 400px;
+            width: 90%;
+            margin: 20px auto;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
 
-    .header-box {
-      background-color: #0066cc;
-      padding: 20px 15px;
-      color: white;
-    }
+        .header-box {
+            background-color: #0066cc;
+            padding: 20px 15px;
+            color: white;
+        }
 
-    .header-box .logo {
-      width: 80px;
-    }
+        .header-box .logo {
+            width: 80px;
+        }
 
-    .title {
-      font-size: 22px;
-      font-weight: bold;
-      margin-top: 10px;
-      color: white;
-    }
+        .title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: white;
+        }
 
-    .card-body {
-      padding: 20px;
-    }
+        .card-body {
+            padding: 20px;
+        }
 
-    .judul-ujian {
-      color: #0066cc; /* Warna biru seperti header */
-      font-size: 22px; /* Ukuran sama dengan SMPN 2 PAJANGAN */
-      font-weight: bold;
-      margin: 10px 0;
-    }
+        .judul-ujian {
+            color: #0066cc; /* Blue color like header */
+            font-size: 22px; /* Same size as SMPN 2 PAJANGAN */
+            font-weight: bold;
+            margin: 10px 0;
+        }
 
-    input, select { /* Tambahkan select di sini */
-      padding: 10px;
-      width: calc(100% - 20px);
-      font-size: 16px;
-      margin: 10px auto; /* Tambahkan auto margin kiri dan kanan untuk tengah */
-      display: block; /* Pastikan menjadi blok agar margin auto bekerja */
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box;
-      text-align: center; /* Teks di dalam input juga di tengah */
-    }
+        input, select {
+            padding: 10px;
+            width: calc(100% - 20px);
+            font-size: 16px;
+            margin: 10px auto;
+            display: block;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            text-align: center;
+        }
 
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      width: 100%;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-      margin: 10px auto; /* Tambahkan auto margin kiri dan kanan untuk tengah */
-      display: block; /* Pastikan menjadi blok */
-    }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin: 10px auto;
+            display: block;
+        }
 
-    button:hover {
-      background-color: #0056b3;
-    }
+        button:hover {
+            background-color: #0056b3;
+        }
 
-    button:active {
-      transform: scale(0.98);
-    }
+        button:active {
+            transform: scale(0.98);
+        }
 
-    .message {
-      margin-bottom: 10px;
-      font-size: 14px;
-      min-height: 30px; /* Sesuaikan tinggi minimum jika perlu */
-      text-align: center;
-    }
+        .message {
+            margin-bottom: 10px;
+            font-size: 14px;
+            min-height: 30px;
+            text-align: center;
+        }
 
-    .spinner {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid black;
-      border-radius: 50%;
-      width: 16px;
-      height: 16px;
-      animation: spin 1s linear infinite;
-      display: inline-block;
-      vertical-align: middle;
-      margin-left: 10px;
-    }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid black;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-    .footer {
-      margin-top: 20px;
-      font-size: 12px;
-      color: #666;
-      padding-bottom: 10px;
-    }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+            padding-bottom: 10px;
+        }
 
-    #confirmModal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      opacity: 0;
-      transition: opacity 0.3s ease-in-out;
-    }
+        #confirmModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
 
-    #confirmModal.show {
-      display: flex;
-      opacity: 1;
-    }
+        #confirmModal.show {
+            display: flex;
+            opacity: 1;
+        }
 
-    #confirmModal .modal-content {
-      background: white;
-      padding: 25px; /* Padding lebih besar */
-      border-radius: 10px;
-      max-width: 380px; /* Lebar sedikit lebih besar */
-      text-align: left;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
+        #confirmModal .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            max-width: 380px;
+            text-align: left;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
 
-    #confirmModal .modal-content h4 {
-        font-size: 1.8em; /* Ukuran judul lebih besar */
-        font-weight: bold;
-        color: #0066cc; /* Warna biru */
-        margin-bottom: 15px;
-        text-align: center;
-    }
+        #confirmModal .modal-content h4 {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #0066cc;
+            margin-bottom: 15px;
+            text-align: center;
+        }
 
-    #confirmModal .modal-content .info-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 15px;
-    }
+        #confirmModal .modal-content .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
 
-    #confirmModal .modal-content .info-table tr {
-        border-bottom: 1px solid #eee; /* Garis pemisah antar baris */
-    }
+        #confirmModal .modal-content .info-table tr {
+            border-bottom: 1px solid #eee;
+        }
 
-    #confirmModal .modal-content .info-table tr:last-child {
-        border-bottom: none; /* Hapus garis di baris terakhir */
-    }
+        #confirmModal .modal-content .info-table tr:last-child {
+            border-bottom: none;
+        }
 
-    #confirmModal .modal-content .info-table td {
-        padding: 8px 0; /* Padding vertikal untuk sel */
-        font-size: 1.1em; /* Ukuran teks sedikit lebih besar */
-    }
+        #confirmModal .modal-content .info-table td {
+            padding: 8px 0;
+            font-size: 1.1em;
+        }
 
-    #confirmModal .modal-content .info-table td:first-child {
-        font-weight: bold;
-        color: #333;
-        width: 120px; /* Lebar tetap untuk kolom label */
-        padding-right: 10px; /* Spasi antara label dan nilai */
-    }
+        #confirmModal .modal-content .info-table td:first-child {
+            font-weight: bold;
+            color: #333;
+            width: 120px;
+            padding-right: 10px;
+        }
 
-    #confirmModal .modal-content .info-table td:last-child {
-        text-align: left;
-        color: #000;
-    }
+        #confirmModal .modal-content .info-table td:last-child {
+            text-align: left;
+            color: #000;
+        }
 
-    #confirmModal .modal-content .button-container {
-        text-align: center;
-        margin-top: 20px; /* Spasi dari teks di atas */
-    }
+        #confirmModal .modal-content .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
 
-    #confirmModal button {
-      margin: 5px 5px 0 5px;
-      padding: 10px 15px;
-      width: auto;
-      border-radius: 5px;
-      border: none;
-      color: white;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-    }
+        #confirmModal button {
+            margin: 5px 5px 0 5px;
+            padding: 10px 15px;
+            width: auto;
+            border-radius: 5px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
 
-    #btnLanjut {
-      background-color: #28a745; /* Warna hijau */
-    }
+        #btnLanjut {
+            background-color: #28a745; /* Green color */
+        }
 
-    #btnLanjut:hover {
-      background-color: #218838;
-    }
+        #btnLanjut:hover {
+            background-color: #218838;
+        }
 
-    #btnLanjut:active {
-      transform: scale(0.98);
-    }
+        #btnLanjut:active {
+            transform: scale(0.98);
+        }
 
-    #btnBatal {
-      background-color: #dc3545; /* Warna merah */
-    }
+        #btnBatal {
+            background-color: #dc3545; /* Red color */
+        }
 
-    #btnBatal:hover {
-      background-color: #c82333;
-    }
+        #btnBatal:hover {
+            background-color: #c82333;
+        }
 
-    #btnBatal:active {
-      transform: scale(0.98);
-    }
+        #btnBatal:active {
+            transform: scale(0.98);
+        }
 
-    @media (max-width: 600px) {
-      .container {
-        margin-top: 40px;
-        margin-bottom: 40px;
-        border-radius: 0;
-        border: none;
-        box-shadow: none;
-        width: 100%;
-      }
-      .header-box {
-        border-radius: 0;
-      }
-      #confirmModal .modal-content {
-          padding: 20px;
-          max-width: 90%;
-      }
-      #confirmModal .modal-content h4 {
-          font-size: 1.5em;
-      }
-      #confirmModal .modal-content .info-table td {
-          font-size: 1em;
-      }
-      #confirmModal .modal-content .info-table td:first-child {
-          width: 90px; /* Sesuaikan lebar label untuk mobile */
-      }
-    }
+        @media (max-width: 600px) {
+            .container {
+                margin-top: 40px;
+                margin-bottom: 40px;
+                border-radius: 0;
+                border: none;
+                box-shadow: none;
+                width: 100%;
+            }
+            .header-box {
+                border-radius: 0;
+            }
+            #confirmModal .modal-content {
+                padding: 20px;
+                max-width: 90%;
+            }
+            #confirmModal .modal-content h4 {
+                font-size: 1.5em;
+            }
+            #confirmModal .modal-content .info-table td {
+                font-size: 1em;
+            }
+            #confirmModal .modal-content .info-table td:first-child {
+                width: 90px; /* Adjust label width for mobile */
+            }
+        }
 
-    @media (max-width: 400px) {
-      .header-box .logo {
-        width: 60px;
-      }
-      .title {
-        font-size: 18px;
-      }
-      .card-body {
-        padding: 15px;
-      }
-      input, select {
-        font-size: 14px;
-        padding: 8px;
-      }
-      button {
-        font-size: 14px;
-        padding: 8px 15px;
-      }
-      .footer {
-        font-size: 10px;
-      }
-    }
-  </style>
+        @media (max-width: 400px) {
+            .header-box .logo {
+                width: 60px;
+            }
+            .title {
+                font-size: 18px;
+            }
+            .card-body {
+                padding: 15px;
+            }
+            input, select {
+                font-size: 14px;
+                padding: 8px;
+            }
+            button {
+                font-size: 14px;
+                padding: 8px 15px;
+            }
+            .footer {
+                font-size: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header-box">
-      <img src="https://raw.githubusercontent.com/smp2pajangan/gambar/refs/heads/main/logosmpn2pjg.png" alt="Logo" class="logo" />
-      <div class="title">SMPN 2 PAJANGAN</div>
+    <div class="container">
+        <div class="header-box">
+            <img src="https://raw.githubusercontent.com/smp2pajangan/gambar/refs/heads/main/logosmpn2pjg.png" alt="Logo" class="logo" />
+            <div class="title">SMPN 2 PAJANGAN</div>
+        </div>
+        <div class="card-body">
+            <div class="judul-ujian">UJIAN BERBASIS ONLINE</div>
+            <p>Selamat datang</p>
+            <p>Silakan login menggunakan token ujian yang Anda miliki</p>
+
+            <div id="locationBlocked" style="display: none; color: red; margin-bottom: 10px; font-weight: bold; text-align: center;">
+                AKSES UJIAN DIBLOKIR, silahkan aktifkan lokasi perangkat Anda di SMPN 2 Pajangan! Setelah diaktifkan, silahkan refresh halaman login!
+            </div>
+            <p class="message" id="message"></p>
+            <p id="locationStatus" style="color: gray; font-size: 12px; text-align: center;">Memuat status lokasi...</p>
+
+            <select id="selectKelas" onchange="filterStudentsByClass()" style="margin: 10px auto; display: block; padding: 10px; width: calc(100% - 20px); font-size: 16px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; text-align: center;" disabled>
+                <option value="">-- Pilih Kelas --</option>
+            </select>
+
+            <select id="selectNamaSiswa" style="margin: 10px auto; display: block; padding: 10px; width: calc(100% - 20px); font-size: 16px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; text-align: center;" disabled>
+                <option value="">-- Pilih Nama Siswa --</option>
+            </select>
+
+            <input type="text" id="inputToken" placeholder="TOKEN-IDSiswa (Contoh: ABCDE-001)" oninput="formatToken(this)" maxlength="14" style="margin-left: auto; margin-right: auto; text-align: center;" />
+            <button id="loginBtn" onclick="cekToken()" disabled style="opacity: 0.6; margin-left: auto; margin-right: auto;">Login</button>
+        </div>
+        <div class="footer">
+            © Admin SMPN 2 Pajangan<br>
+            <span id="datetime"></span>
+        </div>
     </div>
-    <div class="card-body">
-      <div class="judul-ujian">UJIAN BERBASIS ONLINE</div>
-      <p>Selamat datang</p>
-      <p>Silakan login menggunakan token ujian yang Anda miliki</p>
 
-      <div id="locationBlocked" style="display: none; color: red; margin-bottom: 10px; font-weight: bold; text-align: center;">
-        AKSES UJIAN DIBLOKIR, silahkan aktifkan lokasi perangkat Anda di SMPN 2 Pajangan! Setelah diaktifkan, silahkan refresh halaman login!
-      </div>
-      <p class="message" id="message"></p>
-      <p id="locationStatus" style="color: gray; font-size: 12px; text-align: center;">Memuat status lokasi...</p>
-
-      <select id="selectKelas" onchange="filterStudentsByClass()" style="margin: 10px auto; display: block; padding: 10px; width: calc(100% - 20px); font-size: 16px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; text-align: center;" disabled>
-        <option value="">-- Pilih Kelas --</option>
-      </select>
-
-      <select id="selectNamaSiswa" style="margin: 10px auto; display: block; padding: 10px; width: calc(100% - 20px); font-size: 16px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; text-align: center;" disabled>
-        <option value="">-- Pilih Nama Siswa --</option>
-      </select>
-
-      <input type="text" id="inputToken" placeholder="TOKEN-IDSiswa (Contoh: ABCDE-001)" oninput="formatToken(this)" maxlength="14" style="margin-left: auto; margin-right: auto; text-align: center;" />
-      <button id="loginBtn" onclick="cekToken()" disabled style="opacity: 0.6; margin-left: auto; margin-right: auto;">Login</button>
+    <div id="confirmModal">
+        <div class="modal-content">
+            <h4>DATA UJIAN ONLINE</h4>
+            <table class="info-table">
+                <tr>
+                    <td>ID Siswa</td>
+                    <td>: <span id="modalIdSiswa"></span></td>
+                </tr>
+                <tr>
+                    <td>Nama Lengkap</td>
+                    <td>: <span id="modalNamaLengkap"></span></td>
+                </tr>
+                <tr>
+                    <td>Kelas</td>
+                    <td>: <span id="modalKelas"></span></td>
+                </tr>
+                <tr>
+                    <td>Mapel</td>
+                    <td>: <span id="modalMapel"></span></td>
+                </tr>
+            </table>
+            <p style="margin-top: 15px; text-align: center; font-size: 1em;">Jika data ujian di atas sudah benar, klik lanjutkan!</p>
+            <p style="text-align: center; font-size: 1em;">Selamat mengerjakan :)</p>
+            <div class="button-container">
+                <button id="btnLanjut">Lanjutkan</button>
+                <button id="btnBatal" onclick="tutupModal()">Batal</button>
+            </div>
+        </div>
     </div>
-    <div class="footer">
-      © Admin SMPN 2 Pajangan<br>
-      <span id="datetime"></span>
-    </div>
-  </div>
 
-  <div id="confirmModal">
-    <div class="modal-content">
-      <h4>DATA UJIAN ONLINE</h4>
-      <table class="info-table">
-        <tr>
-          <td>ID Siswa</td>
-          <td>: <span id="modalIdSiswa"></span></td>
-        </tr>
-        <tr>
-          <td>Nama Lengkap</td>
-          <td>: <span id="modalNamaLengkap"></span></td>
-        </tr>
-        <tr>
-          <td>Kelas</td>
-          <td>: <span id="modalKelas"></span></td>
-        </tr>
-        <tr>
-          <td>Mapel</td>
-          <td>: <span id="modalMapel"></span></td>
-        </tr>
-      </table>
-      <p style="margin-top: 15px; text-align: center; font-size: 1em;">Jika data ujian di atas sudah benar, klik lanjutkan!</p>
-      <p style="text-align: center; font-size: 1em;">Selamat mengerjakan :)</p>
-      <div class="button-container">
-        <button id="btnLanjut">Lanjutkan</button>
-        <button id="btnBatal" onclick="tutupModal()">Batal</button>
-      </div>
-    </div>
-  </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+        import { getDatabase, ref, get, child, runTransaction } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
 
-  <script>
-    // Mencegah klik kanan
-    document.addEventListener('contextmenu', function (e) {
-      e.preventDefault();
-    });
-  </script>
+        // Firebase configuration (provided by the user)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOBCX8x60pYqxtXmXMz2xc5dwC3HJH5EE",
+            authDomain: "ujian-online-berbasis-android.firebaseapp.com",
+            databaseURL: "https://ujian-online-berbasis-android-default-rtdb.firebaseio.com",
+            projectId: "ujian-online-berbasis-android",
+            storageBucket: "ujian-online-berbasis-android.appspot.com",
+            messagingSenderId: "923446282537",
+            appId: "1:923446282537:web:60d374dde8aca61f6a0f38"
+        };
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-    import { getDatabase, ref, get, child, runTransaction } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-    // Konfigurasi Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyAOBCX8x60pYqxtXmXMz2xc5dwC3HJH5EE",
-      authDomain: "ujian-online-berbasis-android.firebaseapp.com",
-      databaseURL: "https://ujian-online-berbasis-android-default-rtdb.firebaseio.com",
-      projectId: "ujian-online-berbasis-android",
-      storageBucket: "ujian-online-berbasis-android.appspot.com",
-      messagingSenderId: "923446282537",
-      appId: "1:923446282537:web:60d374dde8aca61f6a0f38"
-    };
+        // Firebase Realtime Database references
+        const settingsRef = ref(db, 'setlokasi');
+        const studentsRef = ref(db, 'students');
+        const tokensRef = ref(db, 'tokens');
+        const examAccessStatusRef = ref(db, 'exam_access_status');
 
-    // Inisialisasi Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+        // Feature control variables for location
+        let isLocationEnabled = true; // Default active
+        let firebaseAllowedRadiusKm = 0.075; // Default radius, will be updated from Firebase
 
-    // Referensi ke node setlokasi, students, dan exam_access_status di Firebase
-    const settingsRef = ref(db, 'setlokasi');
-    const studentsRef = ref(db, 'students');
-    const tokensRef = ref(db, 'tokens');
-    const examAccessStatusRef = ref(db, 'exam_access_status');
+        // Fixed central coordinates for the allowed location (SMPN 2 Pajangan)
+        const allowedLatitude = -7.8589546;
+        const allowedLongitude = 110.2655596;
 
-    // Variabel kontrol fitur lokasi
-    let isLocationEnabled = true; // Default aktif
-    let firebaseAllowedRadiusKm = 0.075; // Default radius, akan diperbarui dari Firebase
+        // DOM elements
+        const locationBlockedDiv = document.getElementById('locationBlocked');
+        const message = document.getElementById('message');
+        const loginBtn = document.getElementById('loginBtn');
+        const confirmModal = document.getElementById('confirmModal');
+        const locationStatus = document.getElementById('locationStatus');
+        const inputToken = document.getElementById('inputToken');
+        const selectKelas = document.getElementById('selectKelas');
+        const selectNamaSiswa = document.getElementById('selectNamaSiswa');
 
-    // Koordinat pusat lokasi yang diizinkan (tetap statis di sisi siswa)
-    const allowedLatitude = -7.8589546;
-    const allowedLongitude = 110.2655596;
+        // Variables to store student data
+        let allStudentsData = [];
+        let selectedStudentData = null; // Stores the selected student's data from the dropdown
+        let isLocationValid = false; // Tracks location validity
+        let foundTokenGlobal = null; // Global variable to store the found token data for modal
 
-    // Elemen DOM
-    const locationBlockedDiv = document.getElementById('locationBlocked');
-    const message = document.getElementById('message');
-    const loginBtn = document.getElementById('loginBtn');
-    const confirmModal = document.getElementById('confirmModal');
-    const locationStatus = document.getElementById('locationStatus');
-    const inputToken = document.getElementById('inputToken');
+        // --- Utility Functions ---
 
-    // NEW: Elemen DOM baru untuk dropdown
-    const selectKelas = document.getElementById('selectKelas');
-    const selectNamaSiswa = document.getElementById('selectNamaSiswa');
-
-    // NEW: Variabel untuk menyimpan semua data siswa yang dimuat
-    let allStudentsData = [];
-    let selectedStudentData = null; // Menyimpan data siswa yang terpilih dari dropdown nama siswa
-
-    // Fungsi helper untuk menambahkan nol di depan ID siswa
-    function padStudentId(id) {
-        return String(id).padStart(3, '0');
-    }
-
-    // Fungsi untuk mendeteksi apakah perangkat adalah perangkat sentuh
-    function isTouchDevice() {
-      return window.matchMedia('(pointer: coarse)').matches;
-    }
-
-    // Fungsi untuk menghitung jarak antara dua koordinat geografis (Haversine formula)
-    function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-      const R = 6371; // Radius bumi dalam km
-      const dLat = deg2rad(lat2 - lat1);
-      const dLon = deg2rad(lon2 - lon1);
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2)
-      ;
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      const d = R * c; // Jarak dalam km
-      return d;
-    }
-
-    // Fungsi untuk mengubah derajat ke radian
-    function deg2rad(deg) {
-      return deg * (Math.PI / 180)
-    }
-
-    let isLocationValid = false; // Default false
-
-    // Fungsi untuk memeriksa lokasi pengguna
-    function checkLocation(latitude, longitude) {
-      const distance = getDistanceFromLatLonInKm(allowedLatitude, allowedLongitude, latitude, longitude);
-      // Gunakan firebaseAllowedRadiusKm di sini
-      if (distance <= firebaseAllowedRadiusKm) {
-        locationBlockedDiv.style.display = 'none';
-        isLocationValid = true;
-        message.textContent = ""; // Bersihkan pesan lokasi
-        // updateLoginButtonStatus(); // Panggil ini setelah status lokasi divalidasi
-      } else {
-        locationBlockedDiv.style.display = 'block';
-        locationBlockedDiv.textContent = 'AKSES UJIAN DIBLOKIR, silahkan aktifkan lokasi perangkat Anda di SMPN 2 Pajangan! Setelah diaktifkan, silahkan refresh halaman login!';
-        isLocationValid = false;
-        // updateLoginButtonStatus(); // Panggil ini setelah status lokasi divalidasi
-      }
-      updateLoginButtonStatus(); // Panggil di sini agar status tombol diperbarui setelah lokasi diperiksa
-    }
-
-    // Handler ketika lokasi berhasil didapatkan
-    function handleLocation(position) {
-      checkLocation(position.coords.latitude, position.coords.longitude);
-    }
-
-    // Handler ketika terjadi kesalahan dalam mendapatkan lokasi
-    function handleLocationError(error) {
-      console.error("Error getting location:", error);
-      locationBlockedDiv.style.display = 'block';
-      locationBlockedDiv.textContent = 'AKSES UJIAN DIBLOKIR, silahkan aktifkan lokasi perangkat Anda di SMPN 2 Pajangan! Setelah diaktifkan, silahkan refresh halaman login!';
-      message.style.color = "orange";
-      switch(error.code) {
-        case error.PERMISSION_DENIED:
-          message.textContent = "Lokasi belum diaktifkan, mohon aktifkan lokasi di pengaturan perangkat Anda.";
-          break;
-        case error.POSITION_UNAVAILABLE:
-          message.textContent = "Informasi lokasi tidak tersedia.";
-          break;
-        case error.TIMEOUT:
-          message.textContent = "Waktu permintaan lokasi habis.";
-          break;
-        case error.UNKNOWN_ERROR:
-          message.textContent = "Terjadi kesalahan yang tidak diketahui dengan layanan lokasi.";
-          break;
-      }
-      isLocationValid = false; // Lokasi tidak valid jika ada error
-      updateLoginButtonStatus(); // Pastikan tombol login dinonaktifkan
-    }
-
-    // Fungsi untuk mendapatkan lokasi
-    function getLocation() {
-      if (isLocationEnabled && isTouchDevice()) {
-        locationStatus.style.display = 'block';
-        if (navigator.geolocation) {
-          navigator.geolocation.watchPosition(handleLocation, handleLocationError, {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0
-          });
-        } else {
-          locationBlockedDiv.style.display = 'block';
-          locationBlockedDiv.textContent = 'Geolocation tidak didukung oleh perangkat ini.';
-          message.style.color = "red";
-          isLocationValid = false;
-          updateLoginButtonStatus();
-        }
-      } else {
-        // Jika bukan perangkat sentuh, atau jika lokasi dinonaktifkan di admin panel, langsung anggap valid
-        locationBlockedDiv.style.display = 'none';
-        isLocationValid = true;
-        locationStatus.style.display = 'none'; // Sembunyikan status lokasi
-        updateLoginButtonStatus(); // Aktifkan tombol login
-      }
-    }
-
-    // Fungsi untuk memuat semua siswa dan mengisi dropdown kelas
-    async function loadStudentsAndPopulateClassDropdown() {
-        selectKelas.disabled = true; // Disable until loaded
-        selectNamaSiswa.disabled = true; // Disable until class selected
-        message.innerHTML = `Memuat data siswa... <span class="spinner"></span>`;
-        try {
-            const snapshot = await get(studentsRef);
-            if (snapshot.exists()) {
-                allStudentsData = Object.values(snapshot.val()); // Ambil semua siswa sebagai array
-                const classes = new Set();
-                allStudentsData.forEach(student => {
-                    if (student.class) {
-                        classes.add(student.class);
-                    }
-                });
-
-                selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>'; // Reset
-                // Urutkan kelas secara alfanumerik
-                Array.from(classes).sort((a, b) => {
-                    // Coba urutkan berdasarkan angka (misal 7A sebelum 8A)
-                    const numA = parseInt(a.match(/\d+/));
-                    const numB = parseInt(b.match(/\d+/));
-                    if (numA && numB && numA !== numB) {
-                        return numA - numB;
-                    }
-                    // Jika angka sama atau tidak ada, urutkan string biasa
-                    return a.localeCompare(b);
-                }).forEach(cls => {
-                    const option = document.createElement('option');
-                    option.value = cls;
-                    option.textContent = cls;
-                    selectKelas.appendChild(option);
-                });
-                selectKelas.disabled = false;
-                message.textContent = ""; // Clear loading message
-            } else {
-                message.style.color = "orange";
-                message.textContent = "Tidak ada data siswa ditemukan di database.";
-            }
-        } catch (error) {
-            console.error("Gagal memuat data siswa:", error);
-            message.style.color = "red";
-            message.textContent = "Gagal memuat data siswa dari database.";
-        } finally {
-            // Setelah siswa dimuat, baru cek lokasi
-            getLocation();
-        }
-    }
-
-    // NEW: Fungsi untuk memfilter nama siswa berdasarkan kelas yang dipilih
-    window.filterStudentsByClass = function() {
-        const selectedClass = selectKelas.value;
-        selectNamaSiswa.innerHTML = '<option value="">-- Pilih Nama Siswa --</option>'; // Reset
-        selectNamaSiswa.disabled = true;
-        selectedStudentData = null; // Reset siswa yang dipilih
-
-        if (selectedClass) {
-            const filteredStudents = allStudentsData.filter(student => student.class === selectedClass);
-            filteredStudents.sort((a, b) => a.name.localeCompare(b.name)).forEach(student => {
-                const option = document.createElement('option');
-                option.value = student.id; // Gunakan ID siswa sebagai value
-                option.textContent = student.name;
-                selectNamaSiswa.appendChild(option);
-            });
-            selectNamaSiswa.disabled = false;
-        }
-        updateLoginButtonStatus(); // Perbarui status tombol login setelah filter
-    };
-
-    // Panggil fungsi ini saat halaman dimuat
-    loadStudentsAndPopulateClassDropdown();
-
-    // Ambil status dan radius dari Firebase saat halaman dimuat
-    get(settingsRef).then((snapshot) => {
-      // locationStatus.style.display = 'block'; // Ini akan ditangani oleh getLocation()
-
-      if (snapshot.exists()) {
-        const settings = snapshot.val();
-        isLocationEnabled = settings.isLocationEnabled !== undefined ? settings.isLocationEnabled : true;
-        firebaseAllowedRadiusKm = settings.allowedRadiusKm !== undefined ? settings.allowedRadiusKm : 0.075;
-        console.log("Status Lokasi dari Firebase:", isLocationEnabled);
-        console.log("Radius dari Firebase:", firebaseAllowedRadiusKm);
-      } else {
-        console.log("Tidak dapat mengambil pengaturan lokasi dari Firebase, menggunakan default.");
-      }
-      // getLocation() akan dipanggil setelah loadStudentsAndPopulateClassDropdown selesai
-      // locationStatus.style.display = 'none'; // Ini akan ditangani oleh getLocation()
-    }).catch((error) => {
-      console.error("Gagal mengambil pengaturan lokasi dari Firebase:", error);
-      // getLocation() akan dipanggil setelah loadStudentsAndPopulateClassDropdown selesai
-      // locationStatus.style.display = 'none';
-    });
-
-    // Event listeners untuk mengupdate status tombol login
-    inputToken.addEventListener('input', updateLoginButtonStatus);
-    selectKelas.addEventListener('change', updateLoginButtonStatus);
-    selectNamaSiswa.addEventListener('change', function() {
-        const studentId = this.value;
-        selectedStudentData = allStudentsData.find(student => student.id === studentId);
-        updateLoginButtonStatus();
-    });
-
-    // Fungsi untuk memperbarui status tombol Login
-    function updateLoginButtonStatus() {
-        // Cek apakah lokasi valid (jika fitur lokasi diaktifkan)
-        const isLocationCheckPassed = (isLocationEnabled && isTouchDevice()) ? isLocationValid : true;
-
-        // Cek apakah semua input dan dropdown sudah terisi
-        const isAllInputsFilled = selectKelas.value !== "" &&
-                                 selectNamaSiswa.value !== "" &&
-                                 inputToken.value.trim() !== "";
-
-        // Aktifkan tombol login hanya jika lokasi valid (atau fitur dimatikan) DAN semua input terisi
-        if (isLocationCheckPassed && isAllInputsFilled) {
-            loginBtn.disabled = false;
-            loginBtn.style.opacity = 1;
-        } else {
-            loginBtn.disabled = true;
-            loginBtn.style.opacity = 0.6;
-        }
-    }
-
-
-    // Fungsi untuk memeriksa token
-    window.cekToken = async function () {
-        const selectedClass = selectKelas.value;
-        const selectedStudentId = selectNamaSiswa.value;
-        const fullInputToken = inputToken.value.trim();
-
-        if (!selectedClass || !selectedStudentId || !fullInputToken) {
-            message.style.color = "red";
-            message.textContent = "Harap lengkapi semua pilihan (Kelas, Nama Siswa, dan Token).";
-            return;
+        /**
+         * Pads a student ID with leading zeros to ensure it has 3 digits.
+         * @param {string|number} id - The student ID.
+         * @returns {string} The padded student ID.
+         */
+        function padStudentId(id) {
+            return String(id).padStart(3, '0');
         }
 
-        const parts = fullInputToken.split('-');
-        if (parts.length !== 2) {
-            message.style.color = "red";
-            message.textContent = "Format Token-ID Siswa salah. Gunakan TOKEN-IDSiswa (Contoh: ABCDE-001).";
-            return;
+        /**
+         * Checks if the device is a touch device.
+         * @returns {boolean} True if it's a touch device, false otherwise.
+         */
+        function isTouchDevice() {
+            return window.matchMedia('(pointer: coarse)').matches;
         }
 
-        const inputTokenValue = parts[0].trim();
-        const inputStudentIdFromToken = padStudentId(parts[1].trim());
-
-        // Validasi tambahan: ID Siswa dari input token harus cocok dengan yang dipilih dari dropdown
-        if (inputStudentIdFromToken !== selectedStudentId) {
-            message.style.color = "red";
-            message.textContent = "ID Siswa pada token tidak cocok dengan nama siswa yang dipilih.";
-            loginBtn.disabled = false;
-            loginBtn.style.opacity = 1;
-            return;
+        /**
+         * Calculates the distance between two geographical coordinates using the Haversine formula.
+         * @param {number} lat1 - Latitude of point 1.
+         * @param {number} lon1 - Longitude of point 1.
+         * @param {number} lat2 - Latitude of point 2.
+         * @param {number} lon2 - Longitude of point 2.
+         * @returns {number} Distance in kilometers.
+         */
+        function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of Earth in km
+            const dLat = deg2rad(lat2 - lat1);
+            const dLon = deg2rad(lon2 - lon1);
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const d = R * c; // Distance in km
+            return d;
         }
 
+        /**
+         * Converts degrees to radians.
+         * @param {number} deg - Angle in degrees.
+         * @returns {number} Angle in radians.
+         */
+        function deg2rad(deg) {
+            return deg * (Math.PI / 180);
+        }
 
-        loginBtn.disabled = true;
-        loginBtn.style.opacity = 0.6;
-        message.style.color = "black";
-        message.innerHTML = `Memproses data... <span class="spinner"></span>`;
+        // --- UI Update Functions ---
 
-        try {
-            const tokensSnapshot = await get(tokensRef);
-
-            let foundToken = null;
-
-            // 1. Cari token
-            tokensSnapshot.forEach(child => {
-                const data = child.val();
-                if (data.token === inputTokenValue.toUpperCase()) {
-                    foundToken = { ...data, key: child.key };
-                    return true; // Hentikan loop
-                }
-            });
-
-            if (!foundToken) {
-                message.style.color = "red";
-                message.textContent = "Token ujian tidak ditemukan!";
-                loginBtn.disabled = false;
-                loginBtn.style.opacity = 1;
-                return;
-            }
-
-            // Periksa validitas token (aktif, force-aktif, kadaluarsa)
+        /**
+         * Updates the current date and time displayed in the footer.
+         */
+        function updateDateTime() {
             const now = new Date();
-            const startTime = new Date(foundToken.startTime);
-            const endTime = new Date(foundToken.endTime);
-            let tokenStatus = ''; // 'valid', 'expired', 'inactive'
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            document.getElementById('datetime').textContent = now.toLocaleDateString('id-ID', options);
+        }
 
-            if (foundToken.isForceActive === true) {
-                tokenStatus = 'valid';
-            } else if (foundToken.isActive === true) {
-                if (now >= startTime && now <= endTime) {
-                    tokenStatus = 'valid';
+        /**
+         * Formats the token input to uppercase and adds a hyphen after 5 characters.
+         * @param {HTMLInputElement} inputElement - The input field for the token.
+         */
+        window.formatToken = function (inputElement) {
+            let value = inputElement.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); // Allow only alphanumeric, convert to uppercase
+            if (value.length > 5 && value.indexOf('-') === -1) {
+                value = value.substring(0, 5) + '-' + value.substring(5);
+            }
+            inputElement.value = value;
+            updateLoginButtonStatus(); // Update button status on input change
+        };
+
+        /**
+         * Updates the enabled/disabled state and opacity of the Login button
+         * based on location validity and input field completion.
+         */
+        function updateLoginButtonStatus() {
+            // Check if location validation is passed (if location feature is enabled and it's a touch device)
+            const isLocationCheckPassed = (isLocationEnabled && isTouchDevice()) ? isLocationValid : true;
+
+            // Check if all required inputs and dropdowns are filled
+            const isAllInputsFilled = selectKelas.value !== "" &&
+                                      selectNamaSiswa.value !== "" &&
+                                      inputToken.value.trim() !== "";
+
+            // Enable login button only if location is valid (or feature is off) AND all inputs are filled
+            if (isLocationCheckPassed && isAllInputsFilled) {
+                loginBtn.disabled = false;
+                loginBtn.style.opacity = 1;
+            } else {
+                loginBtn.disabled = true;
+                loginBtn.style.opacity = 0.6;
+            }
+        }
+
+        /**
+         * Hides the confirmation modal and resets the UI.
+         */
+        window.tutupModal = function () {
+            confirmModal.classList.remove('show');
+            message.textContent = ""; // Clear any previous messages
+            updateLoginButtonStatus(); // Ensure login button state is correct after closing modal
+        };
+
+        // --- Location Handling ---
+
+        /**
+         * Checks the user's current location against the allowed coordinates and radius.
+         * Updates UI elements based on location validity.
+         * @param {number} latitude - User's current latitude.
+         * @param {number} longitude - User's current longitude.
+         */
+        function checkLocation(latitude, longitude) {
+            const distance = getDistanceFromLatLonInKm(allowedLatitude, allowedLongitude, latitude, longitude);
+            if (distance <= firebaseAllowedRadiusKm) {
+                locationBlockedDiv.style.display = 'none';
+                isLocationValid = true;
+                locationStatus.textContent = "Lokasi valid."; // Clear location status message
+                locationStatus.style.color = "green";
+            } else {
+                locationBlockedDiv.style.display = 'block';
+                locationBlockedDiv.textContent = 'AKSES UJIAN DIBLOKIR, silahkan aktifkan lokasi perangkat Anda di SMPN 2 Pajangan! Setelah diaktifkan, silahkan refresh halaman login!';
+                isLocationValid = false;
+                locationStatus.textContent = `Anda berada ${distance.toFixed(2)} km dari lokasi yang diizinkan.`;
+                locationStatus.style.color = "red";
+            }
+            updateLoginButtonStatus(); // Update login button status after location check
+        }
+
+        /**
+         * Handler for successful geolocation retrieval.
+         * @param {GeolocationPosition} position - The geolocation position object.
+         */
+        function handleLocation(position) {
+            checkLocation(position.coords.latitude, position.coords.longitude);
+        }
+
+        /**
+         * Handler for geolocation errors.
+         * @param {GeolocationPositionError} error - The geolocation error object.
+         */
+        function handleLocationError(error) {
+            // Log the full error object for better debugging
+            console.error("Error getting location:", error);
+
+            locationBlockedDiv.style.display = 'block';
+            locationBlockedDiv.textContent = 'AKSES UJIAN DIBLOKIR, silahkan aktifkan lokasi perangkat Anda di SMPN 2 Pajangan! Setelah diaktifkan, silahkan refresh halaman login!';
+            message.style.color = "orange";
+
+            // Default message for unknown errors
+            let errorMessage = "Terjadi kesalahan yang tidak diketahui dengan layanan lokasi.";
+
+            // Check if error.code exists and is a number, then use switch
+            if (error && typeof error.code === 'number') {
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage = "Lokasi belum diaktifkan, mohon aktifkan lokasi di pengaturan perangkat Anda.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage = "Informasi lokasi tidak tersedia.";
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage = "Waktu permintaan lokasi habis.";
+                        break;
+                    // No default case needed here as errorMessage is already set
+                }
+            } else if (error && error.message) {
+                // Fallback for errors that might have a message but no code
+                errorMessage = `Terjadi kesalahan: ${error.message}`;
+            }
+
+            message.textContent = errorMessage; // Always update message content
+            isLocationValid = false; // Location is invalid if there's an error
+            updateLoginButtonStatus(); // Ensure login button is disabled
+        }
+
+        /**
+         * Initiates the geolocation watch if location is enabled and it's a touch device.
+         * Otherwise, it assumes location is valid.
+         */
+        function getLocation() {
+            if (isLocationEnabled && isTouchDevice()) {
+                locationStatus.style.display = 'block';
+                locationStatus.textContent = 'Mencari lokasi Anda...';
+                if (navigator.geolocation) {
+                    // Use watchPosition to continuously monitor location
+                    navigator.geolocation.watchPosition(handleLocation, handleLocationError, {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    });
                 } else {
-                    tokenStatus = 'expired'; // Token aktif tapi di luar jendela waktu
+                    locationBlockedDiv.style.display = 'block';
+                    locationBlockedDiv.textContent = 'Geolocation tidak didukung oleh perangkat ini.';
+                    message.style.color = "red";
+                    isLocationValid = false;
+                    updateLoginButtonStatus();
                 }
             } else {
-                tokenStatus = 'inactive'; // Token tidak aktif dan tidak force-aktif
+                // If not a touch device, or if location is disabled in admin panel, directly consider valid
+                locationBlockedDiv.style.display = 'none';
+                isLocationValid = true;
+                locationStatus.style.display = 'none'; // Hide location status if not checking
+                updateLoginButtonStatus(); // Enable login button
             }
+        }
 
-            if (tokenStatus !== 'valid') {
-                message.style.color = "red";
-                if (tokenStatus === 'expired') {
-                    message.textContent = "Token belum aktif atau sudah kadaluarsa.";
-                } else { // 'inactive'
-                    message.textContent = "Token saat ini tidak aktif.";
-                }
-                loginBtn.disabled = false;
-                loginBtn.style.opacity = 1;
-                return;
-            }
+        // --- Data Loading and Filtering ---
 
-            // Validasi: kelas yang dipilih dari dropdown harus cocok dengan kelas token
-            const studentClassNumericMatch = selectedStudentData.class.match(/^\d+/); // Ambil angka saja (misal 7 dari 7A)
-            const studentClassNumeric = studentClassNumericMatch ? studentClassNumericMatch[0] : null;
-
-            // Pastikan foundToken.kelas juga angka (misal '7')
-            if (!studentClassNumeric || String(studentClassNumeric) !== String(foundToken.kelas)) {
-                message.style.color = "red";
-                message.textContent = `Siswa dari kelas ${selectedStudentData.class} tidak dapat mengakses token untuk kelas ${foundToken.kelas}.`;
-                loginBtn.disabled = false;
-                loginBtn.style.opacity = 1;
-                return;
-            }
-
-
-            // Semua validasi berhasil, tampilkan modal konfirmasi
-            document.getElementById("modalIdSiswa").textContent = selectedStudentData.id || "-";
-            document.getElementById("modalNamaLengkap").textContent = selectedStudentData.name || "-";
-            document.getElementById("modalKelas").textContent = selectedStudentData.class || "-"; // Mengambil kelas lengkap dari data siswa
-            document.getElementById("modalMapel").textContent = foundToken.subject || "-";
-
-            confirmModal.classList.add('show');
-
-            // Set up the "Lanjutkan" button to record access and redirect
-            document.getElementById("btnLanjut").onclick = async function () {
-                message.innerHTML = `Mencatat akses ujian... <span class="spinner"></span>`;
-                confirmModal.classList.remove('show'); // Sembunyikan modal segera
-
-                const examAccessRef = child(examAccessStatusRef, `${foundToken.key}/${selectedStudentData.id}`);
-
-                try {
-                    await runTransaction(examAccessRef, (currentAccess) => {
-                        const nowAccess = Date.now();
-                        const SPAM_THRESHOLD_MS = 5000; // 5 detik
-
-                        if (currentAccess === null) {
-                            return {
-                                firstAccessTime: nowAccess,
-                                lastAccessTime: nowAccess,
-                                accessCount: 1
-                            };
-                        } else {
-                            if (nowAccess - (currentAccess.lastAccessTime || 0) > SPAM_THRESHOLD_MS) {
-                                currentAccess.accessCount = (currentAccess.accessCount || 0) + 1;
-                                currentAccess.lastAccessTime = nowAccess;
-                            } else {
-                                currentAccess.lastAccessTime = nowAccess; // Tetap perbarui waktu akses terakhir untuk klik spam
-                            }
-                            return currentAccess;
+        /**
+         * Loads all student data from Firebase and populates the class dropdown.
+         * Also calls getLocation() after data is loaded.
+         */
+        async function loadStudentsAndPopulateClassDropdown() {
+            selectKelas.disabled = true; // Disable until loaded
+            selectNamaSiswa.disabled = true; // Disable until class selected
+            message.innerHTML = `Memuat data siswa... <span class="spinner"></span>`;
+            try {
+                const snapshot = await get(studentsRef);
+                if (snapshot.exists()) {
+                    allStudentsData = Object.values(snapshot.val()); // Get all students as an array
+                    const classes = new Set();
+                    allStudentsData.forEach(student => {
+                        if (student.class) {
+                            classes.add(student.class);
                         }
                     });
-                    console.log(`Akses token ${foundToken.key} oleh siswa ${selectedStudentData.id} berhasil dicatat.`);
 
-                    // Construct Google Forms URL with dynamic entry IDs
-                    // Ganti placeholder berikut dengan ID entri Google Forms Anda yang sebenarnya!
-                    const tokenEntryId = foundToken.tokenEntryId || 'YOUR_TOKEN_ENTRY_ID';
-                    const nameEntryId = foundToken.nameEntryId || 'YOUR_NAME_ENTRY_ID';
-                    const classEntryId = foundToken.classEntryId || 'YOUR_CLASS_ENTRY_ID';
-
-                    const googleFormUrl = `${foundToken.url}?usp=pp_url` +
-                                          `&entry.${tokenEntryId}=${encodeURIComponent(foundToken.token)}` +
-                                          `&entry.${nameEntryId}=${encodeURIComponent(selectedStudentData.name)}` +
-                                          `&entry.${classEntryId}=${encodeURIComponent(selectedStudentData.class)}`;
-
-                    console.log("Mengarahkan ke Google Form URL:", googleFormUrl); // Log URL
-                    window.open(googleFormUrl, '_blank'); // Buka di tab baru
-                    // window.location.href = googleFormUrl; // Jika ingin kembali ke tab yang sama, gunakan ini (dan hapus window.open)
-
-                } catch (error) {
-                    console.error("Gagal mencatat akses token atau mengarahkan:", error);
+                    selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>'; // Reset
+                    // Sort classes alphanumeric (e.g., 7A before 8A)
+                    Array.from(classes).sort((a, b) => {
+                        const numA = parseInt(a.match(/\d+/));
+                        const numB = parseInt(b.match(/\d+/));
+                        if (numA && numB && numA !== numB) {
+                            return numA - numB;
+                        }
+                        return a.localeCompare(b);
+                    }).forEach(cls => {
+                        const option = document.createElement('option');
+                        option.value = cls;
+                        option.textContent = cls;
+                        selectKelas.appendChild(option);
+                    });
+                    selectKelas.disabled = false;
+                    message.textContent = ""; // Clear loading message
+                } else {
                     message.style.color = "orange";
-                    message.textContent = "Gagal mencatat akses ujian, namun Anda akan tetap dialihkan.";
-                    // Meskipun pencatatan gagal, tetap arahkan ulang sesuai perilaku sebelumnya
-                    setTimeout(() => {
-                        const tokenEntryId = foundToken.tokenEntryId || 'YOUR_TOKEN_ENTRY_ID';
-                        const nameEntryId = foundToken.nameEntryId || 'YOUR_NAME_ENTRY_ID';
-                        const classEntryId = foundToken.classEntryId || 'YOUR_CLASS_ENTRY_ID';
-
-                        const googleFormUrl = `${foundToken.url}?usp=pp_url` +
-                                              `&entry.${tokenEntryId}=${encodeURIComponent(foundToken.token)}` +
-                                              `&entry.${nameEntryId}=${encodeURIComponent(selectedStudentData.name)}` +
-                                              `&entry.${classEntryId}=${encodeURIComponent(selectedStudentData.class)}`;
-                        console.log("Mengarahkan ke Google Form URL (fallback):", googleFormUrl);
-                        window.open(googleFormUrl, '_blank'); // Buka di tab baru sebagai fallback
-                        // window.location.href = googleFormUrl; // Jika ingin kembali ke tab yang sama, gunakan ini (dan hapus window.open)
-                    }, 1500); // Beri waktu pengguna untuk membaca pesan
+                    message.textContent = "Tidak ada data siswa ditemukan di database.";
                 }
-            };
-
-        } catch (err) {
-            console.error(err);
-            message.style.color = "red";
-            message.textContent = "Terjadi kesalahan, silakan coba lagi.";
-            loginBtn.disabled = false;
-            loginBtn.style.opacity = 1;
-        }
-    };
-
-    // Fungsi untuk menutup modal konfirmasi
-    window.tutupModal = function () {
-      confirmModal.classList.remove('show');
-      message.textContent = "";
-      loginBtn.disabled = false;
-      loginBtn.style.opacity = 1;
-      // document.getElementById('inputToken').value = ''; // Opsional: Bersihkan input token saat dibatalkan
-      // selectKelas.value = ""; // Opsional: Reset dropdown kelas
-      // filterStudentsByClass(); // Opsional: Reset dropdown nama siswa
-    };
-
-    // Fungsi untuk memformat token input
-    window.formatToken = function (el) {
-        let value = el.value.toUpperCase();
-        // Hanya izinkan karakter alfanumerik dan satu tanda hubung
-        value = value.replace(/[^A-Z0-9-]/g, '');
-
-        const parts = value.split('-');
-        let formattedValue = '';
-
-        if (parts[0]) {
-            formattedValue += parts[0].substring(0, 10); // Batasi bagian token hingga 10 karakter
-        }
-
-        if (parts.length > 1) {
-            formattedValue += '-';
-            if (parts[1]) {
-                formattedValue += parts[1].substring(0, 3); // Batasi bagian ID hingga 3 karakter
+            } catch (error) {
+                console.error("Failed to load student data:", error);
+                message.style.color = "red";
+                message.textContent = "Gagal memuat data siswa dari database.";
+            } finally {
+                // After students are loaded, proceed with location check
+                getLocation();
             }
         }
 
-        el.value = formattedValue;
-        updateLoginButtonStatus(); // Panggil ini setiap kali input token berubah
-    };
+        /**
+         * Filters the student names dropdown based on the selected class.
+         */
+        window.filterStudentsByClass = function() {
+            const selectedClass = selectKelas.value;
+            selectNamaSiswa.innerHTML = '<option value="">-- Pilih Nama Siswa --</option>'; // Reset
+            selectNamaSiswa.disabled = true;
+            selectedStudentData = null; // Reset selected student
 
-    // Fungsi untuk memperbarui tanggal dan waktu
-    function updateDateTime() {
-      const now = new Date();
-      const options = {
-        weekday: 'long', year: 'numeric', month: 'long',
-        day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
-      };
-      document.getElementById("datetime").textContent = now.toLocaleDateString('id-ID', options);
-    }
-    // Perbarui tanggal dan waktu setiap detik
-    setInterval(updateDateTime, 1000);
-    // Panggil sekali saat halaman dimuat
-    updateDateTime();
-  </script>
+            if (selectedClass) {
+                const filteredStudents = allStudentsData.filter(student => student.class === selectedClass);
+                filteredStudents.sort((a, b) => a.name.localeCompare(b.name)).forEach(student => {
+                    const option = document.createElement('option');
+                    option.value = student.id; // Use student ID as value
+                    option.textContent = student.name;
+                    selectNamaSiswa.appendChild(option);
+                });
+                selectNamaSiswa.disabled = false;
+            }
+            updateLoginButtonStatus(); // Update login button status after filtering
+        };
+
+        // --- Login and Modal Logic ---
+
+        /**
+         * Handles the "Lanjutkan" button click in the confirmation modal.
+         * Records exam access and redirects to the Google Form.
+         */
+        async function handleLanjutClick() {
+            message.innerHTML = `Mencatat akses ujian... <span class="spinner"></span>`;
+            confirmModal.classList.remove('show'); // Hide modal immediately
+
+            // Ensure foundTokenGlobal and selectedStudentData are available
+            if (!foundTokenGlobal || !selectedStudentData) {
+                console.error("Error: Token data or student data is missing for redirection.");
+                message.style.color = "red";
+                message.textContent = "Terjadi kesalahan saat menyiapkan tautan ujian. Coba lagi.";
+                updateLoginButtonStatus(); // Re-enable login button
+                return;
+            }
+
+            const examAccessRef = child(examAccessStatusRef, `${foundTokenGlobal.key}/${selectedStudentData.id}`);
+
+            try {
+                await runTransaction(examAccessRef, (currentAccess) => {
+                    const nowAccess = Date.now();
+                    const SPAM_THRESHOLD_MS = 5000; // 5 seconds threshold to count as a new access
+
+                    if (currentAccess === null) {
+                        return {
+                            firstAccessTime: nowAccess,
+                            lastAccessTime: nowAccess,
+                            accessCount: 1
+                        };
+                    } else {
+                        if (nowAccess - (currentAccess.lastAccessTime || 0) > SPAM_THRESHOLD_MS) {
+                            currentAccess.accessCount = (currentAccess.accessCount || 0) + 1;
+                            currentAccess.lastAccessTime = nowAccess;
+                        } else {
+                            currentAccess.lastAccessTime = nowAccess; // Still update last access time for spam clicks
+                        }
+                        return currentAccess;
+                    }
+                });
+                console.log(`Access to token ${foundTokenGlobal.key} by student ${selectedStudentData.id} successfully recorded.`);
+
+                // Construct Google Forms URL with dynamic entry IDs
+                // IMPORTANT: Replace the placeholder IDs below with your actual Google Forms entry IDs!
+                const tokenEntryId = foundTokenGlobal.tokenEntryId || 'YOUR_TOKEN_ENTRY_ID';
+                const nameEntryId = foundTokenGlobal.nameEntryId || 'YOUR_NAME_ENTRY_ID';
+                const classEntryId = foundTokenGlobal.classEntryId || 'YOUR_CLASS_ENTRY_ID';
+
+                const googleFormUrl = `${foundTokenGlobal.url}?usp=pp_url` +
+                                        `&entry.${tokenEntryId}=${encodeURIComponent(foundTokenGlobal.token)}` +
+                                        `&entry.${nameEntryId}=${encodeURIComponent(selectedStudentData.name)}` +
+                                        `&entry.${classEntryId}=${encodeURIComponent(selectedStudentData.class)}`;
+
+                console.log("Redirecting to Google Form URL:", googleFormUrl);
+                window.open(googleFormUrl, '_blank'); // Open in a new tab
+
+            } catch (error) {
+                console.error("Failed to record token access or redirect:", error);
+                message.style.color = "orange";
+                message.textContent = "Gagal mencatat akses ujian, namun Anda akan tetap dialihkan.";
+                // Even if recording fails, still redirect as a fallback
+                setTimeout(() => {
+                    const tokenEntryId = foundTokenGlobal.tokenEntryId || 'YOUR_TOKEN_ENTRY_ID';
+                    const nameEntryId = foundTokenGlobal.nameEntryId || 'YOUR_NAME_ENTRY_ID';
+                    const classEntryId = foundTokenGlobal.classEntryId || 'YOUR_CLASS_ENTRY_ID';
+
+                    const googleFormUrl = `${foundTokenGlobal.url}?usp=pp_url` +
+                                            `&entry.${tokenEntryId}=${encodeURIComponent(foundTokenGlobal.token)}` +
+                                            `&entry.${nameEntryId}=${encodeURIComponent(selectedStudentData.name)}` +
+                                            `&entry.${classEntryId}=${encodeURIComponent(selectedStudentData.class)}`;
+                    console.log("Redirecting to Google Form URL (fallback):", googleFormUrl);
+                    window.open(googleFormUrl, '_blank'); // Open in a new tab as fallback
+                }, 1500); // Give user time to read the message
+            } finally {
+                updateLoginButtonStatus(); // Ensure login button is re-enabled for next attempt
+            }
+        }
+
+        /**
+         * Main function to check the entered token and student details.
+         * Displays a confirmation modal if validation is successful.
+         */
+        window.cekToken = async function () {
+            const selectedClass = selectKelas.value;
+            const selectedStudentId = selectNamaSiswa.value;
+            const fullInputToken = inputToken.value.trim();
+
+            // Basic input validation
+            if (!selectedClass || !selectedStudentId || !fullInputToken) {
+                message.style.color = "red";
+                message.textContent = "Harap lengkapi semua pilihan (Kelas, Nama Siswa, dan Token).";
+                updateLoginButtonStatus(); // Ensure button is enabled after showing error
+                return;
+            }
+
+            // Parse token and student ID from the input string
+            const parts = fullInputToken.split('-');
+            if (parts.length !== 2) {
+                message.style.color = "red";
+                message.textContent = "Format Token-ID Siswa salah. Gunakan TOKEN-IDSiswa (Contoh: ABCDE-001).";
+                updateLoginButtonStatus(); // Ensure button is enabled after showing error
+                return;
+            }
+
+            const inputTokenValue = parts[0].trim();
+            const inputStudentIdFromToken = padStudentId(parts[1].trim());
+
+            // Additional validation: Student ID from token must match the selected student from dropdown
+            if (inputStudentIdFromToken !== selectedStudentId) {
+                message.style.color = "red";
+                message.textContent = "ID Siswa pada token tidak cocok dengan nama siswa yang dipilih.";
+                updateLoginButtonStatus(); // Ensure button is enabled after showing error
+                return;
+            }
+
+            // Disable login button and show loading spinner
+            loginBtn.disabled = true;
+            loginBtn.style.opacity = 0.6;
+            message.style.color = "black";
+            message.innerHTML = `Memproses data... <span class="spinner"></span>`;
+
+            try {
+                const tokensSnapshot = await get(tokensRef);
+
+                let foundToken = null;
+
+                // 1. Search for the token
+                tokensSnapshot.forEach(child => {
+                    const data = child.val();
+                    if (data.token === inputTokenValue.toUpperCase()) {
+                        foundToken = { ...data, key: child.key };
+                        return true; // Stop the loop
+                    }
+                });
+
+                if (!foundToken) {
+                    message.style.color = "red";
+                    message.textContent = "Token ujian tidak ditemukan!";
+                    updateLoginButtonStatus(); // Ensure button is enabled after showing error
+                    return;
+                }
+
+                // Store found token globally for modal's "Lanjutkan" button
+                foundTokenGlobal = foundToken;
+
+                // Check token validity (active, force-active, expiry)
+                const now = new Date();
+                const startTime = new Date(foundToken.startTime);
+                const endTime = new Date(foundToken.endTime);
+                let tokenStatus = ''; // 'valid', 'expired', 'inactive'
+
+                if (foundToken.isForceActive === true) {
+                    tokenStatus = 'valid';
+                } else if (foundToken.isActive === true) {
+                    if (now >= startTime && now <= endTime) {
+                        tokenStatus = 'valid';
+                    } else {
+                        tokenStatus = 'expired'; // Token active but outside time window
+                    }
+                } else {
+                    tokenStatus = 'inactive'; // Token inactive and not force-active
+                }
+
+                if (tokenStatus !== 'valid') {
+                    message.style.color = "red";
+                    if (tokenStatus === 'expired') {
+                        message.textContent = "Token belum aktif atau sudah kadaluarsa.";
+                    } else { // 'inactive'
+                        message.textContent = "Token saat ini tidak aktif.";
+                    }
+                    updateLoginButtonStatus(); // Ensure button is enabled after showing error
+                    return;
+                }
+
+                // Validate: selected class from dropdown must match token's class
+                const studentClassNumericMatch = selectedStudentData.class.match(/^\d+/); // Get only the numeric part (e.g., 7 from 7A)
+                const studentClassNumeric = studentClassNumericMatch ? studentClassNumericMatch[0] : null;
+
+                // Ensure foundToken.kelas is also numeric (e.g., '7')
+                if (!studentClassNumeric || String(studentClassNumeric) !== String(foundToken.kelas)) {
+                    message.style.color = "red";
+                    message.textContent = `Siswa dari kelas ${selectedStudentData.class} tidak dapat mengakses token untuk kelas ${foundToken.kelas}.`;
+                    updateLoginButtonStatus(); // Ensure button is enabled after showing error
+                    return;
+                }
+
+                // All validations successful, display confirmation modal
+                document.getElementById("modalIdSiswa").textContent = selectedStudentData.id || "-";
+                document.getElementById("modalNamaLengkap").textContent = selectedStudentData.name || "-";
+                document.getElementById("modalKelas").textContent = selectedStudentData.class || "-"; // Full class from student data
+                document.getElementById("modalMapel").textContent = foundToken.subject || "-";
+
+                confirmModal.classList.add('show');
+                message.textContent = ""; // Clear message when modal is shown
+
+            } catch (err) {
+                console.error(err);
+                message.style.color = "red";
+                message.textContent = "Terjadi kesalahan, silakan coba lagi.";
+                updateLoginButtonStatus(); // Ensure button is enabled after showing error
+            }
+        };
+
+        // --- Initial Setup on DOM Content Loaded ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Prevent right-click context menu
+            document.addEventListener('contextmenu', function (e) {
+                e.preventDefault();
+            });
+
+            // Set up event listeners
+            inputToken.addEventListener('input', window.formatToken);
+            inputToken.addEventListener('input', updateLoginButtonStatus);
+            selectKelas.addEventListener('change', window.filterStudentsByClass);
+            selectKelas.addEventListener('change', updateLoginButtonStatus);
+            selectNamaSiswa.addEventListener('change', function() {
+                const studentId = this.value;
+                selectedStudentData = allStudentsData.find(student => student.id === studentId);
+                updateLoginButtonStatus();
+            });
+
+            // Set up the "Lanjutkan" button handler once
+            document.getElementById("btnLanjut").onclick = handleLanjutClick;
+
+            // Initial call to update date and time
+            updateDateTime();
+            // Update date and time every second
+            setInterval(updateDateTime, 1000);
+
+            // Load settings and students, then initiate location check
+            loadSettingsAndStudents();
+            updateLoginButtonStatus(); // Initial check for button status
+        });
+
+        /**
+         * Loads Firebase settings (location enabled, radius) and then student data.
+         * Initiates location check after data is loaded.
+         */
+        async function loadSettingsAndStudents() {
+            locationStatus.style.display = 'block';
+            locationStatus.textContent = 'Memuat status lokasi dan data siswa...';
+
+            try {
+                const settingsSnapshot = await get(settingsRef);
+                if (settingsSnapshot.exists()) {
+                    const settings = settingsSnapshot.val();
+                    isLocationEnabled = settings.isLocationEnabled !== undefined ? settings.isLocationEnabled : true;
+                    firebaseAllowedRadiusKm = settings.allowedRadiusKm !== undefined ? settings.allowedRadiusKm : 0.075;
+                    console.log("Location Status from Firebase:", isLocationEnabled);
+                    console.log("Radius from Firebase:", firebaseAllowedRadiusKm);
+                } else {
+                    console.log("Could not retrieve location settings from Firebase, using defaults.");
+                }
+            } catch (error) {
+                console.error("Failed to retrieve location settings from Firebase:", error);
+            }
+
+            // Now load students
+            await loadStudentsAndPopulateClassDropdown(); // This function already calls getLocation() at its end
+            locationStatus.textContent = ''; // Clear loading message for location status
+        }
+    </script>
 </body>
 </html>
