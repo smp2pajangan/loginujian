@@ -466,7 +466,7 @@
             min-height: 1.2em;
         }
 
-        /* NEW: Styles for Submission Confirmation Overlay */
+        /* NEW: Styles for Submission Confirmation Overlay (Updated to match Locked Overlay) */
         #submissionConfirmationOverlay {
             display: none; /* Hidden by default */
             position: fixed;
@@ -474,37 +474,48 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.9); /* Dark, semi-transparent background */
+            background: rgba(0, 0, 0, 0.9); /* Dark, semi-transparent background, matching lockedOverlay */
             z-index: 10001; /* Higher than other overlays */
             justify-content: center;
             align-items: center;
-            flex-direction: column;
-            color: white;
+            overflow: hidden; /* Prevent scrolling on overlay */
+            pointer-events: auto; /* Allow interaction */
+        }
+
+        .submission-content { /* New class for the content box */
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 400px; /* Matching locked-content */
+            width: 90%;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5); /* Matching locked-content */
             text-align: center;
-            font-family: 'Inter', Arial, sans-serif;
+            box-sizing: border-box;
         }
 
         #submissionConfirmationOverlay h1 {
-            font-size: 3em;
-            margin-bottom: 20px;
+            font-size: 2.5em; /* Matching lockedTitle */
+            margin-bottom: 15px; /* Matching lockedTitle */
             font-weight: bold;
+            color: #4CAF50; /* Green color for success */
         }
 
         #submissionConfirmationOverlay p {
-            font-size: 1.5em;
-            margin-bottom: 40px;
+            font-size: 1.1em; /* Matching lockedMessage */
+            color: #333; /* Matching lockedMessage */
+            margin-bottom: 20px; /* Matching lockedMessage */
         }
 
         #submissionConfirmationOverlay button {
-            padding: 15px 30px;
-            font-size: 1.2em;
+            padding: 12px 25px; /* Matching unlockButton */
+            font-size: 1.2em; /* Matching unlockButton */
             border: none;
             border-radius: 8px;
-            background-color: #4CAF50; /* Green button */
+            background-color: #4CAF50; /* Green button for success */
             color: white;
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 10px rgba(0,128,0,0.4);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Matching unlockButton */
         }
 
         #submissionConfirmationOverlay button:hover {
@@ -580,15 +591,20 @@
                 font-size: 1em;
                 padding: 10px 20px;
             }
+            /* Updated media queries for submission overlay */
             #submissionConfirmationOverlay h1 {
-                font-size: 2.5em;
+                font-size: 2em; /* Smaller for mobile */
             }
             #submissionConfirmationOverlay p {
-                font-size: 1.2em;
+                font-size: 1em; /* Smaller for mobile */
             }
             #submissionConfirmationOverlay button {
                 font-size: 1em;
-                padding: 12px 25px;
+                padding: 10px 20px;
+            }
+            .submission-content {
+                padding: 20px;
+                max-width: 90%;
             }
         }
 
@@ -627,9 +643,6 @@
         </div>
         <div class="card-body">
             <div class="judul-ujian">UJIAN BERBASIS ONLINE</div>
-            <p>Selamat datang</p>
-            <p>Silakan login menggunakan token ujian yang Anda miliki</p>
-
             <div id="locationBlocked" style="display: none; color: red; margin-bottom: 10px; font-weight: bold; text-align: center;">
                 AKSES UJIAN DIBLOKIR, silahkan aktifkan lokasi perangkat Anda di SMPN 2 Pajangan! Setelah diaktifkan, silahkan refresh halaman login!
             </div>
@@ -644,7 +657,7 @@
                 <option value="">-- Pilih Nama Siswa --</option>
             </select>
 
-            <input type="text" id="inputToken" placeholder="TOKEN-IDSiswa (Contoh: ABCDE-001)" maxlength="14" />
+            <input type="text" id="inputToken" placeholder="TOKEN-IDSiswa (Contoh: ABCDE-001)" maxlength="14" disabled />
             <button id="loginBtn" onclick="cekToken()" disabled>Login</button>
         </div>
         <div class="footer">
@@ -726,9 +739,10 @@
     </div>
 
     <div id="submissionConfirmationOverlay">
-        <h1>SELAMAT!</h1>
-        <p>JAWABAN ANDA BERHASIL TERKIRIM!</p>
-        <button id="backToLoginFromSubmissionBtn">KEMBALI</button>
+        <div class="submission-content"> <h1>SELAMAT!</h1>
+            <p>JAWABAN ANDA BERHASIL TERKIRIM!</p>
+            <button id="backToLoginFromSubmissionBtn">KEMBALI</button>
+        </div>
     </div>
 
     <script type="module">
@@ -892,11 +906,18 @@
          */
         function updateLoginButtonStatus() {
             const isLocationCheckPassed = (isLocationEnabled && isTouchDevice()) ? isLocationValid : true;
-            const isAllInputsFilled = selectKelas.value !== "" &&
-                                      selectNamaSiswa.value !== "" &&
-                                      inputToken.value.trim() !== "";
+            const isClassAndStudentSelected = selectKelas.value !== "" && selectNamaSiswa.value !== "";
+            const isTokenInputFilled = inputToken.value.trim() !== "";
 
-            if (isLocationCheckPassed && isAllInputsFilled) {
+            // Enable/disable inputToken based on class and student selection
+            if (isClassAndStudentSelected) {
+                inputToken.disabled = false;
+            } else {
+                inputToken.disabled = true;
+                inputToken.value = ""; // Clear token if class/student is unselected
+            }
+
+            if (isLocationCheckPassed && isClassAndStudentSelected && isTokenInputFilled) {
                 loginBtn.disabled = false;
                 loginBtn.style.opacity = 1;
             } else {
@@ -1021,6 +1042,7 @@
         async function loadStudentsAndPopulateClassDropdown() {
             selectKelas.disabled = true;
             selectNamaSiswa.disabled = true;
+            inputToken.disabled = true; // Disable token input initially
             message.innerHTML = `Memuat data siswa... <span class="spinner"></span>`;
             try {
                 const snapshot = await get(studentsRef);
@@ -1081,7 +1103,7 @@
                 });
                 selectNamaSiswa.disabled = false;
             }
-            updateLoginButtonStatus();
+            updateLoginButtonStatus(); // Call to enable/disable inputToken
         };
 
         // --- Logika Countdown ---
@@ -1119,7 +1141,6 @@
                     countdownDisplay.style.display = 'block';
                     warningOverlay.style.display = 'none';
                     showLockedOverlay();
-                    // LOGIKA UNTUK MENCATAT SUBMIT SAAT WAKTU HABIS DIHAPUS DARI SINI
                 } else {
                     currentTotalSeconds--;
                 }
@@ -1529,7 +1550,7 @@
             selectNamaSiswa.addEventListener('change', function() {
                 const studentId = this.value;
                 selectedStudentData = allStudentsData.find(student => student.id === studentId);
-                updateLoginButtonStatus();
+                updateLoginButtonStatus(); // Call to enable/disable inputToken
             });
 
             overlayUnderstandBtn.addEventListener('click', hideOverlay);
@@ -1546,7 +1567,7 @@
             setInterval(updateDateTime, 1000);
 
             loadSettingsAndStudents();
-            updateLoginButtonStatus();
+            updateLoginButtonStatus(); // Initial call to set correct disabled state
         });
 
         /**
