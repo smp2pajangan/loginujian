@@ -67,7 +67,7 @@
             margin: 10px 0;
         }
 
-        input, select {
+        input {
             padding: 10px;
             width: calc(100% - 20px);
             font-size: 16px;
@@ -78,6 +78,49 @@
             box-sizing: border-box;
             text-align: center;
             transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Transition for input feedback */
+        }
+
+        /* Custom dropdown styles */
+        .custom-dropdown-container {
+            position: relative;
+            width: calc(100% - 20px);
+            margin: 10px auto;
+            display: block;
+        }
+
+        .custom-dropdown-display {
+            padding: 10px;
+            width: 100%;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            text-align: center;
+            background-color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 40px; /* Ensure consistent height */
+            color: #555; /* Placeholder-like color */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .custom-dropdown-display.selected {
+            color: #000; /* Text color when an item is selected */
+        }
+
+        .custom-dropdown-display.disabled {
+            background-color: #f0f0f0;
+            cursor: not-allowed;
+        }
+
+        .custom-dropdown-display::after {
+            content: '▼'; /* Dropdown arrow */
+            position: absolute;
+            right: 15px;
+            font-size: 0.8em;
+            color: #888;
         }
 
         /* Input validation feedback styles */
@@ -153,6 +196,74 @@
             padding-bottom: 10px;
         }
 
+        /* Modal styles for custom dropdowns */
+        .custom-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .custom-modal.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .custom-modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 350px;
+            width: 90%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            max-height: 80vh; /* Limit height for scrollable content */
+            overflow-y: auto; /* Enable scrolling */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .custom-modal-content h4 {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #0066cc;
+            margin-bottom: 15px;
+            text-align: center;
+            flex-shrink: 0; /* Prevent title from shrinking */
+        }
+
+        .custom-modal-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1; /* Allow list to take available space */
+        }
+
+        .custom-modal-list li {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            text-align: left;
+            font-size: 1.1em;
+            transition: background-color 0.2s ease;
+        }
+
+        .custom-modal-list li:last-child {
+            border-bottom: none;
+        }
+
+        .custom-modal-list li:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Removed .custom-modal-close styles as the button is removed */
+
+        /* Existing modal styles (confirmModal) */
         #confirmModal {
             display: none;
             position: fixed;
@@ -785,6 +896,20 @@
                 font-size: 0.8em;
                 padding: 4px 8px;
             }
+
+            /* Custom modal for mobile */
+            .custom-modal-content {
+                padding: 15px;
+                width: 95%;
+                max-height: 90vh; /* More height for mobile */
+            }
+            .custom-modal-content h4 {
+                font-size: 1.2em;
+            }
+            .custom-modal-list li {
+                padding: 10px 12px;
+                font-size: 1em;
+            }
         }
 
         @media (max-width: 400px) {
@@ -797,7 +922,7 @@
             .card-body {
                 padding: 15px;
             }
-            input, select {
+            input {
                 font-size: 14px;
                 padding: 8px;
             }
@@ -810,6 +935,10 @@
             }
             .checkbox-container {
                 font-size: 0.9em; /* Smaller font for mobile */
+            }
+            .custom-dropdown-display {
+                font-size: 14px;
+                padding: 8px;
             }
         }
     </style>
@@ -828,15 +957,19 @@
             <p class="message" id="message"></p>
             <p id="locationStatus" style="color: gray; font-size: 12px; text-align: center;">Memuat status lokasi...</p>
 
-            <select id="selectKelas" onchange="filterStudentsByClass()" disabled>
-                <option value="">-- Pilih Kelas --</option>
-            </select>
+            <div class="custom-dropdown-container">
+                <div id="customSelectKelasDisplay" class="custom-dropdown-display" data-placeholder="-- Pilih Kelas --">
+                    -- Pilih Kelas --
+                </div>
+                <input type="hidden" id="selectKelas" value="" /> </div>
 
-            <select id="selectNamaSiswa" disabled>
-                <option value="">-- Pilih Nama Siswa --</option>
-            </select>
+            <div class="custom-dropdown-container">
+                <div id="customSelectNamaSiswaDisplay" class="custom-dropdown-display" data-placeholder="-- Pilih Nama Siswa --">
+                    -- Pilih Nama Siswa --
+                </div>
+                <input type="hidden" id="selectNamaSiswa" value="" /> </div>
 
-            <input type="text" id="inputToken" placeholder="TOKEN-IDSiswa (Contoh: ABCDE-001)" maxlength="14" disabled />
+            <input type="text" id="inputToken" placeholder="TOKEN-IDSiswa (Contoh: ABCDE-001)" maxlength="14" />
             <button id="loginBtn" onclick="cekToken()" disabled>Login</button>
         </div>
         <div class="footer">
@@ -933,6 +1066,22 @@
         </div>
     </div>
 
+    <div id="classModal" class="custom-modal">
+        <div class="custom-modal-content">
+            <h4>Pilih Kelas</h4>
+            <ul id="classModalList" class="custom-modal-list">
+                </ul>
+            </div>
+    </div>
+
+    <div id="studentModal" class="custom-modal">
+        <div class="custom-modal-content">
+            <h4>Pilih Nama Siswa</h4>
+            <ul id="studentModalList" class="custom-modal-list">
+                </ul>
+            </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
         import { getDatabase, ref, get, child, runTransaction, set, onValue, off } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
@@ -989,8 +1138,13 @@
         const confirmModal = document.getElementById('confirmModal');
         const locationStatus = document.getElementById('locationStatus');
         const inputToken = document.getElementById('inputToken');
-        const selectKelas = document.getElementById('selectKelas');
-        const selectNamaSiswa = document.getElementById('selectNamaSiswa');
+        
+        // Custom Dropdown Elements
+        const customSelectKelasDisplay = document.getElementById('customSelectKelasDisplay');
+        const hiddenSelectKelas = document.getElementById('selectKelas'); // Hidden input
+        const customSelectNamaSiswaDisplay = document.getElementById('customSelectNamaSiswaDisplay');
+        const hiddenSelectNamaSiswa = document.getElementById('selectNamaSiswa'); // Hidden input
+
         const confirmCheckbox = document.getElementById('confirmCheckbox');
         const modalMessage = document.getElementById('modalMessage');
         const modalExamDuration = document.getElementById('modalExamDuration');
@@ -1003,6 +1157,12 @@
         const fullscreenExitWarningOverlay = document.getElementById('fullscreenExitWarningOverlay');
         const reEnterFullscreenBtn = document.getElementById('reEnterFullscreenBtn');
         const networkStatusIndicator = document.getElementById('networkStatusIndicator');
+
+        // Custom Modal Elements
+        const classModal = document.getElementById('classModal');
+        const classModalList = document.getElementById('classModalList');
+        const studentModal = document.getElementById('studentModal');
+        const studentModalList = document.getElementById('studentModalList');
 
 
         let allStudentsData = [];
@@ -1116,7 +1276,8 @@
          */
         function updateLoginButtonStatus() {
             const isLocationCheckPassed = (isLocationEnabled && isTouchDevice()) ? isLocationValid : true;
-            const isClassAndStudentSelected = selectKelas.value !== "" && selectNamaSiswa.value !== "";
+            // Use hidden input values for checks
+            const isClassAndStudentSelected = hiddenSelectKelas.value !== "" && hiddenSelectNamaSiswa.value !== "";
             const isTokenInputFilled = inputToken.value.trim() !== "";
 
             // Enable/disable inputToken based on class and student selection
@@ -1126,6 +1287,13 @@
                 inputToken.disabled = true;
                 inputToken.value = ""; // Clear token if class/student is unselected
                 inputToken.classList.remove('is-valid', 'is-invalid'); // Clear feedback
+            }
+
+            // Enable/disable custom select displays
+            if (hiddenSelectKelas.value === "") {
+                customSelectNamaSiswaDisplay.classList.add('disabled');
+            } else {
+                customSelectNamaSiswaDisplay.classList.remove('disabled');
             }
 
             if (isLocationCheckPassed && isClassAndStudentSelected && isTokenInputFilled) {
@@ -1147,6 +1315,7 @@
             modalMessage.textContent = "";
             confirmCheckbox.checked = false;
             updateLoginButtonStatus();
+            sessionStorage.clear(); // Clear session storage if user cancels login
         };
 
         // --- Penanganan Lokasi ---
@@ -1257,8 +1426,8 @@
          * @returns {Promise<void>}
          */
         async function loadStudentsAndPopulateClassDropdown() {
-            selectKelas.disabled = true;
-            selectNamaSiswa.disabled = true;
+            customSelectKelasDisplay.classList.add('disabled');
+            customSelectNamaSiswaDisplay.classList.add('disabled');
             inputToken.disabled = true; // Disable token input initially
             message.innerHTML = `Memuat data siswa... <span class="spinner"></span>`;
             try {
@@ -1272,7 +1441,7 @@
                         }
                     });
 
-                    selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+                    classModalList.innerHTML = ''; // Clear previous options
                     Array.from(classes).sort((a, b) => {
                         const numA = parseInt(a.match(/\d+/));
                         const numB = parseInt(b.match(/\d+/));
@@ -1281,12 +1450,13 @@
                         }
                         return a.localeCompare(b);
                     }).forEach(cls => {
-                        const option = document.createElement('option');
-                        option.value = cls;
-                        option.textContent = cls;
-                        selectKelas.appendChild(option);
+                        const listItem = document.createElement('li');
+                        listItem.textContent = cls;
+                        listItem.dataset.value = cls;
+                        listItem.addEventListener('click', () => selectClass(cls));
+                        classModalList.appendChild(listItem);
                     });
-                    selectKelas.disabled = false;
+                    customSelectKelasDisplay.classList.remove('disabled');
                     message.textContent = "";
                 } else {
                     message.style.color = "orange";
@@ -1305,33 +1475,103 @@
          * Memfilter dropdown nama siswa berdasarkan kelas yang dipilih.
          * @returns {void}
          */
-        window.filterStudentsByClass = function() {
-            const selectedClass = selectKelas.value;
-            selectNamaSiswa.innerHTML = '<option value="">-- Pilih Nama Siswa --</option>';
-            selectNamaSiswa.disabled = true;
+        function filterStudentsByClass() {
+            const selectedClass = hiddenSelectKelas.value;
+            studentModalList.innerHTML = ''; // Clear previous options
+            hiddenSelectNamaSiswa.value = ''; // Reset hidden student value
+            customSelectNamaSiswaDisplay.textContent = customSelectNamaSiswaDisplay.dataset.placeholder;
+            customSelectNamaSiswaDisplay.classList.remove('selected');
             selectedStudentData = null;
 
             if (selectedClass) {
                 const filteredStudents = allStudentsData.filter(student => student.class === selectedClass);
                 filteredStudents.sort((a, b) => a.name.localeCompare(b.name)).forEach(student => {
-                    const option = document.createElement('option');
-                    option.value = student.id;
-                    option.textContent = student.name;
-                    selectNamaSiswa.appendChild(option);
+                    const listItem = document.createElement('li');
+                    listItem.textContent = student.name;
+                    listItem.dataset.value = student.id;
+                    listItem.addEventListener('click', () => selectStudent(student.id, student.name));
+                    studentModalList.appendChild(listItem);
                 });
-                selectNamaSiswa.disabled = false;
+                customSelectNamaSiswaDisplay.classList.remove('disabled');
+            } else {
+                customSelectNamaSiswaDisplay.classList.add('disabled');
             }
             updateLoginButtonStatus(); // Call to enable/disable inputToken
-        };
+        }
+
+        // --- Custom Dropdown Modal Functions ---
+
+        /**
+         * Opens the class selection modal.
+         * @returns {void}
+         */
+        function openClassModal() {
+            if (customSelectKelasDisplay.classList.contains('disabled')) return;
+            classModal.classList.add('show');
+        }
+
+        /**
+         * Closes the class selection modal.
+         * @returns {void}
+         */
+        function closeClassModal() {
+            classModal.classList.remove('show');
+        }
+
+        /**
+         * Selects a class and updates the display.
+         * @param {string} className - The name of the selected class.
+         * @returns {void}
+         */
+        function selectClass(className) {
+            hiddenSelectKelas.value = className;
+            customSelectKelasDisplay.textContent = className;
+            customSelectKelasDisplay.classList.add('selected');
+            closeClassModal();
+            filterStudentsByClass(); // Re-filter students based on new class selection
+        }
+
+        /**
+         * Opens the student selection modal.
+         * @returns {void}
+         */
+        function openStudentModal() {
+            if (customSelectNamaSiswaDisplay.classList.contains('disabled')) return;
+            studentModal.classList.add('show');
+        }
+
+        /**
+         * Closes the student selection modal.
+         * @returns {void}
+         */
+        function closeStudentModal() {
+            studentModal.classList.remove('show');
+        }
+
+        /**
+         * Selects a student and updates the display.
+         * @param {string} studentId - The ID of the selected student.
+         * @param {string} studentName - The name of the selected student.
+         * @returns {void}
+         */
+        function selectStudent(studentId, studentName) {
+            hiddenSelectNamaSiswa.value = studentId;
+            customSelectNamaSiswaDisplay.textContent = studentName;
+            customSelectNamaSiswaDisplay.classList.add('selected');
+            selectedStudentData = allStudentsData.find(student => student.id === studentId);
+            closeStudentModal();
+            updateLoginButtonStatus();
+        }
+
 
         // --- Logika Countdown ---
         /**
          * Memulai waktu mundur ujian.
-         * @param {number} durationInMinutes - Durasi ujian dalam menit.
+         * @param {number} durationInSeconds - Durasi ujian dalam detik.
          * @returns {void}
          */
-        function startCountdown(durationInMinutes) {
-            currentTotalSeconds = durationInMinutes * 60;
+        function startCountdown(durationInSeconds) {
+            currentTotalSeconds = durationInSeconds;
 
             if (countdownInterval) {
                 clearInterval(countdownInterval);
@@ -1454,6 +1694,7 @@
          * @returns {void}
          */
         function showSubmissionConfirmationOverlay() {
+            sessionStorage.clear(); // Clear session storage on successful submission
             loginContainer.style.display = 'none'; // Ensure login container is hidden
             examContainer.style.opacity = 0; // Start fade out for exam container
             setTimeout(() => {
@@ -1629,6 +1870,61 @@
             console.log("Real-time listener untuk status submit dimulai.");
         }
 
+        /**
+         * Memulihkan status ujian dari sessionStorage saat halaman di-refresh.
+         * @returns {void}
+         */
+        function restoreExamState() {
+            const storedIsInExamMode = sessionStorage.getItem('isInExamMode');
+            if (storedIsInExamMode === 'true') {
+                const storedSelectedStudentData = JSON.parse(sessionStorage.getItem('selectedStudentData'));
+                const storedFoundTokenGlobal = JSON.parse(sessionStorage.getItem('foundTokenGlobal'));
+                const storedExamIframeSrc = sessionStorage.getItem('examIframeSrc');
+                const storedExamStartTime = parseInt(sessionStorage.getItem('examStartTime'), 10);
+                const storedExamDurationMinutes = parseInt(sessionStorage.getItem('examDurationMinutes'), 10);
+
+                if (storedSelectedStudentData && storedFoundTokenGlobal && storedExamIframeSrc && storedExamStartTime && storedExamDurationMinutes) {
+                    // Restore global variables
+                    selectedStudentData = storedSelectedStudentData;
+                    foundTokenGlobal = storedFoundTokenGlobal;
+                    isInExamMode = true;
+
+                    // Calculate remaining time
+                    const elapsedSeconds = Math.floor((Date.now() - storedExamStartTime) / 1000);
+                    const totalDurationSeconds = storedExamDurationMinutes * 60;
+                    const remainingSeconds = totalDurationSeconds - elapsedSeconds;
+
+                    if (remainingSeconds > 0) {
+                        // Transition to exam view
+                        loginContainer.style.display = 'none';
+                        examContainer.style.display = 'flex';
+                        examContainer.style.opacity = 1;
+
+                        examIframe.src = storedExamIframeSrc;
+                        startCountdown(remainingSeconds); // Start countdown with remaining seconds
+                        toggleExamSecurityFeatures(true);
+                        attemptFullscreen();
+                        startSubmissionStatusListener();
+                        console.log("Exam state restored from session storage.");
+                    } else {
+                        // Time has already run out, show locked overlay
+                        sessionStorage.clear(); // Clear session storage
+                        loginContainer.style.display = 'none';
+                        examContainer.style.display = 'flex';
+                        examContainer.style.opacity = 1;
+                        countdownDisplay.textContent = "Waktu Habis! Ujian Terkunci.";
+                        countdownDisplay.style.display = 'block';
+                        showLockedOverlay();
+                        console.log("Exam time already expired, showing locked overlay.");
+                    }
+                } else {
+                    console.warn("Incomplete exam state found in session storage. Clearing.");
+                    sessionStorage.clear(); // Clear incomplete state
+                }
+            }
+        }
+
+
         // --- Logika Login dan Modal ---
 
         /**
@@ -1657,6 +1953,7 @@
                 updateLoginButtonStatus();
                 loginContainer.style.display = 'flex'; // Pastikan container login terlihat
                 examContainer.style.display = 'none'; // Pastikan container ujian tersembunyi
+                sessionStorage.clear(); // Clear session storage on error
                 return;
             }
 
@@ -1669,6 +1966,7 @@
                 message.style.color = "red";
                 message.textContent = "Anda sudah menyelesaikan ujian ini dan tidak dapat login kembali.";
                 updateLoginButtonStatus();
+                sessionStorage.clear(); // Clear session storage if already submitted
                 return; // Hentikan eksekusi lebih lanjut
             }
 
@@ -1709,6 +2007,7 @@
                     updateLoginButtonStatus();
                     loginContainer.style.display = 'flex'; // Pastikan container login terlihat
                     examContainer.style.display = 'none'; // Pastikan container ujian tersembunyi
+                    sessionStorage.clear(); // Clear session storage on error
                     return;
                 }
 
@@ -1718,6 +2017,15 @@
                                     `&entry.${classEntryId}=${encodeURIComponent(selectedStudentData.class)}`;
 
                 console.log("Mengarahkan ke Google Form URL:", googleFormUrl);
+
+                // Save state to sessionStorage before transitioning
+                sessionStorage.setItem('isInExamMode', 'true');
+                sessionStorage.setItem('selectedStudentData', JSON.stringify(selectedStudentData));
+                sessionStorage.setItem('foundTokenGlobal', JSON.stringify(foundTokenGlobal));
+                sessionStorage.setItem('examIframeSrc', googleFormUrl);
+                sessionStorage.setItem('examStartTime', Date.now());
+                sessionStorage.setItem('examDurationMinutes', examDurationMinutes);
+
 
                 // Smooth transition from login to exam
                 loginContainer.style.opacity = 0;
@@ -1733,7 +2041,7 @@
                 }, 500); // Match CSS transition duration for loginContainer fade out
 
                 examIframe.src = googleFormUrl;
-                startCountdown(examDurationMinutes);
+                startCountdown(examDurationMinutes * 60); // Pass duration in seconds
                 showOverlay(); // Tampilkan overlay instruksi awal
 
                 history.pushState(null, '', location.href);
@@ -1746,6 +2054,7 @@
                 // Pastikan fitur keamanan dinonaktifkan jika gagal masuk ujian
                 isInExamMode = false;
                 toggleExamSecurityFeatures(false);
+                sessionStorage.clear(); // Clear session storage on error
 
                 // Fallback logic for redirection if initial transaction failed
                 setTimeout(() => {
@@ -1779,7 +2088,7 @@
                     }, 500); // Match CSS transition duration for loginContainer fade out
 
                     examIframe.src = googleFormUrl;
-                    startCountdown(examDurationMinutes);
+                    startCountdown(examDurationMinutes * 60); // Pass duration in seconds
                     showOverlay();
                     history.pushState(null, '', location.href);
                     startSubmissionStatusListener();
@@ -1795,8 +2104,8 @@
          * @returns {Promise<void>}
          */
         window.cekToken = async function () {
-            const selectedClass = selectKelas.value;
-            const selectedStudentId = selectNamaSiswa.value;
+            const selectedClass = hiddenSelectKelas.value; // Use hidden input
+            const selectedStudentId = hiddenSelectNamaSiswa.value; // Use hidden input
             const fullInputToken = inputToken.value.trim(); // Contoh: ABCDE-001
 
             if (!selectedClass || !selectedStudentId || !fullInputToken) {
@@ -1838,6 +2147,7 @@
                     message.style.color = "red";
                     message.textContent = "Anda sudah menyelesaikan ujian ini dan tidak dapat login kembali.";
                     updateLoginButtonStatus();
+                    sessionStorage.clear(); // Clear session storage if already submitted
                     return; // Hentikan eksekusi lebih lanjut
                 }
 
@@ -1938,18 +2248,35 @@
                 }
             });
 
-            // Event listener untuk inputToken, selectKelas, selectNamaSiswa
-            inputToken.addEventListener('input', () => window.formatToken(inputToken));
-            inputToken.addEventListener('input', updateLoginButtonStatus);
-            selectKelas.addEventListener('change', window.filterStudentsByClass);
-            selectKelas.addEventListener('change', updateLoginButtonStatus);
-            selectNamaSiswa.addEventListener('change', function() {
-                const studentId = this.value;
-                selectedStudentData = allStudentsData.find(student => student.id === studentId);
-                updateLoginButtonStatus();
+            // Event listener for custom dropdown displays
+            customSelectKelasDisplay.addEventListener('click', openClassModal);
+            customSelectNamaSiswaDisplay.addEventListener('click', openStudentModal);
+
+            // Event listener to close custom modals when clicking outside their content
+            classModal.addEventListener('click', (event) => {
+                if (event.target === classModal) {
+                    closeClassModal();
+                }
+            });
+            studentModal.addEventListener('click', (event) => {
+                if (event.target === studentModal) {
+                    closeStudentModal();
+                }
             });
 
-            // Event listener untuk overlay instruksi awal
+            // Event listener for inputToken
+            inputToken.addEventListener('input', () => window.formatToken(inputToken));
+            inputToken.addEventListener('input', updateLoginButtonStatus);
+
+            // NEW: Event listener for Enter key on inputToken
+            inputToken.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' && !loginBtn.disabled) {
+                    event.preventDefault(); // Prevent default form submission if any
+                    cekToken();
+                }
+            });
+
+            // Event listener for initial instruction overlay
             overlayUnderstandBtn.addEventListener('click', hideOverlay); // PENTING: Ini akan memicu fullscreen
 
             unlockButton.addEventListener('click', handleUnlockExam);
@@ -1973,11 +2300,14 @@
                     toggleExamSecurityFeatures(false);
                     // Clear message and reset selection
                     message.textContent = '';
-                    selectKelas.value = '';
-                    filterStudentsByClass(); // Resets student selection
+                    hiddenSelectKelas.value = ''; // Reset hidden class value
+                    customSelectKelasDisplay.textContent = customSelectKelasDisplay.dataset.placeholder;
+                    customSelectKelasDisplay.classList.remove('selected');
+                    filterStudentsByClass(); // Resets student selection and display
                     inputToken.value = '';
                     inputToken.classList.remove('is-valid', 'is-invalid');
                     updateLoginButtonStatus(); // Recalculate button status
+                    sessionStorage.clear(); // Clear session storage when returning to login
                 }, 300); // Match CSS transition duration
             });
 
@@ -2047,6 +2377,7 @@
 
             await loadStudentsAndPopulateClassDropdown();
             locationStatus.textContent = '';
+            restoreExamState(); // Call to restore exam state after all data is loaded
         }
     </script>
 </body>
