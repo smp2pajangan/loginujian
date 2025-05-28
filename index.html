@@ -287,6 +287,12 @@
             margin: 0;
             padding: 0;
             display: block; /* Ensure it behaves as a block element */
+            transition: filter 0.3s ease; /* Smooth transition for blur/grayscale */
+        }
+        /* Ensure iframe is visible even when pointer-events are none for overlays */
+        #examIframe.blurred {
+            filter: grayscale(100%) blur(5px);
+            pointer-events: none; /* Disable interaction with iframe */
         }
 
         /* Styles for Fullscreen Overlay (Initial Instructions) */
@@ -392,7 +398,7 @@
             width: 100vw;
             height: 100vh;
             background: rgba(0, 0, 0, 0); /* Fully transparent background */
-            z-index: 900; /* Above iframe, below other overlays */
+            z-index: 10; /* Changed z-index to layer correctly within examContainer */
             justify-content: center;
             align-items: center;
             overflow: hidden; /* Prevent scrolling on overlay */
@@ -448,7 +454,7 @@
             width: 100vw;
             height: 100vh;
             background: rgba(0, 0, 0, 0.9); /* Opaque background */
-            z-index: 10000; /* Highest z-index */
+            z-index: 20; /* Changed z-index to layer correctly within examContainer */
             justify-content: center;
             align-items: center;
             overflow: hidden;
@@ -591,6 +597,92 @@
             box-shadow: 0 2px 5px rgba(0,128,0,0.4);
         }
 
+        /* NEW: Fullscreen Exit Warning Overlay */
+        #fullscreenExitWarningOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.95); /* Hampir sepenuhnya gelap */
+            z-index: 30; /* Changed z-index to layer correctly within examContainer */
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            pointer-events: auto;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            flex-direction: column; /* Untuk menempatkan tombol di bawah pesan */
+        }
+        #fullscreenExitWarningOverlay.show {
+            display: flex;
+            opacity: 1;
+        }
+        .exit-warning-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .exit-warning-content h2 {
+            font-size: 2.2em;
+            color: #dc3545; /* Merah untuk peringatan */
+            margin-bottom: 15px;
+        }
+        .exit-warning-content p {
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .exit-warning-button {
+            padding: 12px 25px;
+            font-size: 1.2em;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .exit-warning-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* NEW: Network Status Indicator */
+        #networkStatusIndicator {
+            position: fixed; /* Fixed agar selalu terlihat */
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            z-index: 35; /* Changed z-index to layer correctly within examContainer */
+            display: none; /* Sembunyikan secara default, hanya tampil saat di ujian */
+            transition: background-color 0.3s ease;
+        }
+        #networkStatusIndicator.offline {
+            background-color: #dc3545; /* Merah saat offline */
+        }
+        #networkStatusIndicator.online {
+            background-color: #28a745; /* Hijau saat online */
+        }
+
+        /* NEW: CSS for preventing text selection globally on the main page */
+        /* Will be toggled when entering/exiting exam */
+        .no-select {
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none;   /* Safari */
+            -khtml-user-select: none;    /* Konqueror HTML */
+            -moz-user-select: none;      /* Old versions of Firefox */
+            -ms-user-select: none;       /* Internet Explorer/Edge */
+            user-select: none;           /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+        }
 
         @media (max-width: 600px) {
             .container {
@@ -674,6 +766,25 @@
                 padding: 20px;
                 max-width: 90%;
             }
+            /* Media queries for new overlays */
+            .exit-warning-content {
+                padding: 20px;
+                max-width: 90%;
+            }
+            .exit-warning-content h2 {
+                font-size: 1.8em;
+            }
+            .exit-warning-content p {
+                font-size: 1em;
+            }
+            .exit-warning-button {
+                font-size: 1em;
+                padding: 10px 20px;
+            }
+            #networkStatusIndicator {
+                font-size: 0.8em;
+                padding: 4px 8px;
+            }
         }
 
         @media (max-width: 400px) {
@@ -737,6 +848,32 @@
     <div id="examContainer" style="display: none;">
         <div id="countdownDisplay"></div>
         <iframe id="examIframe" src="" frameborder="0"></iframe>
+        <div id="warningOverlay" style="display: none;">
+            <div class="warning-content-box">
+                <div id="warningCountdown"></div>
+                <div id="warningMessage">SEGERA KIRIMKAN JAWABAN, JANGAN SAMPAI KEHABISAN WAKTU!</div>
+            </div>
+        </div>
+
+        <div id="lockedOverlay" style="display: none;">
+            <div class="locked-content">
+                <h2 id="lockedTitle">WAKTU HABIS</h2>
+                <p id="lockedMessage">Silahkan masukkan password untuk membuka ujian!</p>
+                <input type="password" id="passwordInput" placeholder="Masukkan Password" />
+                <button id="unlockButton">BUKA KUNCI</button>
+                <p id="unlockErrorMessage" style="display: none;"></p>
+            </div>
+        </div>
+
+        <div id="fullscreenExitWarningOverlay" style="display: none;">
+            <div class="exit-warning-content">
+                <h2>PERINGATAN!</h2>
+                <p>Anda telah keluar dari mode layar penuh. Mohon kembali ke mode layar penuh untuk melanjutkan ujian.</p>
+                <button id="reEnterFullscreenBtn" class="exit-warning-button">Kembali ke Layar Penuh</button>
+            </div>
+        </div>
+
+        <div id="networkStatusIndicator" style="display: none;"></div>
     </div>
 
     <div id="confirmModal">
@@ -786,22 +923,6 @@
                 <li>Jika waktu habis, <strong>ujian Anda akan terkunci</strong></li>
             </ul>
             <button id="overlayUnderstandBtn" class="overlay-button">SAYA MENGERTI</button>
-        </div>
-    </div>
-
-    <div id="warningOverlay" style="display: none;">
-        <div class="warning-content-box"> <div id="warningCountdown"></div>
-            <div id="warningMessage">SEGERA KIRIMKAN JAWABAN, JANGAN SAMPAI KEHABISAN WAKTU!</div>
-        </div>
-    </div>
-
-    <div id="lockedOverlay" style="display: none;">
-        <div class="locked-content">
-            <h2 id="lockedTitle">WAKTU HABIS</h2>
-            <p id="lockedMessage">Silahkan masukkan password untuk membuka ujian!</p>
-            <input type="password" id="passwordInput" placeholder="Masukkan Password" />
-            <button id="unlockButton">BUKA KUNCI</button>
-            <p id="unlockErrorMessage" style="display: none;"></p>
         </div>
     </div>
 
@@ -874,9 +995,14 @@
         const modalMessage = document.getElementById('modalMessage');
         const modalExamDuration = document.getElementById('modalExamDuration');
 
-        // NEW: Elemen untuk Overlay Konfirmasi Submit
+        // Elemen untuk Overlay Konfirmasi Submit
         const submissionConfirmationOverlay = document.getElementById('submissionConfirmationOverlay');
         const backToLoginFromSubmissionBtn = document.getElementById('backToLoginFromSubmissionBtn');
+
+        // NEW: Elemen DOM baru untuk fitur keamanan
+        const fullscreenExitWarningOverlay = document.getElementById('fullscreenExitWarningOverlay');
+        const reEnterFullscreenBtn = document.getElementById('reEnterFullscreenBtn');
+        const networkStatusIndicator = document.getElementById('networkStatusIndicator');
 
 
         let allStudentsData = [];
@@ -886,6 +1012,9 @@
         let countdownInterval;
         let currentTotalSeconds;
         let submissionListenerRef = null;
+
+        // NEW: Variabel kontrol untuk status ujian
+        let isInExamMode = false;
 
         // --- Fungsi Utilitas ---
 
@@ -949,7 +1078,9 @@
 
         /**
          * Memformat input token menjadi huruf besar dan menambahkan tanda hubung setelah 5 karakter.
+         * Memberikan umpan balik visual (hijau/merah) pada border input.
          * @param {HTMLInputElement} inputElement - Bidang input untuk token.
+         * @returns {void}
          */
         window.formatToken = function (inputElement) {
             if (!inputElement || typeof inputElement.value === 'undefined') {
@@ -981,6 +1112,7 @@
         /**
          * Memperbarui status aktif/nonaktif dan opasitas tombol Login
          * berdasarkan validitas lokasi dan kelengkapan bidang input.
+         * @returns {void}
          */
         function updateLoginButtonStatus() {
             const isLocationCheckPassed = (isLocationEnabled && isTouchDevice()) ? isLocationValid : true;
@@ -1007,6 +1139,7 @@
 
         /**
          * Menyembunyikan modal konfirmasi dan mengatur ulang UI.
+         * @returns {void}
          */
         window.tutupModal = function () {
             confirmModal.classList.remove('show');
@@ -1021,8 +1154,9 @@
         /**
          * Memeriksa lokasi pengguna saat ini terhadap koordinat dan radius yang diizinkan.
          * Memperbarui elemen UI berdasarkan validitas lokasi.
-         * @param {number} latitude - Lintang lokasi pengguna saat ini.
-         * @param {number} longitude - Bujur lokasi pengguna saat ini.
+         * @param {number} latitude - Lintang titik 1.
+         * @param {number} longitude - Bujur titik 1.
+         * @returns {void}
          */
         function checkLocation(latitude, longitude) {
             const distance = getDistanceFromLatLonInKm(allowedLatitude, allowedLongitude, latitude, longitude);
@@ -1044,6 +1178,7 @@
         /**
          * Handler untuk pengambilan geolokasi yang berhasil.
          * @param {GeolocationPosition} position - Objek posisi geolokasi.
+         * @returns {void}
          */
         function handleLocation(position) {
             checkLocation(position.coords.latitude, position.coords.longitude);
@@ -1052,6 +1187,7 @@
         /**
          * Handler untuk kesalahan geolokasi.
          * @param {GeolocationPositionError} error - Objek kesalahan geolokasi.
+         * @returns {void}
          */
         function handleLocationError(error) {
             console.error("Error getting location:", error);
@@ -1086,6 +1222,7 @@
         /**
          * Memulai pemantauan geolokasi jika lokasi diaktifkan dan ini adalah perangkat sentuh.
          * Jika tidak, dianggap lokasi valid.
+         * @returns {void}
          */
         function getLocation() {
             if (isLocationEnabled && isTouchDevice()) {
@@ -1117,6 +1254,7 @@
         /**
          * Memuat semua data siswa dari Firebase dan mengisi dropdown kelas.
          * Juga memanggil getLocation() setelah data dimuat.
+         * @returns {Promise<void>}
          */
         async function loadStudentsAndPopulateClassDropdown() {
             selectKelas.disabled = true;
@@ -1165,6 +1303,7 @@
 
         /**
          * Memfilter dropdown nama siswa berdasarkan kelas yang dipilih.
+         * @returns {void}
          */
         window.filterStudentsByClass = function() {
             const selectedClass = selectKelas.value;
@@ -1189,6 +1328,7 @@
         /**
          * Memulai waktu mundur ujian.
          * @param {number} durationInMinutes - Durasi ujian dalam menit.
+         * @returns {void}
          */
         function startCountdown(durationInMinutes) {
             currentTotalSeconds = durationInMinutes * 60;
@@ -1234,41 +1374,55 @@
         // --- Logika Overlay ---
         /**
          * Menampilkan overlay fullscreen dengan instruksi awal.
+         * @returns {void}
          */
         function showOverlay() {
             fullscreenOverlay.style.display = 'flex';
             setTimeout(() => { fullscreenOverlay.style.opacity = 1; }, 10); // Small delay to trigger CSS transition
             document.body.style.overflow = 'hidden';
-            examIframe.style.pointerEvents = 'none';
+            examIframe.style.pointerEvents = 'none'; // Blokir interaksi dengan iframe saat overlay instruksi aktif
         }
 
         /**
          * Menyembunyikan overlay fullscreen dengan instruksi awal.
+         * Memulai mode layar penuh setelah overlay disembunyikan.
+         * @returns {void}
          */
         function hideOverlay() {
             fullscreenOverlay.style.opacity = 0;
             setTimeout(() => {
                 fullscreenOverlay.style.display = 'none';
                 document.body.style.overflow = '';
-                examIframe.style.pointerEvents = 'auto';
+                examIframe.style.pointerEvents = 'auto'; // Izinkan interaksi dengan iframe setelah overlay instruksi hilang
+                attemptFullscreen(); // NEW: Panggil attemptFullscreen di sini
             }, 300); // Match CSS transition duration
         }
 
         /**
          * Menampilkan overlay terkunci saat waktu habis.
+         * Juga memastikan ujian tetap buram dan tidak interaktif.
+         * @returns {void}
          */
         function showLockedOverlay() {
             lockedOverlay.style.display = 'flex';
-            setTimeout(() => { lockedOverlay.style.opacity = 1; }, 10); // Small delay to trigger CSS transition
+            setTimeout(() => { lockedOverlay.style.opacity = 1; }, 10);
             document.body.style.overflow = 'hidden';
-            examIframe.style.pointerEvents = 'none';
-            examIframe.style.filter = 'grayscale(100%) blur(5px)';
+            examIframe.classList.add('blurred'); // Add blurred class
             passwordInput.value = '';
             unlockErrorMessage.style.display = 'none';
+            // Stop fullscreen enforcement if locked
+            document.removeEventListener('fullscreenchange', handleFullscreenChange);
+            document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+            document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+            document.removeEventListener('msfullscreenchange', handleFullscreenChange);
+            // Hide fullscreen warning if it was active
+            fullscreenExitWarningOverlay.classList.remove('show');
+            fullscreenExitWarningOverlay.style.display = 'none';
         }
 
         /**
          * Menangani percobaan pembukaan kunci ujian.
+         * @returns {Promise<void>}
          */
         async function handleUnlockExam() {
             const enteredPassword = passwordInput.value.trim();
@@ -1277,10 +1431,18 @@
                 setTimeout(() => {
                     lockedOverlay.style.display = 'none';
                     document.body.style.overflow = '';
-                    examIframe.style.pointerEvents = 'auto';
-                    examIframe.style.filter = 'none';
+                    examIframe.classList.remove('blurred'); // Remove blurred class
                     unlockErrorMessage.style.display = 'none';
-                }, 300); // Match CSS transition duration
+                    // Re-enable fullscreen enforcement after unlock (if needed)
+                    if (isInExamMode) {
+                        attemptFullscreen(); // Re-attempt fullscreen
+                        // Re-add fullscreen listeners
+                        document.addEventListener('fullscreenchange', handleFullscreenChange);
+                        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+                        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+                        document.addEventListener('msfullscreenchange', handleFullscreenChange);
+                    }
+                }, 300);
             } else {
                 unlockErrorMessage.textContent = "Password salah!";
                 unlockErrorMessage.style.display = 'block';
@@ -1289,7 +1451,7 @@
 
         /**
          * Menampilkan overlay konfirmasi submit.
-         * HARUSNYA HANYA DIPANGGIL KETIKA SISWA SUDAH BERADA DI DALAM UJIAN
+         * @returns {void}
          */
         function showSubmissionConfirmationOverlay() {
             loginContainer.style.display = 'none'; // Ensure login container is hidden
@@ -1299,17 +1461,20 @@
                 submissionConfirmationOverlay.style.display = 'flex'; // Show submission overlay
                 setTimeout(() => { submissionConfirmationOverlay.style.opacity = 1; }, 10); // Fade in submission overlay
                 document.body.style.overflow = 'hidden';
-                // Pastikan untuk menghentikan semua interval dan listener saat overlay ini muncul
                 if (countdownInterval) clearInterval(countdownInterval);
                 if (submissionListenerRef) {
-                    off(submissionListenerRef); // Detach listener
-                    submissionListenerRef = null; // Reset reference
+                    off(submissionListenerRef);
+                    submissionListenerRef = null;
                 }
+                isInExamMode = false; // Keluar dari mode ujian
+                toggleExamSecurityFeatures(false); // Nonaktifkan fitur keamanan
+                document.exitFullscreen(); // Exit fullscreen if still active
             }, 500); // Match examContainer transition duration
         }
 
         /**
          * Menyembunyikan overlay konfirmasi submit.
+         * @returns {void}
          */
         function hideSubmissionConfirmationOverlay() {
             submissionConfirmationOverlay.style.opacity = 0;
@@ -1317,6 +1482,113 @@
                 submissionConfirmationOverlay.style.display = 'none';
                 document.body.style.overflow = '';
             }, 300); // Match CSS transition duration
+        }
+
+        /**
+         * Mengaktifkan/menonaktifkan fitur keamanan ujian (pencegahan copy/paste/cut, pemilihan teks, indikator jaringan).
+         * @param {boolean} enable - True untuk mengaktifkan, false untuk menonaktifkan.
+         * @returns {void}
+         */
+        function toggleExamSecurityFeatures(enable) {
+            if (enable) {
+                // Prevent copy, cut, paste
+                document.addEventListener('copy', preventDefaultBehavior);
+                document.addEventListener('cut', preventDefaultBehavior);
+                document.addEventListener('paste', preventDefaultBehavior);
+
+                // Prevent text selection (CSS is handled by adding/removing class)
+                document.body.classList.add('no-select');
+                document.addEventListener('selectstart', preventDefaultBehavior); // For older browsers
+                document.addEventListener('contextmenu', preventDefaultBehavior); // Prevent right-click/long-press menu
+                
+                // Show network status indicator
+                networkStatusIndicator.style.display = 'block';
+                updateNetworkStatus(); // Initial status
+            } else {
+                // Re-enable copy, cut, paste
+                document.removeEventListener('copy', preventDefaultBehavior);
+                document.removeEventListener('cut', preventDefaultBehavior);
+                document.removeEventListener('paste', preventDefaultBehavior);
+
+                // Re-enable text selection
+                document.body.classList.remove('no-select');
+                document.removeEventListener('selectstart', preventDefaultBehavior);
+                document.removeEventListener('contextmenu', preventDefaultBehavior);
+
+                // Hide network status indicator
+                networkStatusIndicator.style.display = 'none';
+            }
+        }
+
+        /**
+         * Fungsi pembantu untuk mencegah perilaku default event.
+         * @param {Event} e - Objek event.
+         * @returns {boolean} Selalu false untuk mencegah default.
+         */
+        function preventDefaultBehavior(e) {
+            e.preventDefault();
+            return false;
+        }
+
+        /**
+         * Memperbarui indikator status jaringan.
+         * @returns {void}
+         */
+        function updateNetworkStatus() {
+            if (navigator.onLine) {
+                networkStatusIndicator.textContent = 'Online';
+                networkStatusIndicator.classList.remove('offline');
+                networkStatusIndicator.classList.add('online');
+            } else {
+                networkStatusIndicator.textContent = 'Offline';
+                networkStatusIndicator.classList.remove('online');
+                networkStatusIndicator.classList.add('offline');
+            }
+        }
+
+        /**
+         * Mencoba masuk mode layar penuh pada examContainer.
+         * @returns {void}
+         */
+        function attemptFullscreen() {
+            // Check if already in fullscreen to prevent errors
+            if (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+                console.log("Already in fullscreen mode.");
+                return;
+            }
+
+            if (examContainer.requestFullscreen) {
+                examContainer.requestFullscreen().catch(err => {
+                    console.warn(`Gagal masuk layar penuh: ${err.message}`);
+                    // Memberi tahu pengguna mungkin diperlukan, tapi tidak memblokir
+                });
+            } else if (examContainer.mozRequestFullScreen) { /* Firefox */
+                examContainer.mozRequestFullScreen().catch(err => console.warn(`Gagal masuk layar penuh (Firefox): ${err.message}`));
+            } else if (examContainer.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+                examContainer.webkitRequestFullscreen().catch(err => console.warn(`Gagal masuk layar penuh (Webkit): ${err.message}`));
+            } else if (examContainer.msRequestFullscreen) { /* IE/Edge */
+                examContainer.msRequestFullscreen().catch(err => console.warn(`Gagal masuk layar penuh (MS): ${err.message}`));
+            }
+        }
+
+        /**
+         * Menangani perubahan status layar penuh.
+         * @returns {void}
+         */
+        function handleFullscreenChange() {
+            if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement && isInExamMode) {
+                // Keluar dari layar penuh saat dalam mode ujian
+                fullscreenExitWarningOverlay.style.display = 'flex';
+                setTimeout(() => { fullscreenExitWarningOverlay.style.opacity = 1; }, 10);
+                examIframe.classList.add('blurred'); // Buramkan iframe
+                document.body.style.overflow = 'hidden';
+            } else if (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+                // Masuk layar penuh
+                fullscreenExitWarningOverlay.style.opacity = 0;
+                setTimeout(() => { fullscreenExitWarningOverlay.style.display = 'none'; }, 300);
+                examIframe.classList.remove('blurred'); // Hilangkan buram
+                document.body.style.overflow = '';
+            }
         }
 
         // Fungsi untuk memulai listener status submit saat ujian berlangsung
@@ -1364,6 +1636,7 @@
          * Mencatat akses ujian dan mengarahkan ke Google Form.
          * @param {string} userEnteredTokenId - Nilai TOKEN-IDSiswa yang diinput oleh pengguna.
          * @param {number} examDurationMinutes - Durasi ujian dalam menit.
+         * @returns {Promise<void>}
          */
         async function handleLanjutClick(userEnteredTokenId, examDurationMinutes) {
             if (!confirmCheckbox.checked) {
@@ -1453,27 +1726,28 @@
                     examContainer.style.display = 'flex';
                     setTimeout(() => {
                         examContainer.style.opacity = 1;
-                    }, 10); // Small delay to trigger CSS transition
+                        isInExamMode = true; // Set mode ujian aktif
+                        toggleExamSecurityFeatures(true); // Aktifkan fitur keamanan
+                        // attemptFullscreen(); // OLD: Panggilan ini dipindahkan ke hideOverlay()
+                    }, 10);
                 }, 500); // Match CSS transition duration for loginContainer fade out
 
                 examIframe.src = googleFormUrl;
                 startCountdown(examDurationMinutes);
-                showOverlay();
+                showOverlay(); // Tampilkan overlay instruksi awal
 
-                // PENTING: Tambahkan entri riwayat baru setelah masuk ke ujian
                 history.pushState(null, '', location.href);
-
-                // Mulai real-time listener status submit HANYA KETIKA MASUK UJIAN
                 startSubmissionStatusListener();
 
             } catch (error) {
                 console.error("Gagal mencatat akses token atau mengarahkan:", error);
                 message.style.color = "orange";
                 message.textContent = "Gagal mencatat akses ujian, namun Anda akan tetap dialihkan. Pastikan koneksi internet Anda stabil.";
-                // Pastikan container login terlihat jika terjadi error yang menghalangi pengalihan
-                loginContainer.style.display = 'flex';
-                examContainer.style.display = 'none';
+                // Pastikan fitur keamanan dinonaktifkan jika gagal masuk ujian
+                isInExamMode = false;
+                toggleExamSecurityFeatures(false);
 
+                // Fallback logic for redirection if initial transaction failed
                 setTimeout(() => {
                     const tokenEntryId = foundTokenGlobal.tokenEntryId;
                     const nameEntryId = foundTokenGlobal.nameEntryId;
@@ -1498,15 +1772,16 @@
                         examContainer.style.display = 'flex';
                         setTimeout(() => {
                             examContainer.style.opacity = 1;
-                        }, 10); // Small delay to trigger CSS transition
+                            isInExamMode = true; // Set mode ujian aktif
+                            toggleExamSecurityFeatures(true); // Aktifkan fitur keamanan
+                            // attemptFullscreen(); // OLD: Panggilan ini dipindahkan ke hideOverlay()
+                        }, 10);
                     }, 500); // Match CSS transition duration for loginContainer fade out
 
                     examIframe.src = googleFormUrl;
                     startCountdown(examDurationMinutes);
                     showOverlay();
-                    // PENTING: Tambahkan entri riwayat baru setelah masuk ke ujian (fallback)
                     history.pushState(null, '', location.href);
-                    // Mulai real-time listener status submit (juga di fallback)
                     startSubmissionStatusListener();
                 }, 1500);
             } finally {
@@ -1517,6 +1792,7 @@
         /**
          * Fungsi utama untuk memeriksa token yang dimasukkan dan detail siswa.
          * Menampilkan modal konfirmasi jika validasi berhasil.
+         * @returns {Promise<void>}
          */
         window.cekToken = async function () {
             const selectedClass = selectKelas.value;
@@ -1654,10 +1930,15 @@
 
         // --- Pengaturan Awal saat Konten DOM Dimuat ---
         document.addEventListener('DOMContentLoaded', () => {
+            // Event listener untuk mencegah menu konteks (klik kanan/tahan lama)
+            // Ini akan ditangani oleh toggleExamSecurityFeatures saat isInExamMode
             document.addEventListener('contextmenu', function (e) {
-                e.preventDefault();
+                if (isInExamMode) { // Hanya aktifkan jika dalam mode ujian
+                    e.preventDefault();
+                }
             });
 
+            // Event listener untuk inputToken, selectKelas, selectNamaSiswa
             inputToken.addEventListener('input', () => window.formatToken(inputToken));
             inputToken.addEventListener('input', updateLoginButtonStatus);
             selectKelas.addEventListener('change', window.filterStudentsByClass);
@@ -1665,10 +1946,12 @@
             selectNamaSiswa.addEventListener('change', function() {
                 const studentId = this.value;
                 selectedStudentData = allStudentsData.find(student => student.id === studentId);
-                updateLoginButtonStatus(); // Call to enable/disable inputToken
+                updateLoginButtonStatus();
             });
 
-            overlayUnderstandBtn.addEventListener('click', hideOverlay);
+            // Event listener untuk overlay instruksi awal
+            overlayUnderstandBtn.addEventListener('click', hideOverlay); // PENTING: Ini akan memicu fullscreen
+
             unlockButton.addEventListener('click', handleUnlockExam);
             
             // Event listener untuk tombol KEMBALI di overlay konfirmasi submit
@@ -1677,19 +1960,47 @@
                 submissionConfirmationOverlay.style.opacity = 0;
                 setTimeout(() => {
                     submissionConfirmationOverlay.style.display = 'none';
-                    window.location.href = 'https://smp2pajangan.github.io/customlink'; // Redirect after fade out
+                    // Re-enable initial login view
+                    loginContainer.style.display = 'flex';
+                    loginContainer.style.opacity = 1;
+                    document.body.style.overflow = '';
+                    // Clean up any remaining fullscreen state
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen();
+                    }
+                    // Ensure security features are off
+                    isInExamMode = false;
+                    toggleExamSecurityFeatures(false);
+                    // Clear message and reset selection
+                    message.textContent = '';
+                    selectKelas.value = '';
+                    filterStudentsByClass(); // Resets student selection
+                    inputToken.value = '';
+                    inputToken.classList.remove('is-valid', 'is-invalid');
+                    updateLoginButtonStatus(); // Recalculate button status
                 }, 300); // Match CSS transition duration
             });
 
-            // PENTING: Tambahkan event listener untuk mencegah tombol kembali browser
+            // PENTING: Event listener untuk mencegah tombol kembali browser
             window.onpopstate = function(event) {
-                // Jika examContainer sedang ditampilkan, berarti siswa berada di dalam ujian
-                if (examContainer.style.display === 'flex') {
-                    // Dorong ulang status saat ini ke riwayat, secara efektif membatalkan navigasi kembali
+                if (isInExamMode) { // Hanya berlaku jika dalam mode ujian
                     history.pushState(null, '', location.href);
                     console.log("Navigasi kembali dicegah selama ujian.");
                 }
             };
+
+            // NEW: Event listener untuk perubahan status layar penuh
+            document.addEventListener('fullscreenchange', handleFullscreenChange);
+            document.addEventListener('mozfullscreenchange', handleFullscreenChange); /* Firefox */
+            document.addEventListener('webkitfullscreenchange', handleFullscreenChange); /* Chrome, Safari and Opera */
+            document.addEventListener('msfullscreenchange', handleFullscreenChange); /* IE/Edge */
+
+            // NEW: Event listener untuk tombol kembali ke layar penuh di overlay peringatan
+            reEnterFullscreenBtn.addEventListener('click', attemptFullscreen);
+
+            // NEW: Event listener untuk status online/offline
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
 
 
             updateDateTime();
@@ -1703,6 +2014,7 @@
         /**
          * Memuat pengaturan Firebase (lokasi diaktifkan, radius) dan kemudian data siswa.
          * Memulai pemeriksaan lokasi setelah data dimuat.
+         * @returns {Promise<void>}
          */
         async function loadSettingsAndStudents() {
             locationStatus.style.display = 'block';
