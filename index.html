@@ -477,6 +477,12 @@
             font-weight: bold; /* Ensure bold text is strong */
         }
 
+        /* New class for red bold text */
+        .text-red-bold {
+            color: red;
+            font-weight: bold;
+        }
+
         .overlay-button {
             padding: 12px 25px;
             font-size: 1.2em;
@@ -761,103 +767,7 @@
         .exit-warning-button:hover {
             background-color: #0056b3;
         }
-
-        /* NEW: Refresh Button - Small and floating */
-        #refreshPageBtn {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background-color: #28a745; /* Green color */
-            color: white;
-            padding: 5px 10px; /* Smaller padding */
-            border-radius: 5px;
-            font-size: 0.8em; /* Smaller font size */
-            font-weight: bold; /* Make it bold */
-            z-index: 501; /* Layer 1.5: Above examContainer, below all overlays */
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            display: none; /* Hidden by default, only show during exam */
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            width: fit-content; /* Ensure it only takes content width */
-            white-space: nowrap; /* Prevent text wrapping */
-        }
-        #refreshPageBtn:hover {
-            background-color: #218838; /* Darker green on hover */
-        }
-
-        /* NEW: Refresh Warning Overlay - Styled to match lockedOverlay */
-        #refreshWarningOverlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.9); /* Dark, semi-transparent background, matching lockedOverlay */
-            z-index: 9990; /* Layer 2 */
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            pointer-events: auto;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-            flex-direction: column;
-        }
-        #refreshWarningOverlay.show {
-            display: flex;
-            opacity: 1;
-        }
-        .refresh-warning-content { /* Matching .locked-content */
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-            text-align: center;
-            box-sizing: border-box;
-        }
-        .refresh-warning-content h2 { /* Matching #lockedTitle */
-            font-size: 2.5em; /* Larger title */
-            color: #ffc107; /* Orange for warning */
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-        .refresh-warning-content p { /* Matching #lockedMessage */
-            font-size: 1.1em;
-            color: #333;
-            margin-bottom: 20px;
-        }
-        .refresh-warning-buttons {
-            display: flex; /* Keep flex for centering */
-            justify-content: center; /* Center buttons */
-            gap: 10px; /* Space between buttons */
-            width: 100%;
-        }
-        .refresh-warning-buttons button { /* Matching #unlockButton */
-            /* Removed flex: 1 to prevent stretching */
-            padding: 12px 25px; /* Larger padding */
-            font-size: 1.2em; /* Larger font size */
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            width: auto; /* Allow button to size based on content */
-            max-width: 180px; /* Limit max width for responsiveness */
-        }
-        #continueRefreshBtn {
-            background-color: #dc3545; /* Red for destructive action */
-            color: white;
-        }
-        #continueRefreshBtn:hover {
-            background-color: #c82333;
-        }
-        #cancelRefreshBtn {
-            background-color: #6c757d; /* Gray for cancel */
-            color: white;
-        }
-        #cancelRefreshBtn:hover {
-            background-color: #5a6268;
-        }
+        /* No refresh button and its overlay styles */
 
 
         @media (max-width: 600px) {
@@ -957,26 +867,7 @@
                 font-size: 1em;
                 padding: 10px 20px;
             }
-            #refreshPageBtn {
-                font-size: 0.7em; /* Even smaller on mobile */
-                padding: 4px 8px; /* Smaller padding on mobile */
-            }
-            /* Refresh warning overlay for mobile */
-            .refresh-warning-content {
-                padding: 20px;
-                max-width: 90%;
-            }
-            .refresh-warning-content h2 {
-                font-size: 1.8em;
-            }
-            .refresh-warning-content p {
-                font-size: 1em;
-            }
-            .refresh-warning-buttons button {
-                font-size: 0.9em;
-                padding: 10px 12px;
-                max-width: 150px; /* Adjust max-width for mobile buttons */
-            }
+            /* No refresh button and its overlay media queries */
             /* Custom modal for mobile */
             .custom-modal-content {
                 padding: 15px;
@@ -1088,25 +979,12 @@
         </div>
     </div>
 
-    <div id="refreshWarningOverlay">
-        <div class="refresh-warning-content">
-            <h2>PERINGATAN!</h2>
-            <p>Merefresh halaman akan <strong>MENGHILANGKAN JAWABAN</strong> Anda. Apakah kamu yakin akan melakukan refresh halaman?</p>
-            <div class="refresh-warning-buttons">
-                <button id="continueRefreshBtn">Lanjutkan Refresh</button>
-                <button id="cancelRefreshBtn">Batal</button>
-            </div>
-        </div>
-    </div>
-
     <div id="submissionConfirmationOverlay">
         <div class="submission-content"> <h1>SELAMAT!</h1>
             <p>JAWABAN ANDA BERHASIL TERKIRIM!</p>
             <button id="backToLoginFromSubmissionBtn">KEMBALI</button>
         </div>
     </div>
-
-    <button id="refreshPageBtn">REFRESH</button>
 
     <div id="confirmModal">
         <div class="modal-content">
@@ -1151,8 +1029,9 @@
             <ul class="overlay-instructions">
                 <li>Kerjakan ujian dengan sungguh-sungguh</li>
                 <li>Pastikan jaringan kamu dalam kondisi baik</li>
-                <li>Jika Anda keluar dari aplikasi, <strong>jawaban akan hilang!</strong></li>
-                <li>Jika waktu habis, <strong>ujian Anda akan terkunci</strong></li>
+                <li>Jika Anda keluar dari aplikasi, <span class="text-red-bold">jawaban akan hilang!</span></li>
+                <li>Jika waktu habis, <span class="text-red-bold">ujian Anda akan terkunci</span></li>
+                <li>Jika Anda merefresh halaman, <span class="text-red-bold">jawaban akan hilang!</span></li>
             </ul>
             <button id="overlayUnderstandBtn" class="overlay-button">SAYA MENGERTI</button>
         </div>
@@ -1249,11 +1128,11 @@
         const fullscreenExitWarningOverlay = document.getElementById('fullscreenExitWarningOverlay');
         const reEnterFullscreenBtn = document.getElementById('reEnterFullscreenBtn');
         
-        // NEW: Refresh Button and Warning Overlay elements
-        const refreshPageBtn = document.getElementById('refreshPageBtn');
-        const refreshWarningOverlay = document.getElementById('refreshWarningOverlay');
-        const continueRefreshBtn = document.getElementById('continueRefreshBtn');
-        const cancelRefreshBtn = document.getElementById('cancelRefreshBtn');
+        // Removed refresh button and its related overlays
+        // const refreshPageBtn = document.getElementById('refreshPageBtn');
+        // const refreshWarningOverlay = document.getElementById('refreshWarningOverlay');
+        // const continueRefreshBtn = document.getElementById('continueRefreshBtn');
+        // const cancelRefreshBtn = document.getElementById('cancelRefreshBtn');
 
 
         // Custom Modal Elements
@@ -1687,11 +1566,8 @@
                 if (currentTotalSeconds <= 300 && currentTotalSeconds > 0) {
                     countdownDisplay.style.display = 'none';
                     warningCountdown.textContent = formattedTime;
-                    // Only show warning overlay if refresh warning is not active
-                    if (!refreshWarningOverlay.classList.contains('show')) {
-                        warningOverlay.style.display = 'flex';
-                        setTimeout(() => { warningOverlay.style.opacity = 1; }, 10);
-                    }
+                    warningOverlay.style.display = 'flex';
+                    setTimeout(() => { warningOverlay.style.opacity = 1; }, 10);
                 } else {
                     // Hide warning overlay with fade-out effect
                     warningOverlay.style.opacity = 0;
@@ -1726,7 +1602,6 @@
             }, 10); // A very small delay
             document.body.style.overflow = 'hidden';
             examIframe.style.pointerEvents = 'none'; // Block interaction with iframe
-            hideRefreshButton(); // Hide refresh button when initial overlay is active
         }
 
         /**
@@ -1742,7 +1617,6 @@
                 document.body.style.overflow = '';
                 examIframe.style.pointerEvents = 'auto'; // Allow interaction with iframe
                 attemptFullscreen(); // Call attemptFullscreen here
-                showRefreshButton(); // Show refresh button after initial overlay is gone
                 console.log("Overlay hidden, attempting fullscreen.");
             }, 300); // Match CSS transition duration
         }
@@ -1767,7 +1641,6 @@
             // Hide fullscreen warning if it was active
             fullscreenExitWarningOverlay.classList.remove('show');
             fullscreenExitWarningOverlay.style.display = 'none';
-            hideRefreshButton(); // Hide refresh button when locked overlay is active
         }
 
         /**
@@ -1791,7 +1664,6 @@
                         document.addEventListener('mozfullscreenchange', handleFullscreenChange);
                         document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
                         document.addEventListener('msfullscreenchange', handleFullscreenChange);
-                        showRefreshButton(); // Show refresh button after unlock
                     }
                 }, 300);
             } else {
@@ -1821,7 +1693,6 @@
                 isInExamMode = false; // Exit exam mode
                 toggleExamSecurityFeatures(false); // Disable security features
                 document.exitFullscreen(); // Exit fullscreen if still active
-                hideRefreshButton(); // Hide refresh button when submission overlay is active
             }, 500); // Match examContainer transition duration
         }
 
@@ -1834,7 +1705,6 @@
             setTimeout(() => {
                 submissionConfirmationOverlay.style.display = 'none';
                 document.body.style.overflow = '';
-                showRefreshButton(); // Re-evaluate refresh button visibility
             }, 300); // Match CSS transition duration
         }
 
@@ -1855,7 +1725,6 @@
                 document.addEventListener('selectstart', preventDefaultBehavior); // For older browsers
                 document.addEventListener('contextmenu', preventDefaultBehavior); // Prevent right-click/long-press menu
                 
-                // Refresh button visibility is now handled by showRefreshButton/hideRefreshButton
             } else {
                 // Re-enable copy, cut, paste
                 document.removeEventListener('copy', preventDefaultBehavior);
@@ -1866,8 +1735,6 @@
                 document.body.classList.remove('no-select');
                 document.removeEventListener('selectstart', preventDefaultBehavior);
                 document.removeEventListener('contextmenu', preventDefaultBehavior);
-
-                hideRefreshButton(); // Ensure refresh button is hidden when security features are off
             }
         }
 
@@ -1917,14 +1784,12 @@
                 setTimeout(() => { fullscreenExitWarningOverlay.style.opacity = 1; }, 10);
                 examIframe.classList.add('blurred'); // Blur iframe
                 document.body.style.overflow = 'hidden';
-                hideRefreshButton(); // Hide refresh button when fullscreen exit warning is active
             } else if (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
                 // Entered fullscreen
                 fullscreenExitWarningOverlay.style.opacity = 0;
                 setTimeout(() => { fullscreenExitWarningOverlay.style.display = 'none'; }, 300);
                 examIframe.classList.remove('blurred'); // Unblur
                 document.body.style.overflow = '';
-                showRefreshButton(); // Show refresh button when back in fullscreen
             }
         }
 
@@ -2334,71 +2199,6 @@
             }
         };
 
-        // Helper functions for refresh button visibility
-        function hideRefreshButton() {
-            refreshPageBtn.style.display = 'none';
-        }
-
-        function showRefreshButton() {
-            // Only show if in exam mode and no other blocking overlays are active
-            if (isInExamMode &&
-                !fullscreenOverlay.classList.contains('show') &&
-                !lockedOverlay.classList.contains('show') &&
-                !submissionConfirmationOverlay.classList.contains('show') &&
-                !fullscreenExitWarningOverlay.classList.contains('show') &&
-                !refreshWarningOverlay.classList.contains('show')) { // Also check refreshWarningOverlay
-                refreshPageBtn.style.display = 'block';
-            } else {
-                refreshPageBtn.style.display = 'none';
-            }
-        }
-
-        // NEW: Functions for Refresh Warning Overlay
-        function showRefreshWarningOverlay() {
-            console.log("showRefreshWarningOverlay() called.");
-            hideRefreshButton(); // Hide refresh button itself
-            
-            // Temporarily hide fullscreen exit warning if active
-            if (fullscreenExitWarningOverlay.classList.contains('show')) {
-                fullscreenExitWarningOverlay.classList.remove('show');
-                fullscreenExitWarningOverlay.style.display = 'none';
-                console.log("fullscreenExitWarningOverlay hidden to prioritize refresh warning.");
-            }
-
-            // Temporarily hide 5-minute warning if active
-            if (warningOverlay.classList.contains('show')) {
-                warningOverlay.classList.remove('show');
-                warningOverlay.style.display = 'none';
-                console.log("warningOverlay hidden to prioritize refresh warning.");
-            }
-
-            refreshWarningOverlay.style.display = 'flex';
-            setTimeout(() => { refreshWarningOverlay.style.opacity = 1; }, 10);
-            document.body.style.overflow = 'hidden'; // Prevent scrolling behind overlay
-            examIframe.classList.add('blurred'); // Blur iframe when overlay is active
-        }
-
-        function hideRefreshWarningOverlay() {
-            console.log("hideRefreshWarningOverlay() called.");
-            refreshWarningOverlay.style.opacity = 0;
-            setTimeout(() => {
-                refreshWarningOverlay.style.display = 'none';
-                document.body.style.overflow = ''; // Restore scrolling
-                examIframe.classList.remove('blurred'); // Unblur iframe
-
-                // Re-evaluate fullscreen state after hiding refresh warning
-                handleFullscreenChange(); // This will re-evaluate and show fullscreenExitWarningOverlay if necessary
-
-                // Re-show 5-minute warning if applicable
-                if (currentTotalSeconds <= 300 && currentTotalSeconds > 0 && isInExamMode) {
-                    warningOverlay.style.display = 'flex';
-                    setTimeout(() => { warningOverlay.style.opacity = 1; }, 10);
-                    console.log("Re-showing warningOverlay after refresh warning dismissed.");
-                }
-                showRefreshButton(); // Re-evaluate refresh button visibility
-            }, 300);
-        }
-
         // --- Initial Setup when DOM Content is Loaded ---
         document.addEventListener('DOMContentLoaded', () => {
             // Event listener to prevent context menu (right-click/long-press)
@@ -2468,7 +2268,6 @@
                     inputToken.value = '';
                     inputToken.classList.remove('is-valid', 'is-invalid');
                     updateLoginButtonStatus(); // Recalculate button status
-                    showRefreshButton(); // Re-evaluate refresh button visibility
                 }, 300); // Match CSS transition duration
             });
 
@@ -2488,14 +2287,6 @@
 
             // NEW: Event listener for the re-enter fullscreen button on the warning overlay
             reEnterFullscreenBtn.addEventListener('click', attemptFullscreen);
-
-            // NEW: Event listeners for refresh button and warning overlay
-            refreshPageBtn.addEventListener('click', showRefreshWarningOverlay);
-            continueRefreshBtn.addEventListener('click', () => {
-                hideRefreshWarningOverlay();
-                location.reload(); // Perform the actual refresh
-            });
-            cancelRefreshBtn.addEventListener('click', hideRefreshWarningOverlay);
 
             // IMPORTANT: REMOVED Browser's native warning for refresh/closing tab (pull-to-refresh)
             // This is done to prevent native browser pop-ups that trigger Exambro alarms.
