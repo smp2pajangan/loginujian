@@ -261,6 +261,8 @@
             background-color: #f0f0f0;
         }
 
+        /* Removed .custom-modal-close styles as the button is removed */
+
         /* Existing modal styles (confirmModal) */
         #confirmModal {
             display: none;
@@ -374,8 +376,8 @@
             height: 100vh;
             flex-direction: column;
             background-color: #f0f0f0; /* Background for entire exam view */
-            z-index: 500; /* Base Z-index for the exam view */
-            opacity: 0;
+            z-index: 500; /* Below overlay, above login */
+            opacity: 0; /* Initial state for transition */
             transition: opacity 0.5s ease-in-out; /* Smooth transition */
         }
 
@@ -413,12 +415,11 @@
             width: 100vw;
             height: 100vh;
             background: rgba(0, 0, 0, 0.8); /* Semi-transparent black background */
-            z-index: 9999; /* On top of everything when active */
+            z-index: 9999; /* On top of everything */
             justify-content: center;
             align-items: center;
             overflow: hidden; /* Prevent scrolling on overlay */
-            pointer-events: auto; /* Allow interaction */
-            opacity: 0;
+            opacity: 0; /* Initial state for transition */
             transition: opacity 0.3s ease-in-out; /* Smooth transition */
         }
         #fullscreenOverlay.show {
@@ -477,12 +478,6 @@
             font-weight: bold; /* Ensure bold text is strong */
         }
 
-        /* New class for red bold text */
-        .text-red-bold {
-            color: red;
-            font-weight: bold;
-        }
-
         .overlay-button {
             padding: 12px 25px;
             font-size: 1.2em;
@@ -505,7 +500,7 @@
             transform: scale(0.98);
         }
 
-        /* NEW: Warning Overlay (5 minutes left) */
+        /* NEW: Warning Overlay (5 minutes left) - UPDATED STYLES for transparency */
         #warningOverlay {
             display: none; /* Hidden by default */
             position: fixed;
@@ -514,12 +509,12 @@
             width: 100vw;
             height: 100vh;
             background: rgba(0, 0, 0, 0); /* Fully transparent background */
-            z-index: 9991; /* Layer 3 */
+            z-index: 10; /* Changed z-index to layer correctly within examContainer */
             justify-content: center;
             align-items: center;
             overflow: hidden; /* Prevent scrolling on overlay */
             pointer-events: none; /* Allow interaction with the content box */
-            opacity: 0;
+            opacity: 0; /* Initial state for transition */
             transition: opacity 0.3s ease-in-out; /* Smooth transition */
         }
         #warningOverlay.show {
@@ -570,12 +565,12 @@
             width: 100vw;
             height: 100vh;
             background: rgba(0, 0, 0, 0.9); /* Opaque background */
-            z-index: 9993; /* Layer 4 */
+            z-index: 20; /* Changed z-index to layer correctly within examContainer */
             justify-content: center;
             align-items: center;
             overflow: hidden;
             pointer-events: auto; /* Allow interaction */
-            opacity: 0;
+            opacity: 0; /* Initial state for transition */
             transition: opacity 0.3s ease-in-out; /* Smooth transition */
         }
         #lockedOverlay.show {
@@ -654,12 +649,12 @@
             width: 100vw;
             height: 100vh;
             background: rgba(0, 0, 0, 0.9); /* Dark, semi-transparent background, matching lockedOverlay */
-            z-index: 9994; /* Layer 5: Highest */
+            z-index: 10001; /* Higher than other overlays */
             justify-content: center;
             align-items: center;
             overflow: hidden; /* Prevent scrolling on overlay */
             pointer-events: auto; /* Allow interaction */
-            opacity: 0;
+            opacity: 0; /* Initial state for transition */
             transition: opacity 0.3s ease-in-out; /* Smooth transition */
         }
         #submissionConfirmationOverlay.show {
@@ -720,7 +715,7 @@
             top: 0; left: 0;
             width: 100vw; height: 100vh;
             background: rgba(0, 0, 0, 0.95); /* Hampir sepenuhnya gelap */
-            z-index: 9992; /* Layer 3 */
+            z-index: 30; /* Changed z-index to layer correctly within examContainer */
             justify-content: center;
             align-items: center;
             overflow: hidden;
@@ -767,8 +762,38 @@
         .exit-warning-button:hover {
             background-color: #0056b3;
         }
-        /* No refresh button and its overlay styles */
 
+        /* NEW: Network Status Indicator */
+        #networkStatusIndicator {
+            position: fixed; /* Fixed agar selalu terlihat */
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            z-index: 35; /* Changed z-index to layer correctly within examContainer */
+            display: none; /* Sembunyikan secara default, hanya tampil saat di ujian */
+            transition: background-color 0.3s ease;
+        }
+        #networkStatusIndicator.offline {
+            background-color: #dc3545; /* Merah saat offline */
+        }
+        #networkStatusIndicator.online {
+            background-color: #28a745; /* Hijau saat online */
+        }
+
+        /* NEW: CSS for preventing text selection globally on the main page */
+        /* Will be toggled when entering/exiting exam */
+        .no-select {
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none;   /* Safari */
+            -khtml-user-select: none;    /* Konqueror HTML */
+            -moz-user-select: none;      /* Old versions of Firefox */
+            -ms-user-select: none;       /* Internet Explorer/Edge */
+            user-select: none;           /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+        }
 
         @media (max-width: 600px) {
             .container {
@@ -867,7 +892,11 @@
                 font-size: 1em;
                 padding: 10px 20px;
             }
-            /* No refresh button and its overlay media queries */
+            #networkStatusIndicator {
+                font-size: 0.8em;
+                padding: 4px 8px;
+            }
+
             /* Custom modal for mobile */
             .custom-modal-content {
                 padding: 15px;
@@ -952,38 +981,32 @@
     <div id="examContainer" style="display: none;">
         <div id="countdownDisplay"></div>
         <iframe id="examIframe" src="" frameborder="0"></iframe>
-    </div>
-
-    <div id="warningOverlay" style="display: none;">
-        <div class="warning-content-box">
-            <div id="warningCountdown"></div>
-            <div id="warningMessage">SEGERA KIRIMKAN JAWABAN, JANGAN SAMPAI KEHABISAN WAKTU!</div>
+        <div id="warningOverlay" style="display: none;">
+            <div class="warning-content-box">
+                <div id="warningCountdown"></div>
+                <div id="warningMessage">SEGERA KIRIMKAN JAWABAN, JANGAN SAMPAI KEHABISAN WAKTU!</div>
+            </div>
         </div>
-    </div>
 
-    <div id="lockedOverlay" style="display: none;">
-        <div class="locked-content">
-            <h2 id="lockedTitle">WAKTU HABIS</h2>
-            <p id="lockedMessage">Silahkan masukkan password untuk membuka ujian!</p>
-            <input type="password" id="passwordInput" placeholder="Masukkan Password" />
-            <button id="unlockButton">BUKA KUNCI</button>
-            <p id="unlockErrorMessage" style="display: none;"></p>
+        <div id="lockedOverlay" style="display: none;">
+            <div class="locked-content">
+                <h2 id="lockedTitle">WAKTU HABIS</h2>
+                <p id="lockedMessage">Silahkan masukkan password untuk membuka ujian!</p>
+                <input type="password" id="passwordInput" placeholder="Masukkan Password" />
+                <button id="unlockButton">BUKA KUNCI</button>
+                <p id="unlockErrorMessage" style="display: none;"></p>
+            </div>
         </div>
-    </div>
 
-    <div id="fullscreenExitWarningOverlay" style="display: none;">
-        <div class="exit-warning-content">
-            <h2>PERINGATAN!</h2>
-            <p>Anda telah keluar dari mode layar penuh. Mohon kembali ke mode layar penuh untuk melanjutkan ujian.</p>
-            <button id="reEnterFullscreenBtn" class="exit-warning-button">Kembali ke Layar Penuh</button>
+        <div id="fullscreenExitWarningOverlay" style="display: none;">
+            <div class="exit-warning-content">
+                <h2>PERINGATAN!</h2>
+                <p>Anda telah keluar dari mode layar penuh. Mohon kembali ke mode layar penuh untuk melanjutkan ujian.</p>
+                <button id="reEnterFullscreenBtn" class="exit-warning-button">Kembali ke Layar Penuh</button>
+            </div>
         </div>
-    </div>
 
-    <div id="submissionConfirmationOverlay">
-        <div class="submission-content"> <h1>SELAMAT!</h1>
-            <p>JAWABAN ANDA BERHASIL TERKIRIM!</p>
-            <button id="backToLoginFromSubmissionBtn">KEMBALI</button>
-        </div>
+        <div id="networkStatusIndicator" style="display: none;"></div>
     </div>
 
     <div id="confirmModal">
@@ -1029,11 +1052,17 @@
             <ul class="overlay-instructions">
                 <li>Kerjakan ujian dengan sungguh-sungguh</li>
                 <li>Pastikan jaringan kamu dalam kondisi baik</li>
-                <li>Jika Anda keluar dari aplikasi, <span class="text-red-bold">jawaban akan hilang!</span></li>
-                <li>Jika waktu habis, <span class="text-red-bold">ujian Anda akan terkunci</span></li>
-                <li>Jika Anda merefresh halaman, <span class="text-red-bold">jawaban akan hilang!</span></li>
+                <li>Jika Anda keluar dari aplikasi, <strong>jawaban akan hilang!</strong></li>
+                <li>Jika waktu habis, <strong>ujian Anda akan terkunci</strong></li>
             </ul>
             <button id="overlayUnderstandBtn" class="overlay-button">SAYA MENGERTI</button>
+        </div>
+    </div>
+
+    <div id="submissionConfirmationOverlay">
+        <div class="submission-content"> <h1>SELAMAT!</h1>
+            <p>JAWABAN ANDA BERHASIL TERKIRIM!</p>
+            <button id="backToLoginFromSubmissionBtn">KEMBALI</button>
         </div>
     </div>
 
@@ -1057,7 +1086,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
         import { getDatabase, ref, get, child, runTransaction, set, onValue, off } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
 
-        // Firebase Configuration
+        // Konfigurasi Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyAOBCX8x60pYqxtXmXMz2xc5dwC3HJH5EE",
             authDomain: "ujian-online-berbasis-android.firebaseapp.com",
@@ -1068,11 +1097,11 @@
             appId: "1:923446282537:web:60d374dde8aca61f6a0f38"
         };
 
-        // Initialize Firebase
+        // Inisialisasi Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // References to Firebase nodes
+        // Referensi ke node Firebase
         const settingsRef = ref(db, 'setlokasi');
         const studentsRef = ref(db, 'students');
         const tokensRef = ref(db, 'tokens');
@@ -1080,16 +1109,16 @@
         const adminSettingsRef = ref(db, 'admin_settings');
         const submittedExamsRef = ref(db, 'submitted_exams');
 
-        // Location feature control variables
+        // Variabel kontrol fitur lokasi
         let isLocationEnabled = true;
         let firebaseAllowedRadiusKm = 0.075;
         let examUnlockPassword = '';
 
-        // Allowed central location coordinates (static on the student side)
+        // Koordinat pusat lokasi yang diizinkan (tetap statis di sisi siswa)
         const allowedLatitude = -7.8589546;
         const allowedLongitude = 110.2655596;
 
-        // DOM Elements
+        // Elemen DOM
         const loginContainer = document.getElementById('loginContainer');
         const examContainer = document.getElementById('examContainer');
         const countdownDisplay = document.getElementById('countdownDisplay');
@@ -1120,20 +1149,14 @@
         const modalMessage = document.getElementById('modalMessage');
         const modalExamDuration = document.getElementById('modalExamDuration');
 
-        // Elements for Submission Confirmation Overlay
+        // Elemen untuk Overlay Konfirmasi Submit
         const submissionConfirmationOverlay = document.getElementById('submissionConfirmationOverlay');
         const backToLoginFromSubmissionBtn = document.getElementById('backToLoginFromSubmissionBtn');
 
-        // NEW: New DOM elements for security features
+        // NEW: Elemen DOM baru untuk fitur keamanan
         const fullscreenExitWarningOverlay = document.getElementById('fullscreenExitWarningOverlay');
         const reEnterFullscreenBtn = document.getElementById('reEnterFullscreenBtn');
-        
-        // Removed refresh button and its related overlays
-        // const refreshPageBtn = document.getElementById('refreshPageBtn');
-        // const refreshWarningOverlay = document.getElementById('refreshWarningOverlay');
-        // const continueRefreshBtn = document.getElementById('continueRefreshBtn');
-        // const cancelRefreshBtn = document.getElementById('cancelRefreshBtn');
-
+        const networkStatusIndicator = document.getElementById('networkStatusIndicator');
 
         // Custom Modal Elements
         const classModal = document.getElementById('classModal');
@@ -1150,38 +1173,38 @@
         let currentTotalSeconds;
         let submissionListenerRef = null;
 
-        // NEW: Control variable for exam status
+        // NEW: Variabel kontrol untuk status ujian
         let isInExamMode = false;
 
-        // --- Utility Functions ---
+        // --- Fungsi Utilitas ---
 
         /**
-         * Pads the student ID to ensure it has 3 digits.
-         * @param {string|number} id - Student ID.
-         * @returns {string} Padded student ID.
+         * Menambahkan nol di depan ID siswa agar memiliki 3 digit.
+         * @param {string|number} id - ID siswa.
+         * @returns {string} ID siswa yang sudah di-padding.
          */
         function padStudentId(id) {
             return String(id).padStart(3, '0');
         }
 
         /**
-         * Checks if the device is a touch device.
-         * @returns {boolean} True if touch device, false otherwise.
+         * Memeriksa apakah perangkat adalah perangkat sentuh.
+         * @returns {boolean} True jika perangkat sentuh, false jika tidak.
          */
         function isTouchDevice() {
             return window.matchMedia('(pointer: coarse)').matches;
         }
 
         /**
-         * Calculates the distance between two geographical coordinates using the Haversine formula.
-         * @param {number} lat1 - Latitude of point 1.
-         * @param {number} lon1 - Longitude of point 1.
-         * @param {number} lat2 - Latitude of point 2.
-         * @param {number} lon2 - Longitude of point 2.
-         * @returns {number} Distance in kilometers.
+         * Menghitung jarak antara dua koordinat geografis menggunakan rumus Haversine.
+         * @param {number} lat1 - Lintang titik 1.
+         * @param {number} lon1 - Bujur titik 1.
+         * @param {number} lat2 - Lintang titik 2.
+         * @param {number} lon2 - Bujur titik 2.
+         * @returns {number} Jarak dalam kilometer.
          */
         function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Earth's radius in km
+            const R = 6371; // Radius bumi dalam km
             const dLat = deg2rad(lat2 - lat1);
             const dLon = deg2rad(lon2 - lon1);
             const a =
@@ -1189,23 +1212,23 @@
                 Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
                 Math.sin(dLon / 2) * Math.sin(dLon / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            const d = R * c; // Distance in km
+            const d = R * c; // Jarak dalam km
             return d;
         }
 
         /**
-         * Converts degrees to radians.
-         * @param {number} deg - Angle in degrees.
-         * @returns {number} Angle in radians.
+         * Mengubah derajat ke radian.
+         * @param {number} deg - Sudut dalam derajat.
+         * @returns {number} Sudut dalam radian.
          */
         function deg2rad(deg) {
             return deg * (Math.PI / 180);
         }
 
-        // --- UI Update Functions ---
+        // --- Fungsi Pembaruan UI ---
 
         /**
-         * Updates the current date and time displayed in the footer.
+         * Memperbarui tanggal dan waktu saat ini yang ditampilkan di footer.
          */
         function updateDateTime() {
             const now = new Date();
@@ -1214,9 +1237,9 @@
         }
 
         /**
-         * Formats the token input to uppercase and adds a hyphen after 5 characters.
-         * Provides visual feedback (green/red) on the input border.
-         * @param {HTMLInputElement} inputElement - The input field for the token.
+         * Memformat input token menjadi huruf besar dan menambahkan tanda hubung setelah 5 karakter.
+         * Memberikan umpan balik visual (hijau/merah) pada border input.
+         * @param {HTMLInputElement} inputElement - Bidang input untuk token.
          * @returns {void}
          */
         window.formatToken = function (inputElement) {
@@ -1225,30 +1248,30 @@
                 return;
             }
 
-            // Remove previous feedback classes
+            // Hapus kelas feedback sebelumnya
             inputElement.classList.remove('is-valid', 'is-invalid');
 
             let value = inputElement.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
             if (value.length > 5 && value.indexOf('-') === -1) {
                 value = value.substring(0, 5) + '-' + value.substring(5);
             }
-            inputElement.value = value; // Update the input field with the formatted value
+            inputElement.value = value; // Perbarui bidang input dengan nilai yang diformat
 
-            const tokenRegex = /^[A-Z0-9]{5}-[0-9]{3}$/; // Example: ABCDE-001
+            const tokenRegex = /^[A-Z0-9]{5}-[0-9]{3}$/; // Contoh: ABCDE-001
             
             if (tokenRegex.test(value)) {
                 inputElement.classList.add('is-valid');
-            } else if (value.length >= 9) { // If length reaches expected format (9 characters) but is not valid
+            } else if (value.length >= 9) { // Jika panjang sudah mencapai format yang diharapkan (9 karakter) tapi tidak valid
                 inputElement.classList.add('is-invalid');
             }
-            // For partial input, no color (neither valid nor invalid)
+            // Untuk input parsial, tidak ada warna (tidak valid maupun tidak tidak valid)
 
             updateLoginButtonStatus();
         };
 
         /**
-         * Updates the enabled/disabled status and opacity of the Login button
-         * based on location validity and input field completeness.
+         * Memperbarui status aktif/nonaktif dan opasitas tombol Login
+         * berdasarkan validitas lokasi dan kelengkapan bidang input.
          * @returns {void}
          */
         function updateLoginButtonStatus() {
@@ -1283,7 +1306,7 @@
         }
 
         /**
-         * Hides the confirmation modal and resets the UI.
+         * Menyembunyikan modal konfirmasi dan mengatur ulang UI.
          * @returns {void}
          */
         window.tutupModal = function () {
@@ -1295,13 +1318,13 @@
             sessionStorage.clear(); // Clear session storage if user cancels login
         };
 
-        // --- Location Handling ---
+        // --- Penanganan Lokasi ---
 
         /**
-         * Checks the user's current location against the allowed coordinates and radius.
-         * Updates UI elements based on location validity.
-         * @param {number} latitude - Latitude of point 1.
-         * @param {number} longitude - Longitude of point 1.
+         * Memeriksa lokasi pengguna saat ini terhadap koordinat dan radius yang diizinkan.
+         * Memperbarui elemen UI berdasarkan validitas lokasi.
+         * @param {number} latitude - Lintang titik 1.
+         * @param {number} longitude - Bujur titik 1.
          * @returns {void}
          */
         function checkLocation(latitude, longitude) {
@@ -1322,8 +1345,8 @@
         }
 
         /**
-         * Handler for successful geolocation retrieval.
-         * @param {GeolocationPosition} position - Geolocation position object.
+         * Handler untuk pengambilan geolokasi yang berhasil.
+         * @param {GeolocationPosition} position - Objek posisi geolokasi.
          * @returns {void}
          */
         function handleLocation(position) {
@@ -1331,8 +1354,8 @@
         }
 
         /**
-         * Handler for geolocation errors.
-         * @param {GeolocationPositionError} error - Geolocation error object.
+         * Handler untuk kesalahan geolokasi.
+         * @param {GeolocationPositionError} error - Objek kesalahan geolokasi.
          * @returns {void}
          */
         function handleLocationError(error) {
@@ -1366,8 +1389,8 @@
         }
 
         /**
-         * Starts geolocation monitoring if location is enabled and it's a touch device.
-         * Otherwise, location is considered valid.
+         * Memulai pemantauan geolokasi jika lokasi diaktifkan dan ini adalah perangkat sentuh.
+         * Jika tidak, dianggap lokasi valid.
          * @returns {void}
          */
         function getLocation() {
@@ -1395,11 +1418,11 @@
             }
         }
 
-        // --- Data Loading and Filtering ---
+        // --- Pemuatan dan Pemfilteran Data ---
 
         /**
-         * Loads all student data from Firebase and populates the class dropdown.
-         * Also calls getLocation() after data is loaded.
+         * Memuat semua data siswa dari Firebase dan mengisi dropdown kelas.
+         * Juga memanggil getLocation() setelah data dimuat.
          * @returns {Promise<void>}
          */
         async function loadStudentsAndPopulateClassDropdown() {
@@ -1449,7 +1472,7 @@
         }
 
         /**
-         * Filters the student name dropdown based on the selected class.
+         * Memfilter dropdown nama siswa berdasarkan kelas yang dipilih.
          * @returns {void}
          */
         function filterStudentsByClass() {
@@ -1541,10 +1564,10 @@
         }
 
 
-        // --- Countdown Logic ---
+        // --- Logika Countdown ---
         /**
-         * Starts the exam countdown.
-         * @param {number} durationInSeconds - Exam duration in seconds.
+         * Memulai waktu mundur ujian.
+         * @param {number} durationInSeconds - Durasi ujian dalam detik.
          * @returns {void}
          */
         function startCountdown(durationInSeconds) {
@@ -1566,6 +1589,7 @@
                 if (currentTotalSeconds <= 300 && currentTotalSeconds > 0) {
                     countdownDisplay.style.display = 'none';
                     warningCountdown.textContent = formattedTime;
+                    // Show warning overlay with fade-in effect
                     warningOverlay.style.display = 'flex';
                     setTimeout(() => { warningOverlay.style.opacity = 1; }, 10);
                 } else {
@@ -1587,43 +1611,36 @@
             }, 1000);
         }
 
-        // --- Overlay Logic ---
+        // --- Logika Overlay ---
         /**
-         * Displays the fullscreen overlay with initial instructions.
+         * Menampilkan overlay fullscreen dengan instruksi awal.
          * @returns {void}
          */
         function showOverlay() {
-            console.log("showOverlay() called. Setting display:flex and adding 'show' class.");
-            fullscreenOverlay.style.display = 'flex'; // Make it visible immediately
-            // Small delay to ensure browser registers the display change before adding class
-            // This can sometimes help trigger transitions on elements that start as display:none
-            setTimeout(() => {
-                fullscreenOverlay.classList.add('show'); // Trigger opacity transition
-            }, 10); // A very small delay
+            fullscreenOverlay.style.display = 'flex';
+            setTimeout(() => { fullscreenOverlay.style.opacity = 1; }, 10); // Small delay to trigger CSS transition
             document.body.style.overflow = 'hidden';
-            examIframe.style.pointerEvents = 'none'; // Block interaction with iframe
+            examIframe.style.pointerEvents = 'none'; // Blokir interaksi dengan iframe saat overlay instruksi aktif
         }
 
         /**
-         * Hides the fullscreen overlay with initial instructions.
-         * Initiates fullscreen mode after the overlay is hidden.
+         * Menyembunyikan overlay fullscreen dengan instruksi awal.
+         * Memulai mode layar penuh setelah overlay disembunyikan.
          * @returns {void}
          */
         function hideOverlay() {
-            console.log("hideOverlay() called. Removing 'show' class.");
-            fullscreenOverlay.classList.remove('show'); // Trigger opacity transition to 0
+            fullscreenOverlay.style.opacity = 0;
             setTimeout(() => {
-                fullscreenOverlay.style.display = 'none'; // Hide completely after transition
+                fullscreenOverlay.style.display = 'none';
                 document.body.style.overflow = '';
-                examIframe.style.pointerEvents = 'auto'; // Allow interaction with iframe
-                attemptFullscreen(); // Call attemptFullscreen here
-                console.log("Overlay hidden, attempting fullscreen.");
+                examIframe.style.pointerEvents = 'auto'; // Izinkan interaksi dengan iframe setelah overlay instruksi hilang
+                attemptFullscreen(); // NEW: Panggil attemptFullscreen di sini
             }, 300); // Match CSS transition duration
         }
 
         /**
-         * Displays the locked overlay when time runs out.
-         * Also ensures the exam remains blurred and non-interactive.
+         * Menampilkan overlay terkunci saat waktu habis.
+         * Juga memastikan ujian tetap buram dan tidak interaktif.
          * @returns {void}
          */
         function showLockedOverlay() {
@@ -1644,7 +1661,7 @@
         }
 
         /**
-         * Handles the attempt to unlock the exam.
+         * Menangani percobaan pembukaan kunci ujian.
          * @returns {Promise<void>}
          */
         async function handleUnlockExam() {
@@ -1673,7 +1690,7 @@
         }
 
         /**
-         * Displays the submission confirmation overlay.
+         * Menampilkan overlay konfirmasi submit.
          * @returns {void}
          */
         function showSubmissionConfirmationOverlay() {
@@ -1690,14 +1707,14 @@
                     off(submissionListenerRef);
                     submissionListenerRef = null;
                 }
-                isInExamMode = false; // Exit exam mode
-                toggleExamSecurityFeatures(false); // Disable security features
+                isInExamMode = false; // Keluar dari mode ujian
+                toggleExamSecurityFeatures(false); // Nonaktifkan fitur keamanan
                 document.exitFullscreen(); // Exit fullscreen if still active
             }, 500); // Match examContainer transition duration
         }
 
         /**
-         * Hides the submission confirmation overlay.
+         * Menyembunyikan overlay konfirmasi submit.
          * @returns {void}
          */
         function hideSubmissionConfirmationOverlay() {
@@ -1709,8 +1726,8 @@
         }
 
         /**
-         * Enables/disables exam security features (prevent copy/paste/cut, text selection).
-         * @param {boolean} enable - True to enable, false to disable.
+         * Mengaktifkan/menonaktifkan fitur keamanan ujian (pencegahan copy/paste/cut, pemilihan teks, indikator jaringan).
+         * @param {boolean} enable - True untuk mengaktifkan, false untuk menonaktifkan.
          * @returns {void}
          */
         function toggleExamSecurityFeatures(enable) {
@@ -1725,6 +1742,9 @@
                 document.addEventListener('selectstart', preventDefaultBehavior); // For older browsers
                 document.addEventListener('contextmenu', preventDefaultBehavior); // Prevent right-click/long-press menu
                 
+                // Show network status indicator
+                networkStatusIndicator.style.display = 'block';
+                updateNetworkStatus(); // Initial status
             } else {
                 // Re-enable copy, cut, paste
                 document.removeEventListener('copy', preventDefaultBehavior);
@@ -1735,13 +1755,16 @@
                 document.body.classList.remove('no-select');
                 document.removeEventListener('selectstart', preventDefaultBehavior);
                 document.removeEventListener('contextmenu', preventDefaultBehavior);
+
+                // Hide network status indicator
+                networkStatusIndicator.style.display = 'none';
             }
         }
 
         /**
-         * Helper function to prevent default event behavior.
-         * @param {Event} e - Event object.
-         * @returns {boolean} Always false to prevent default.
+         * Fungsi pembantu untuk mencegah perilaku default event.
+         * @param {Event} e - Objek event.
+         * @returns {boolean} Selalu false untuk mencegah default.
          */
         function preventDefaultBehavior(e) {
             e.preventDefault();
@@ -1749,7 +1772,23 @@
         }
 
         /**
-         * Attempts to enter fullscreen mode on the examContainer.
+         * Memperbarui indikator status jaringan.
+         * @returns {void}
+         */
+        function updateNetworkStatus() {
+            if (navigator.onLine) {
+                networkStatusIndicator.textContent = 'Online';
+                networkStatusIndicator.classList.remove('offline');
+                networkStatusIndicator.classList.add('online');
+            } else {
+                networkStatusIndicator.textContent = 'Offline';
+                networkStatusIndicator.classList.remove('online');
+                networkStatusIndicator.classList.add('offline');
+            }
+        }
+
+        /**
+         * Mencoba masuk mode layar penuh pada examContainer.
          * @returns {void}
          */
         function attemptFullscreen() {
@@ -1761,78 +1800,78 @@
 
             if (examContainer.requestFullscreen) {
                 examContainer.requestFullscreen().catch(err => {
-                    console.warn(`Failed to enter fullscreen: ${err.message}`);
-                    // Notifying the user might be necessary, but not blocking
+                    console.warn(`Gagal masuk layar penuh: ${err.message}`);
+                    // Memberi tahu pengguna mungkin diperlukan, tapi tidak memblokir
                 });
             } else if (examContainer.mozRequestFullScreen) { /* Firefox */
-                examContainer.mozRequestFullScreen().catch(err => console.warn(`Failed to enter fullscreen (Firefox): ${err.message}`));
+                examContainer.mozRequestFullScreen().catch(err => console.warn(`Gagal masuk layar penuh (Firefox): ${err.message}`));
             } else if (examContainer.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
-                examContainer.webkitRequestFullscreen().catch(err => console.warn(`Failed to enter fullscreen (Webkit): ${err.message}`));
+                examContainer.webkitRequestFullscreen().catch(err => console.warn(`Gagal masuk layar penuh (Webkit): ${err.message}`));
             } else if (examContainer.msRequestFullscreen) { /* IE/Edge */
-                examContainer.msRequestFullscreen().catch(err => console.warn(`Failed to enter fullscreen (MS): ${err.message}`));
+                examContainer.msRequestFullscreen().catch(err => console.warn(`Gagal masuk layar penuh (MS): ${err.message}`));
             }
         }
 
         /**
-         * Handles fullscreen status changes.
+         * Menangani perubahan status layar penuh.
          * @returns {void}
          */
         function handleFullscreenChange() {
             if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement && isInExamMode) {
-                // Exited fullscreen while in exam mode
+                // Keluar dari layar penuh saat dalam mode ujian
                 fullscreenExitWarningOverlay.style.display = 'flex';
                 setTimeout(() => { fullscreenExitWarningOverlay.style.opacity = 1; }, 10);
-                examIframe.classList.add('blurred'); // Blur iframe
+                examIframe.classList.add('blurred'); // Buramkan iframe
                 document.body.style.overflow = 'hidden';
             } else if (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
-                // Entered fullscreen
+                // Masuk layar penuh
                 fullscreenExitWarningOverlay.style.opacity = 0;
                 setTimeout(() => { fullscreenExitWarningOverlay.style.display = 'none'; }, 300);
-                examIframe.classList.remove('blurred'); // Unblur
+                examIframe.classList.remove('blurred'); // Hilangkan buram
                 document.body.style.overflow = '';
             }
         }
 
-        // Function to start submission status listener when exam is active
+        // Fungsi untuk memulai listener status submit saat ujian berlangsung
         function startSubmissionStatusListener() {
             if (!foundTokenGlobal || !selectedStudentData) {
-                console.warn("Token or student data incomplete to start submission listener.");
+                console.warn("Data token atau siswa tidak lengkap untuk memulai listener submit.");
                 return;
             }
 
             const tokenPrefix = inputToken.value.split('-')[0].trim().toUpperCase();
             const studentId = selectedStudentData.id;
             
-            // Get reference to the specific student path in submitted_exams
+            // Dapatkan referensi ke path spesifik siswa di submitted_exams
             const studentSubmissionRef = child(submittedExamsRef, `${tokenPrefix}/${studentId}`);
 
-            // Ensure previous listener is detached before attaching a new one
+            // Pastikan listener sebelumnya sudah dilepaskan sebelum memasang yang baru
             if (submissionListenerRef) {
                 off(submissionListenerRef);
                 submissionListenerRef = null;
             }
 
-            // Save listener reference so it can be detached later
+            // Simpan referensi listener agar bisa di-detach nanti
             submissionListenerRef = studentSubmissionRef; 
 
-            // Attach onValue listener
+            // Pasang listener onValue
             onValue(studentSubmissionRef, (snapshot) => {
                 if (snapshot.exists() && snapshot.val().isSubmitted === true) {
-                    console.log("Detection: Student's answers have been recorded in Firebase in real-time.");
-                    // Only show overlay if examContainer is still visible (student is in exam)
+                    console.log("Deteksi: Jawaban siswa sudah tercatat di Firebase secara real-time.");
+                    // Hanya tampilkan overlay jika examContainer masih terlihat (siswa di dalam ujian)
                     if (examContainer.style.display === 'flex') {
                         showSubmissionConfirmationOverlay();
-                        examIframe.src = ''; // Optional: Clear iframe so no exam content is visible
+                        examIframe.src = ''; // Opsional: Kosongkan iframe agar tidak ada konten ujian yang terlihat
                     }
                 }
             }, (error) => {
-                console.error("Failed to listen for submission status:", error);
+                console.error("Gagal mendengarkan status submit:", error);
             });
-            console.log("Real-time listener for submission status started.");
+            console.log("Real-time listener untuk status submit dimulai.");
         }
 
         /**
-         * Restores exam state from sessionStorage when the page is refreshed.
+         * Memulihkan status ujian dari sessionStorage saat halaman di-refresh.
          * @returns {void}
          */
         function restoreExamState() {
@@ -1886,13 +1925,13 @@
         }
 
 
-        // --- Login and Modal Logic ---
+        // --- Logika Login dan Modal ---
 
         /**
-         * Handles the "Continue" button click in the confirmation modal.
-         * Records exam access and redirects to Google Form.
-         * @param {string} userEnteredTokenId - The TOKEN-IDSiswa value entered by the user.
-         * @param {number} examDurationMinutes - The exam duration in minutes.
+         * Menangani klik tombol "Lanjutkan" di modal konfirmasi.
+         * Mencatat akses ujian dan mengarahkan ke Google Form.
+         * @param {string} userEnteredTokenId - Nilai TOKEN-IDSiswa yang diinput oleh pengguna.
+         * @param {number} examDurationMinutes - Durasi ujian dalam menit.
          * @returns {Promise<void>}
          */
         async function handleLanjutClick(userEnteredTokenId, examDurationMinutes) {
@@ -1908,27 +1947,27 @@
             confirmModal.classList.remove('show');
 
             if (!foundTokenGlobal || !selectedStudentData) {
-                console.error("Error: Token data or student data is missing for redirection.");
+                console.error("Error: Data token atau data siswa tidak ada untuk pengalihan.");
                 message.style.color = "red";
                 message.textContent = "Terjadi kesalahan saat menyiapkan tautan ujian. Pastikan koneksi internet Anda stabil dan coba lagi.";
                 updateLoginButtonStatus();
-                loginContainer.style.display = 'flex'; // Ensure login container is visible
-                examContainer.style.display = 'none'; // Ensure exam container is hidden
+                loginContainer.style.display = 'flex'; // Pastikan container login terlihat
+                examContainer.style.display = 'none'; // Pastikan container ujian tersembunyi
                 sessionStorage.clear(); // Clear session storage on error
                 return;
             }
 
-            // Extract TOKEN-ID Prefix from userEnteredTokenId (e.g., ABCDE from ABCDE-001)
+            // Ekstrak TOKEN-ID Prefix dari userEnteredTokenId (misal: ABCDE dari ABCDE-001)
             const tokenPrefixFromInput = userEnteredTokenId.split('-')[0].trim().toUpperCase();
 
-            // Check submission status: If already submitted, display message on login page
+            // Pengecekan status submit: Jika sudah submit, tampilkan pesan di halaman login
             const hasSubmittedSnapshot = await get(child(submittedExamsRef, `${tokenPrefixFromInput}/${selectedStudentData.id}`));
             if (hasSubmittedSnapshot.exists() && hasSubmittedSnapshot.val().isSubmitted === true) {
                 message.style.color = "red";
                 message.textContent = "Anda sudah menyelesaikan ujian ini dan tidak dapat login kembali.";
                 updateLoginButtonStatus();
                 sessionStorage.clear(); // Clear session storage if already submitted
-                return; // Stop further execution
+                return; // Hentikan eksekusi lebih lanjut
             }
 
             const examAccessRef = child(examAccessStatusRef, `${foundTokenGlobal.key}/${selectedStudentData.id}`);
@@ -1947,27 +1986,27 @@
                     } else {
                         if (nowAccess - (currentAccess.lastAccessTime || 0) > SPAM_THRESHOLD_MS) {
                             currentAccess.accessCount = (currentAccess.accessCount || 0) + 1;
-                            currentAccess.lastAccessTime = nowAccess; // Fix: should be lastAccessTime
+                            currentAccess.lastAccessTime = nowAccess;
                         } else {
                             currentAccess.lastAccessTime = nowAccess; // Perbaikan: should be lastAccessTime
                         }
                         return currentAccess;
                     }
                 });
-                console.log(`Access to token ${foundTokenGlobal.key} by student ${selectedStudentData.id} successfully recorded.`);
+                console.log(`Access to token ${foundTokenGlobal.key} by student ${selectedStudentData.id} berhasil dicatat.`);
 
-                // Get entry IDs from token data in Firebase
+                // Ambil entry IDs dari data token di Firebase
                 const tokenEntryId = foundTokenGlobal.tokenEntryId;
                 const nameEntryId = foundTokenGlobal.nameEntryId;
                 const classEntryId = foundTokenGlobal.classEntryId;
 
                 if (!tokenEntryId || !nameEntryId || !classEntryId) {
-                    console.error("Error: Google Form Entry IDs not found in Firebase token data.");
+                    console.error("Error: Google Form Entry IDs tidak ditemukan di data token Firebase.");
                     message.style.color = "red";
                     message.textContent = "Konfigurasi ujian tidak lengkap. Harap hubungi administrator.";
                     updateLoginButtonStatus();
-                    loginContainer.style.display = 'flex'; // Ensure login container is visible
-                    examContainer.style.display = 'none'; // Ensure exam container is hidden
+                    loginContainer.style.display = 'flex'; // Pastikan container login terlihat
+                    examContainer.style.display = 'none'; // Pastikan container ujian tersembunyi
                     sessionStorage.clear(); // Clear session storage on error
                     return;
                 }
@@ -1977,7 +2016,7 @@
                                     `&entry.${nameEntryId}=${encodeURIComponent(selectedStudentData.name)}` +
                                     `&entry.${classEntryId}=${encodeURIComponent(selectedStudentData.class)}`;
 
-                console.log("Redirecting to Google Form URL:", googleFormUrl);
+                console.log("Mengarahkan ke Google Form URL:", googleFormUrl);
 
                 // Save state to sessionStorage before transitioning
                 sessionStorage.setItem('isInExamMode', 'true');
@@ -1995,24 +2034,24 @@
                     examContainer.style.display = 'flex';
                     setTimeout(() => {
                         examContainer.style.opacity = 1;
-                        isInExamMode = true; // Set exam mode active
-                        toggleExamSecurityFeatures(true); // Enable security features
+                        isInExamMode = true; // Set mode ujian aktif
+                        toggleExamSecurityFeatures(true); // Aktifkan fitur keamanan
+                        // attemptFullscreen(); // OLD: Panggilan ini dipindahkan ke hideOverlay()
                     }, 10);
                 }, 500); // Match CSS transition duration for loginContainer fade out
 
                 examIframe.src = googleFormUrl;
                 startCountdown(examDurationMinutes * 60); // Pass duration in seconds
-                showOverlay(); // Show initial instruction overlay
-                console.log("Calling showOverlay() after setting iframe src.");
+                showOverlay(); // Tampilkan overlay instruksi awal
 
                 history.pushState(null, '', location.href);
                 startSubmissionStatusListener();
 
             } catch (error) {
-                console.error("Failed to record token access or redirect:", error);
+                console.error("Gagal mencatat akses token atau mengarahkan:", error);
                 message.style.color = "orange";
                 message.textContent = "Gagal mencatat akses ujian, namun Anda akan tetap dialihkan. Pastikan koneksi internet Anda stabil.";
-                // Ensure security features are disabled if failed to enter exam
+                // Pastikan fitur keamanan dinonaktifkan jika gagal masuk ujian
                 isInExamMode = false;
                 toggleExamSecurityFeatures(false);
                 sessionStorage.clear(); // Clear session storage on error
@@ -2024,8 +2063,8 @@
                     const classEntryId = foundTokenGlobal.classEntryId;
 
                     if (!tokenEntryId || !nameEntryId || !classEntryId) {
-                        console.error("Error (fallback): Google Form Entry IDs not found in Firebase token data.");
-                        return; // Do not attempt redirection if IDs are missing
+                        console.error("Error (fallback): Google Form Entry IDs tidak ditemukan di data token Firebase.");
+                        return; // Jangan coba alihkan jika ID tidak ada
                     }
 
                     let googleFormUrl = `${foundTokenGlobal.url}?usp=pp_url` +
@@ -2033,7 +2072,7 @@
                                         `&entry.${nameEntryId}=${encodeURIComponent(selectedStudentData.name)}` +
                                         `&entry.${classEntryId}=${encodeURIComponent(selectedStudentData.class)}`;
 
-                    console.log("Redirecting to Google Form URL (fallback):", googleFormUrl);
+                    console.log("Mengarahkan ke Google Form URL (fallback):", googleFormUrl);
 
                     // Smooth transition from login to exam (fallback)
                     loginContainer.style.opacity = 0;
@@ -2042,15 +2081,15 @@
                         examContainer.style.display = 'flex';
                         setTimeout(() => {
                             examContainer.style.opacity = 1;
-                            isInExamMode = true; // Set exam mode active
-                            toggleExamSecurityFeatures(true); // Enable security features
+                            isInExamMode = true; // Set mode ujian aktif
+                            toggleExamSecurityFeatures(true); // Aktifkan fitur keamanan
+                            // attemptFullscreen(); // OLD: Panggilan ini dipindahkan ke hideOverlay()
                         }, 10);
                     }, 500); // Match CSS transition duration for loginContainer fade out
 
                     examIframe.src = googleFormUrl;
                     startCountdown(examDurationMinutes * 60); // Pass duration in seconds
                     showOverlay();
-                    console.log("Calling showOverlay() in fallback after setting iframe src.");
                     history.pushState(null, '', location.href);
                     startSubmissionStatusListener();
                 }, 1500);
@@ -2060,14 +2099,14 @@
         }
 
         /**
-         * Main function to check the entered token and student details.
-         * Displays the confirmation modal if validation is successful.
+         * Fungsi utama untuk memeriksa token yang dimasukkan dan detail siswa.
+         * Menampilkan modal konfirmasi jika validasi berhasil.
          * @returns {Promise<void>}
          */
         window.cekToken = async function () {
             const selectedClass = hiddenSelectKelas.value; // Use hidden input
             const selectedStudentId = hiddenSelectNamaSiswa.value; // Use hidden input
-            const fullInputToken = inputToken.value.trim(); // Example: ABCDE-001
+            const fullInputToken = inputToken.value.trim(); // Contoh: ABCDE-001
 
             if (!selectedClass || !selectedStudentId || !fullInputToken) {
                 message.style.color = "red";
@@ -2084,8 +2123,8 @@
                 return;
             }
 
-            const inputTokenPrefix = parts[0].trim().toUpperCase(); // Get ABCDE
-            const inputStudentIdFromToken = padStudentId(parts[1].trim()); // Get 001
+            const inputTokenPrefix = parts[0].trim().toUpperCase(); // Ambil ABCDE
+            const inputStudentIdFromToken = padStudentId(parts[1].trim()); // Ambil 001
 
             if (inputStudentIdFromToken !== selectedStudentId) {
                 message.style.color = "red";
@@ -2100,7 +2139,7 @@
             message.innerHTML = `Memproses data... <span class="spinner"></span>`;
 
             try {
-                // Check submission status: If already submitted, display message on login page
+                // Pengecekan status submit: Jika sudah submit, tampilkan pesan di halaman login
                 const tokenKeyForSubmittedCheck = inputTokenPrefix;
                 const hasSubmittedSnapshot = await get(child(submittedExamsRef, `${tokenKeyForSubmittedCheck}/${selectedStudentId}`));
 
@@ -2109,7 +2148,7 @@
                     message.textContent = "Anda sudah menyelesaikan ujian ini dan tidak dapat login kembali.";
                     updateLoginButtonStatus();
                     sessionStorage.clear(); // Clear session storage if already submitted
-                    return; // Stop further execution
+                    return; // Hentikan eksekusi lebih lanjut
                 }
 
                 const tokensSnapshot = await get(tokensRef);
@@ -2117,9 +2156,9 @@
 
                 tokensSnapshot.forEach(child => {
                     const data = child.val();
-                    // Match with inputTokenPrefix (e.g., ABCDE)
+                    // Cocokkan dengan inputTokenPrefix (misal: ABCDE)
                     if (data.token.toUpperCase() === inputTokenPrefix) {
-                        foundToken = { ...data, key: child.key }; // 'key' is the unique Firebase key (-NuX-Y-Z)
+                        foundToken = { ...data, key: child.key }; // 'key' adalah kunci unik Firebase (-NuX-Y-Z)
                         return true;
                     }
                 });
@@ -2131,7 +2170,7 @@
                     return;
                 }
 
-                foundTokenGlobal = foundToken; // Store for global use
+                foundTokenGlobal = foundToken; // Simpan untuk penggunaan global
 
                 const now = new Date();
                 const startTime = new Date(foundToken.startTime);
@@ -2171,7 +2210,7 @@
                     return;
                 }
 
-                // Calculate exam duration in minutes
+                // Hitung durasi ujian dalam menit
                 const examDurationMs = endTime.getTime() - startTime.getTime();
                 const examDurationMinutes = Math.round(examDurationMs / (1000 * 60));
 
@@ -2199,12 +2238,12 @@
             }
         };
 
-        // --- Initial Setup when DOM Content is Loaded ---
+        // --- Pengaturan Awal saat Konten DOM Dimuat ---
         document.addEventListener('DOMContentLoaded', () => {
-            // Event listener to prevent context menu (right-click/long-press)
-            // This will be handled by toggleExamSecurityFeatures when isInExamMode
+            // Event listener untuk mencegah menu konteks (klik kanan/tahan lama)
+            // Ini akan ditangani oleh toggleExamSecurityFeatures saat isInExamMode
             document.addEventListener('contextmenu', function (e) {
-                if (isInExamMode) { // Only active if in exam mode
+                if (isInExamMode) { // Hanya aktifkan jika dalam mode ujian
                     e.preventDefault();
                 }
             });
@@ -2238,11 +2277,11 @@
             });
 
             // Event listener for initial instruction overlay
-            overlayUnderstandBtn.addEventListener('click', hideOverlay); // IMPORTANT: This will trigger fullscreen
+            overlayUnderstandBtn.addEventListener('click', hideOverlay); // PENTING: Ini akan memicu fullscreen
 
             unlockButton.addEventListener('click', handleUnlockExam);
             
-            // Event listener for the BACK button on the submission confirmation overlay
+            // Event listener untuk tombol KEMBALI di overlay konfirmasi submit
             backToLoginFromSubmissionBtn.addEventListener('click', () => {
                 // Smooth transition out for submission overlay
                 submissionConfirmationOverlay.style.opacity = 0;
@@ -2268,34 +2307,30 @@
                     inputToken.value = '';
                     inputToken.classList.remove('is-valid', 'is-invalid');
                     updateLoginButtonStatus(); // Recalculate button status
+                    sessionStorage.clear(); // Clear session storage when returning to login
                 }, 300); // Match CSS transition duration
             });
 
-            // IMPORTANT: Event listener to prevent browser back button
+            // PENTING: Event listener untuk mencegah tombol kembali browser
             window.onpopstate = function(event) {
-                if (isInExamMode) { // Only applies if in exam mode
+                if (isInExamMode) { // Hanya berlaku jika dalam mode ujian
                     history.pushState(null, '', location.href);
-                    console.log("Back navigation prevented during exam.");
+                    console.log("Navigasi kembali dicegah selama ujian.");
                 }
             };
 
-            // NEW: Event listener for fullscreen status changes
+            // NEW: Event listener untuk perubahan status layar penuh
             document.addEventListener('fullscreenchange', handleFullscreenChange);
             document.addEventListener('mozfullscreenchange', handleFullscreenChange); /* Firefox */
             document.addEventListener('webkitfullscreenchange', handleFullscreenChange); /* Chrome, Safari and Opera */
             document.addEventListener('msfullscreenchange', handleFullscreenChange); /* IE/Edge */
 
-            // NEW: Event listener for the re-enter fullscreen button on the warning overlay
+            // NEW: Event listener untuk tombol kembali ke layar penuh di overlay peringatan
             reEnterFullscreenBtn.addEventListener('click', attemptFullscreen);
 
-            // IMPORTANT: REMOVED Browser's native warning for refresh/closing tab (pull-to-refresh)
-            // This is done to prevent native browser pop-ups that trigger Exambro alarms.
-            // Users will now rely solely on the custom "REFRESH" button and its overlay.
-            // window.onbeforeunload = function() {
-            //     if (isInExamMode) {
-            //         return "Jawaban Anda yang belum tersimpan mungkin akan hilang jika Anda merefresh halaman. Lanjutkan?";
-            //     }
-            // };
+            // NEW: Event listener untuk status online/offline
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
 
 
             updateDateTime();
@@ -2307,8 +2342,8 @@
         });
 
         /**
-         * Loads Firebase settings (location enabled, radius) and then student data.
-         * Starts location check after data is loaded.
+         * Memuat pengaturan Firebase (lokasi diaktifkan, radius) dan kemudian data siswa.
+         * Memulai pemeriksaan lokasi setelah data dimuat.
          * @returns {Promise<void>}
          */
         async function loadSettingsAndStudents() {
